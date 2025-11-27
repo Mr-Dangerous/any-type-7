@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://kd8gl3dbnoes"
-path="res://.godot/imported/s_laser_light_048.png-1a6d1ae01933634701f89dad45194a08.ctex"
+path="res://.godot/imported/s_laser_light_048.png-3d4c95d7c8befe4e9a9ac2cd237b9b5f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Effects/laser_light/s_laser_light_048.png"
-dest_files=["res://.godot/imported/s_laser_light_048.png-1a6d1ae01933634701f89dad45194a08.ctex"]
+source_file="res://assets/projectiles/laser_light/s_laser_light_048.png"
+dest_files=["res://.godot/imported/s_laser_light_048.png-3d4c95d7c8befe4e9a9ac2cd237b9b5f.ctex"]
 
 [params]
 

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://w6up5nkt0lta"
-path="res://.godot/imported/s_red_double_exhaust.png-8269875fed78e0987eb26f227e38d0f5.ctex"
+path="res://.godot/imported/s_red_double_exhaust.png-d7b1e2e20e67c21a9e87e5e7d8f67915.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Effects/s_red_double_exhaust/s_red_double_exhaust.png"
-dest_files=["res://.godot/imported/s_red_double_exhaust.png-8269875fed78e0987eb26f227e38d0f5.ctex"]
+source_file="res://assets/exhausts/s_red_double_exhaust/s_red_double_exhaust.png"
+dest_files=["res://.godot/imported/s_red_double_exhaust.png-d7b1e2e20e67c21a9e87e5e7d8f67915.ctex"]
 
 [params]
 

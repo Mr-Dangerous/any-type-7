@@ -11,18 +11,35 @@ config_version=5
 [application]
 
 config/name="any-type-7"
+run/main_scene="res://scenes/test_scene.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
+EventBus="*res://scripts/autoloads/EventBus.gd"
+DataManager="*res://scripts/autoloads/DataManager.gd"
+GameState="*res://scripts/autoloads/GameState.gd"
+ResourceManager="*res://scripts/autoloads/ResourceManager.gd"
 GDAIMCPRuntime="*res://addons/gdai-mcp-plugin-godot/gdai_mcp_runtime.gd"
+
+[display]
+
+window/size/viewport_width=1080
+window/size/viewport_height=2340
+window/stretch/mode="canvas_items"
 
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/gdai-mcp-plugin-godot/plugin.cfg")
 
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+anti_aliasing/quality/msaa_2d=1
+environment/defaults/default_clear_color=Color(0.05, 0.05, 0.08, 1)

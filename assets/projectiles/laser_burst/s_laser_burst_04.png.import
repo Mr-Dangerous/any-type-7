@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://csaynlo45knqs"
-path="res://.godot/imported/s_laser_burst_04.png-916444479b54102b877af07997dbd1e6.ctex"
+path="res://.godot/imported/s_laser_burst_04.png-98952e1a6cdacca077d2fcc8cdb637e2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Effects/laser_burst/s_laser_burst_04.png"
-dest_files=["res://.godot/imported/s_laser_burst_04.png-916444479b54102b877af07997dbd1e6.ctex"]
+source_file="res://assets/projectiles/laser_burst/s_laser_burst_04.png"
+dest_files=["res://.godot/imported/s_laser_burst_04.png-98952e1a6cdacca077d2fcc8cdb637e2.ctex"]
 
 [params]
 

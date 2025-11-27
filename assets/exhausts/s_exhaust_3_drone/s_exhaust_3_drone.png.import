@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dqhmop0i6mfrx"
-path="res://.godot/imported/s_exhaust_3_drone.png-0d73e0e6c425aea1e2f4be1ea8f32561.ctex"
+path="res://.godot/imported/s_exhaust_3_drone.png-30472e881292a84238d5c820fb15debf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Effects/s_exhaust_3_drone/s_exhaust_3_drone.png"
-dest_files=["res://.godot/imported/s_exhaust_3_drone.png-0d73e0e6c425aea1e2f4be1ea8f32561.ctex"]
+source_file="res://assets/exhausts/s_exhaust_3_drone/s_exhaust_3_drone.png"
+dest_files=["res://.godot/imported/s_exhaust_3_drone.png-30472e881292a84238d5c820fb15debf.ctex"]
 
 [params]
 

@@ -168,6 +168,9 @@ Creating combat_tactical_ui.tscn with portrait layout:
    - Blueprint requirements are achievable
    - Elemental combos use valid element types
 
+5. **Tool programmer**
+    - creates html tools to help populate CSVs
+
 **Constraints:**
 - Must reference CSV files in `/data/`
 - All formulas must match `docs/combat-formulas.md`

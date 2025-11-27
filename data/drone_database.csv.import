@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://y54wayiunojk"
+
+[deps]
+
+files=["res://data/drone_database.drone.translation", "res://data/drone_database.drone.translation", "res://data/drone_database.drone.translation", "res://data/drone_database.hull.translation", "res://data/drone_database.shield.translation", "res://data/drone_database.armor.translation", "res://data/drone_database.attack.translation", "res://data/drone_database.attack.translation", "res://data/drone_database.projectile.translation", "res://data/drone_database.attack.translation", "res://data/drone_database.movement.translation", "res://data/drone_database.accuracy.translation", "res://data/drone_database.evasion.translation", "res://data/drone_database.precision.translation", "res://data/drone_database.resilience.translation", "res://data/drone_database.duration.translation", "res://data/drone_database.special.translation"]
+
+source_file="res://data/drone_database.csv"
+dest_files=["res://data/drone_database.drone.translation", "res://data/drone_database.drone.translation", "res://data/drone_database.drone.translation", "res://data/drone_database.hull.translation", "res://data/drone_database.shield.translation", "res://data/drone_database.armor.translation", "res://data/drone_database.attack.translation", "res://data/drone_database.attack.translation", "res://data/drone_database.projectile.translation", "res://data/drone_database.attack.translation", "res://data/drone_database.movement.translation", "res://data/drone_database.accuracy.translation", "res://data/drone_database.evasion.translation", "res://data/drone_database.precision.translation", "res://data/drone_database.resilience.translation", "res://data/drone_database.duration.translation", "res://data/drone_database.special.translation"]
+
+[params]
+
+compress=true
+delimiter=0

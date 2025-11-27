@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bmjx682hhtxle"
+
+[deps]
+
+files=["res://data/powerups_database.powerup.translation", "res://data/powerups_database.powerup.translation", "res://data/powerups_database.rarity.translation", "res://data/powerups_database.duration.translation", "res://data/powerups_database.effect.translation", "res://data/powerups_database.effect.translation", "res://data/powerups_database.effect.translation", "res://data/powerups_database.effect.translation", "res://data/powerups_database.instant.translation", "res://data/powerups_database.instant.translation", "res://data/powerups_database.instant.translation", "res://data/powerups_database.drone.translation", "res://data/powerups_database.drone.translation", "res://data/powerups_database.drone.translation", "res://data/powerups_database.special.translation", "res://data/powerups_database.despawn.translation", "res://data/powerups_database.icon.translation", "res://data/powerups_database.description.translation"]
+
+source_file="res://data/powerups_database.csv"
+dest_files=["res://data/powerups_database.powerup.translation", "res://data/powerups_database.powerup.translation", "res://data/powerups_database.rarity.translation", "res://data/powerups_database.duration.translation", "res://data/powerups_database.effect.translation", "res://data/powerups_database.effect.translation", "res://data/powerups_database.effect.translation", "res://data/powerups_database.effect.translation", "res://data/powerups_database.instant.translation", "res://data/powerups_database.instant.translation", "res://data/powerups_database.instant.translation", "res://data/powerups_database.drone.translation", "res://data/powerups_database.drone.translation", "res://data/powerups_database.drone.translation", "res://data/powerups_database.special.translation", "res://data/powerups_database.despawn.translation", "res://data/powerups_database.icon.translation", "res://data/powerups_database.description.translation"]
+
+[params]
+
+compress=true
+delimiter=0

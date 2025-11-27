@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://b3846em287n4v"
+
+[deps]
+
+files=["res://data/drone_visuals_database.sprite.translation", "res://data/drone_visuals_database.sprite.translation", "res://data/drone_visuals_database.sprite.translation", "res://data/drone_visuals_database.animation.translation", "res://data/drone_visuals_database.animation.translation", "res://data/drone_visuals_database.animation.translation", "res://data/drone_visuals_database.animation.translation", "res://data/drone_visuals_database.trail.translation", "res://data/drone_visuals_database.glow.translation", "res://data/drone_visuals_database.particle.translation"]
+
+source_file="res://data/drone_visuals_database.csv"
+dest_files=["res://data/drone_visuals_database.sprite.translation", "res://data/drone_visuals_database.sprite.translation", "res://data/drone_visuals_database.sprite.translation", "res://data/drone_visuals_database.animation.translation", "res://data/drone_visuals_database.animation.translation", "res://data/drone_visuals_database.animation.translation", "res://data/drone_visuals_database.animation.translation", "res://data/drone_visuals_database.trail.translation", "res://data/drone_visuals_database.glow.translation", "res://data/drone_visuals_database.particle.translation"]
+
+[params]
+
+compress=true
+delimiter=0

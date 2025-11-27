@@ -112,11 +112,12 @@ A tactical grid-based autobattler where players deploy ships to fight off enemy 
 - Player commits to layout and proceeds
 
 **2. Wave Spawn (30 seconds)**
--
-**3. Combat Phase (60 seconds)**
-- Enemy spawners produce units at regular intervals for the first 30 seconds of the wave
+-Enemy spawners produce units at regular intervals for the first 30 seconds of the wave
 - Enemies travel down lanes toward player
 - Wave composition loaded from CSV scenarios
+- Wave spawn happens at the same time as the combat phase, but only lasts for a part of the combat phase.
+**3. Combat Phase (60 seconds)**
+- 
 - Player ships advance and engage enemies
 - Ships attack automatically when in range, but only travel in their assigned lane.
 - No player interaction during combat except a call to retreat
@@ -137,7 +138,7 @@ A tactical grid-based autobattler where players deploy ships to fight off enemy 
 - **Fuel consumption** begins immediately (cost is real)
 - **30-second countdown** - All ships must return to deployment zone
 - **Can be cancelled** but fuel cost is not refunded
-- **Ships left behind** are lost if they don't return in time
+- **Ships left behind** are lost if they don't return in time, but they do leave salvage tht can be picked up when returning to the node.
 - **Emergency escape** to safe sector on map
 
 ---
