@@ -1,0 +1,4 @@
+ship_ID,ship_name,ship_size_class,ship_sub_class,hull_points,shield_points,armor,energy_points,size_width,size_height,attack_damage,attack_speed,projectile_count,attack_range,movement_speed,accuracy,evasion,precision,reinforced_armor,amplitude,frequency,resilience,ship_ability,upgrade_slots,weapon_slots
+basic_interceptor,Striker,interceptor,Strike Class,50,50,0,100,1,1,5,1.2,1,8,3.0,0,40,0,0,0,0,0,Alpha Strike,1,1
+basic_fighter,Fighter,fighter,Missile Platform,75,50,0,100,1,1,7,1.5,1,10,2.0,0,25,0,0,0,0,0,Missile Lock,1,1
+basic_shield_frigate,Shield Frigate,frigate,Emitter Platform,125,75,15,100,2,2,6,2.0,1,6,1.0,0,5,0,10,0,0,10,Shield Battery,2,1

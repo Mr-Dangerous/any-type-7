@@ -1,0 +1,929 @@
+# Ship Statistics System
+
+## Overview
+
+Ships in Any-Type-7 have 16 core statistics that determine their combat performance. This document provides a complete reference for all ship stats, combat formulas, and mechanical interactions.
+
+---
+
+## Core Ship Statistics
+
+### Defensive Stats
+
+#### Hull Points
+- **Description**: The ship's primary health pool
+- **Type**: Integer (positive)
+- **Typical Range**: 50-500+
+- **Mechanics**:
+  - When Hull Points reach 0, the ship is destroyed
+  - Hull damage is permanent during combat
+  - Hull is repaired between combat encounters
+
+#### Shield Points
+- **Description**: Temporary regenerating health
+- **Type**: Integer (positive)
+- **Typical Range**: 25-200+
+- **Mechanics**:
+  - Shields absorb damage before hull takes damage
+  - Shields fully regenerate between waves (during tactical phase)
+  - Shields do NOT regenerate during combat phase
+  - When depleted, hull takes direct damage
+
+#### Size (Width × Height)
+- **Description**: Grid space occupied by the ship
+- **Type**: Two integers (width, height)
+- **Typical Range**: 1×1 (small) to 3×5+ (capital ships)
+- **Mechanics**:
+  - **Width**: Number of files (horizontal squares) occupied
+  - **Height**: Number of lanes (vertical squares) occupied
+  - Larger ships can be hit from more angles but have more stats/abilities
+  - Size affects placement constraints in the 15-lane grid
+  - 2x2 or larger ships will occupy their own grid, which allows other units to stack on top of them.
+
+---
+
+### Offensive Stats
+
+#### Damage
+- **Description**: Damage dealt per projectile from auto-attacks
+- **Type**: Integer or Float (positive)
+- **Typical Range**: 3-50+ per projectile
+- **Mechanics**:
+  - Base damage before critical hits or resistances
+  - Each successful hit applies this damage
+  - Multiplied by number of projectiles
+
+#### Projectiles
+- **Description**: Number of projectiles fired per auto-attack
+- **Type**: Integer (positive)
+- **Typical Range**: 1-12
+- **Mechanics**:
+  - Each projectile rolls separately for hit/miss/crit
+  - Total damage per attack = Damage × (Projectiles that hit)
+  - Can spread across multiple targets or focus on one
+
+#### Attack Speed
+- **Description**: Number of auto-attacks per second
+- **Type**: Float (positive)
+- **Typical Range**: 0.5-3.0 attacks/second
+- **Mechanics**:
+  - Attack Speed of 1.0 = 1 attack per second (1.0s cooldown)
+  - Attack Speed of 2.0 = 2 attacks per second (0.5s cooldown)
+  - Attack Speed of 0.5 = 1 attack per 2 seconds (2.0s cooldown)
+  - Formula: `Attack Cooldown = 1.0 / Attack_Speed`
+
+#### Attack Range
+- **Description**: Maximum distance the ship can attack (in grid squares)
+- **Type**: Integer (positive)
+- **Typical Range**: 3-15 squares
+- **Mechanics**:
+  - Ships engage enemies when within attack range
+  - Range is measured in grid squares (files/lanes)
+  - Longer range allows safer engagement
+
+---
+
+### Mobility Stats
+
+#### Movement Speed
+- **Description**: Speed the ship travels down its lane
+- **Type**: Float (positive)
+- **Typical Range**: 0.5-5.0 squares/second
+- **Mechanics**:
+  - Ships advance toward enemy spawners during combat
+  - When no enemies in range, ship moves forward
+  - When enemy in range, ship stops and attacks
+  - Movement speed determines how quickly ships close distance
+
+---
+
+### Energy Stats
+
+#### Energy Points (Max Energy)
+- **Description**: Maximum energy the ship can store
+- **Type**: Integer (positive)
+- **Typical Range**: 0-100
+- **Mechanics**:
+  - Energy bar that charges during combat
+  - Used to cast ship abilities
+  - Ships start combat with 0 energy
+
+#### Energy Generation
+- **Description**: How ships gain energy during combat
+- **Mechanics**:
+  - **On Auto-Attack**: Gain energy when attacking
+  - **On Taking Damage**: Gain energy when damaged
+  - Exact generation rates TBD (to be defined per ship or globally)
+
+---
+
+### Accuracy & Evasion
+
+#### Accuracy
+- **Description**: Increases chance to hit targets
+- **Type**: Integer (can be negative, positive, or 0)
+- **Default**: 0
+- **Typical Range**: -10 to +50
+- **Mechanics**:
+  - Adds directly to hit chance percentage
+  - Each point of Accuracy = +1% to hit
+  - Used in hit chance formula (see Combat Formulas below)
+
+#### Evasion
+- **Description**: Decreases chance to be hit by attacks
+- **Type**: Integer (can be negative, positive, or 0)
+- **Default**: 0
+- **Typical Range**: -10 to +50
+- **Mechanics**:
+  - Subtracts directly from attacker's hit chance
+  - Each point of Evasion = -1% for attackers to hit
+  - Used in hit chance formula (see Combat Formulas below)
+
+---
+
+### Critical Hit Stats
+
+#### Precision
+- **Description**: Increases critical hit chance
+- **Type**: Integer (can be negative, positive, or 0)
+- **Default**: 0
+- **Typical Range**: 0-40
+- **Mechanics**:
+  - Base critical hit chance is 0%
+  - Each point of Precision = +1% critical hit chance
+  - Critical hits deal bonus damage (exact multiplier TBD)
+
+#### Reinforced Armor
+- **Description**: Reduces incoming critical hit chance
+- **Type**: Integer (can be negative, positive, or 0)
+- **Default**: 0
+- **Typical Range**: 0-30
+- **Mechanics**:
+  - Subtracts from attacker's critical hit chance
+  - Each point of Reinforced Armor = -1% to attacker's crit chance
+  - Can reduce crit chance to 0% (but not negative)
+
+---
+
+### Spell/Ability Stats
+
+These stats only affect ships that have abilities (via upgrades or innate abilities).
+
+#### Amplitude
+- **Description**: Increases numerical effects of abilities
+- **Type**: Integer (percentage)
+- **Default**: 0
+- **Typical Range**: 0-100+
+- **Mechanics**:
+  - Each point of Amplitude = +1% to ability number effects
+  - Examples:
+    - Ability that heals 50 HP with 20% Amplitude = 60 HP
+    - Ability that deals 100 damage with 50% Amplitude = 150 damage
+  - Only applies to ships with active abilities
+
+#### Frequency
+- **Description**: Increases duration of ability effects
+- **Type**: Integer (percentage)
+- **Default**: 0
+- **Typical Range**: 0-100+
+- **Mechanics**:
+  - Each point of Frequency = +1% to effect durations
+  - Examples:
+    - 10-second buff with 20% Frequency = 12 seconds
+    - 5-second stun with 50% Frequency = 7.5 seconds
+  - Only applies to abilities with duration-based effects
+
+---
+
+### Resistance Stats
+
+#### Resilience
+- **Description**: Chance to completely ignore status effects
+- **Type**: Integer (percentage chance)
+- **Default**: 0
+- **Typical Range**: 0-75
+- **Mechanics**:
+  - Each point of Resilience = 1% chance to ignore a status effect
+  - Rolls when a status effect is applied
+  - If successful, effect is completely negated
+  - Does not affect damage, only status effects (stuns, burns, slows, etc.)
+
+---
+
+## Combat Formulas
+
+### Hit Chance Calculation
+
+```
+Base Hit Chance = 100%
+
+Final Hit Chance = 100% - (Defender_Evasion - Attacker_Accuracy)
+
+Minimum Hit Chance: 5% (always at least 5% chance to hit)
+Maximum Hit Chance: 95% (always at least 5% chance to miss)
+```
+
+**Examples:**
+
+| Attacker Accuracy | Defender Evasion | Hit Chance |
+|-------------------|------------------|------------|
+| 0 | 0 | 100% → 95% (capped) |
+| 10 | 5 | 100% - (5-10) = 105% → 95% (capped) |
+| 0 | 20 | 100% - (20-0) = 80% |
+| 5 | 30 | 100% - (30-5) = 75% |
+| -10 | 10 | 100% - (10-(-10)) = 80% |
+
+### Critical Hit Chance Calculation
+
+```
+Base Crit Chance = 0%
+
+Final Crit Chance = Attacker_Precision - Defender_Reinforced_Armor
+
+Minimum Crit Chance: 0% (cannot be negative)
+Maximum Crit Chance: 100% (if somehow achieved)
+```
+
+**Examples:**
+
+| Attacker Precision | Defender Reinforced Armor | Crit Chance |
+|--------------------|---------------------------|-------------|
+| 0 | 0 | 0% |
+| 20 | 0 | 20% |
+| 30 | 10 | 20% |
+| 15 | 20 | 0% (capped at minimum) |
+
+### Damage Calculation
+
+```
+For each projectile:
+  1. Roll d100 for hit chance
+  2. If hit:
+     a. Roll d100 for crit chance
+     b. If crit: Apply damage × Crit_Multiplier (e.g., 2.0x)
+     c. If not crit: Apply base damage
+  3. If miss: No damage
+
+Total Damage = Sum of all projectile damage that hit
+```
+
+**Critical Hit Multiplier**: TBD (typically 1.5x to 2.0x)
+
+### Attack Timing
+
+```
+Cooldown_Duration = 1.0 / Attack_Speed
+
+Example:
+- Attack Speed 2.0 → Cooldown = 0.5 seconds
+- Attack Speed 0.5 → Cooldown = 2.0 seconds
+```
+
+---
+
+## CSV Database Structure
+
+### ship_stat_database.csv Columns
+
+```csv
+ship_ID,ship_name,ship_size_class,ship_sub_class,
+hull_points,shield_points,energy_points,
+size_width,size_height,
+attack_damage,attack_speed,projectile_count,attack_range,
+movement_speed,
+accuracy,evasion,
+precision,reinforced_armor,
+amplitude,frequency,resilience,
+ship_ability,upgrade_slots,weapon_slots
+```
+
+### Column Descriptions
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `ship_ID` | String | Unique identifier (e.g., "basic_interceptor") |
+| `ship_name` | String | Display name (e.g., "Striker") |
+| `ship_size_class` | String | Size category (interceptor, fighter, frigate, etc.) |
+| `ship_sub_class` | String | Subclass/role (Strike Class, Missile Platform, etc.) |
+| `hull_points` | Integer | Health pool |
+| `shield_points` | Integer | Regenerating shields |
+| `energy_points` | Integer | Maximum energy for abilities |
+| `size_width` | Integer | Horizontal grid squares occupied |
+| `size_height` | Integer | Vertical grid squares occupied |
+| `attack_damage` | Float | Damage per projectile |
+| `attack_speed` | Float | Attacks per second |
+| `projectile_count` | Integer | Projectiles per attack |
+| `attack_range` | Integer | Attack range in grid squares |
+| `movement_speed` | Float | Squares per second movement |
+| `accuracy` | Integer | Hit chance modifier |
+| `evasion` | Integer | Dodge chance modifier |
+| `precision` | Integer | Critical hit chance |
+| `reinforced_armor` | Integer | Anti-crit defense |
+| `amplitude` | Integer | Ability power % increase |
+| `frequency` | Integer | Ability duration % increase |
+| `resilience` | Integer | Status effect resist % |
+| `ship_ability` | String | Reference to ability_database.csv (if any) |
+| `upgrade_slots` | Integer | Number of upgrade module slots |
+| `weapon_slots` | Integer | Number of weapon slots |
+
+---
+
+## Ship Size Mechanics
+
+### Grid Placement
+
+Ships occupy rectangular grid space defined by `size_width × size_height`:
+
+- **Size 1×1**: Standard small ship (interceptor, fighter)
+  - Occupies 1 lane (height) and 1 file (width)
+
+
+- **Size 2×2**: Medium ship (frigate)
+  - Occupies 2 lanes (height) and 2 files (width)
+
+- **Size 3×3**: Large ship (cruiser)
+  - Occupies 3 lanes (height) and 3 files (width)
+
+
+
+### Placement Constraints
+
+- Ships must fit within the 15-lane grid height
+- Ships cannot overlap with other friendly ships
+- LArge ships occupy their own grid, fighters and interceptors fly over them.
+
+### Hit Detection
+
+- Any projectile hitting any grid square occupied by the ship counts as a hit
+- Larger ships are easier to hit (more surface area)
+- Larger ships typically have more hull/shields to compensate
+
+---
+
+## Shield Mechanics
+
+### Shield Behavior
+
+1. **Damage Priority**: Shields absorb damage before hull
+   - Incoming damage depletes shields first
+   - Overflow damage carries over to hull
+
+2. **Regeneration**: Shields regenerate between waves
+   - Ships return to deployment zone after wave clear
+   - Shields restore to maximum during tactical phase
+   - Shields do NOT regenerate during combat phase
+
+3. **Shield Break**: When shields reach 0
+   - Ship continues fighting with hull only
+   - No special penalty or mechanic
+   - Shields will still regenerate at next tactical phase (if ship survives)
+
+### Example Combat Flow
+
+```
+Wave 1 Start:
+  Ship has 100 Hull, 50 Shields
+
+During Combat:
+  Takes 70 damage → Shields 0, Hull 80
+  Takes 30 damage → Hull 50
+
+Wave 1 Clear → Tactical Phase:
+  Shields regenerate → Shields 50, Hull 50
+
+Wave 2 Start:
+  Ship has 50 Hull, 50 Shields (shields full, hull still damaged)
+```
+
+---
+
+## Energy Mechanics
+
+### Energy Generation
+
+Ships generate energy during combat through:
+
+1. **Auto-Attacks**: Gain energy when attacking
+2. **Taking Damage**: Gain energy when damaged
+
+Exact generation rates TBD (will be defined globally or per-ship).
+
+### Energy Usage
+
+- Ships start combat with 0 energy
+- Energy charges up during combat
+- When enough energy is accumulated, ship can cast its ability
+- Ability costs are defined per-ability (not per-ship stat)
+
+### Ships Without Abilities
+
+- Ships without abilities do not generate energy.
+- Energy bar is not visible if that unit does not have abilities.
+---
+
+## Stat Scaling & Balance Considerations
+
+### Offensive vs. Defensive Scaling
+
+- **High Accuracy** counters high evasion enemies
+- **High Evasion** requires enemies to invest in accuracy
+- **High Precision** requires enemies to have reinforced armor
+- **High Reinforced Armor** hard-counters precision builds
+
+### Size Trade-offs
+
+- **Small ships** (1×1):
+  - Hard to hit (small profile)
+  - Lower stats (hull, shields, damage)
+  - Fast and nimble (high movement speed)
+  - Limited upgrade slots
+
+- **Large ships** (1×1+):
+  - Easy to hit (large profile)
+  - Higher stats (hull, shields, damage)
+  - Slow and powerful (low movement speed)
+  - Many upgrade slots
+
+### Attack Speed vs. Damage
+
+- **High Attack Speed, Low Damage**: Consistent chip damage, more hit rolls
+- **Low Attack Speed, High Damage**: Burst damage, fewer hit rolls
+- **Projectile Count**: Spreads risk across multiple rolls
+
+---
+
+## Status Effects & Resilience
+
+### Status Effect Categories
+
+Status effects are divided into two categories:
+
+1. **Elemental Status Effects** - Stackable (max 3 stacks), used for elemental combos
+2. **Control Status Effects** - Non-stackable, ability-specific durations
+
+---
+
+### Elemental Status Effects (Stackable)
+
+These status effects can stack up to **3 times** on a single ship. Each stack is tracked independently and expires separately. When elemental combos are triggered (see Elemental Combos section), all stacks are consumed and stripped from the target.
+
+#### Burn
+- **Effect**: Deals **2 fire damage per second** per stack
+- **Duration**: Stack-specific (defined by source ability/weapon)
+- **Combo Element**: Fire
+- **Visual**: Flames/heat distortion on ship
+
+**Example**: 3 stacks of Burn = 6 fire damage/second
+
+#### Freeze
+- **Effect**: Reduces **attack speed by 20%** per stack
+- **Duration**: Stack-specific (defined by source ability/weapon)
+- **Combo Element**: Ice/Cold
+- **Visual**: Ice crystals/frost on ship
+
+**Example**: 3 stacks of Freeze = -60% attack speed (ship attacks 40% as fast)
+
+#### Static
+- **Effect**:
+  - Drains **3 energy per second** per stack
+  - **Blocks shield regeneration** (ship cannot gain shields while Static is active)
+- **Duration**: Stack-specific (defined by source ability/weapon)
+- **Combo Element**: Lightning/Electric
+- **Visual**: Electrical arcs/sparks on ship
+
+**Example**: 3 stacks of Static = -9 energy/sec + no shield regen
+
+#### Acid
+- **Effect**:
+  - Deals **1 armor damage per second** per stack
+  - **Blocks hull point recovery** (ship cannot heal hull while Acid is active)
+- **Duration**: **10 seconds** per stack
+- **Combo Element**: Corrosive/Poison
+- **Visual**: Corrosive dripping/melting hull
+
+**Example**: 3 stacks of Acid = -3 armor/sec for 10 seconds + no hull healing
+
+#### Gravity
+- **Effect**: Reduces **movement speed and evasion by 30%** per stack
+- **Duration**: Stack-specific (defined by source ability/weapon)
+- **Combo Element**: Gravity/Dark Matter
+- **Visual**: Gravitational distortion/purple aura
+
+**Example**: 3 stacks of Gravity = -90% movement speed and -90% evasion
+
+---
+
+### Stack Limit & Behavior
+
+- **Maximum Stacks**: 3 per elemental type per ship
+- **Independent Expiration**: Each stack expires based on its own timer
+- **Separate Tracking**: Stack 1 applied at 0s (expires 5s), Stack 2 applied at 2s (expires 7s), etc.
+- **Combo Consumption**: When an elemental combo is triggered, **all stacks are removed**
+- **Combo Scaling**: More stacks = stronger combo effect
+
+---
+
+### Control Status Effects (Non-Stackable)
+
+These effects do not stack and cannot trigger elemental combos. Duration is defined by the ability or weapon that applies them.
+
+#### Stun
+- **Effect**:
+  - Ship **cannot move, attack, or cast abilities**
+  - Attacks against stunned targets deal **+25% damage**
+- **Duration**: Ability-specific
+- **Resilience**: Can be blocked by Resilience stat
+- **Visual**: Electricity/stasis field around ship
+
+#### Pinned Down/Root
+- **Effect**:
+  - Ship **cannot move**
+  - Loses **25 evasion**
+- **Duration**: Ability-specific
+- **Resilience**: Can be blocked by Resilience stat
+- **Visual**: Harpoons/tether beams holding ship in place
+
+#### Blind
+- **Effect**: Ship **cannot auto-attack** (abilities still functional)
+- **Duration**: Ability-specific
+- **Resilience**: Can be blocked by Resilience stat
+- **Visual**: Blinding light/targeting system disruption
+
+#### Malfunction
+- **Effect**: Ship **cannot cast abilities or activate non-auto-attack weapons**
+- **Duration**: Ability-specific
+- **Resilience**: Can be blocked by Resilience stat
+- **Visual**: System errors/sparking systems
+
+#### Energy Drain
+- **Effect**: Steals **5 energy per second** and transfers it to the caster
+- **Duration**: Ability-specific
+- **Resilience**: Can be blocked by Resilience stat
+- **Visual**: Energy siphon beam connecting ships
+- **Note**: Unique status effect often applied by cross-element combos
+
+---
+
+### Elemental Combos & Trigger System
+
+Elemental combos are triggered by abilities with the **Trigger** keyword. When a trigger ability hits a target with elemental status effect stacks, those status effects detonate for massive burst damage.
+
+---
+
+#### Trigger Keyword Mechanics
+
+**Core Rules:**
+
+1. **Trigger abilities** detonate elemental status effects on hit
+2. **All stacks are consumed** when triggered (removed from target)
+3. **Combo damage scales** with number of stacks present
+4. **Multiple status effects** can trigger simultaneously (each detonates sequentially)
+5. **Setup vs. Trigger**: An ability can NEVER both apply status effects AND trigger them
+
+---
+
+#### Trigger Types
+
+##### Trigger (Explosive) - Universal Detonation
+
+The most common trigger type. Detonates any elemental status effect for damage matching that element.
+
+**Mechanics:**
+- Explodes status effects for **moderate damage** matching the element type
+- Damage scales with **number of stacks** (more stacks = bigger explosion)
+- Can detonate **multiple different elements** on the same target
+- Each element detonates **one after another** (sequential, not simultaneous)
+
+**Example Combo:**
+```
+Target has: 3 Burn, 2 Freeze, 1 Static
+Rocket hits with Trigger (Explosive)
+
+Result:
+1. Burn explodes → Fire damage (scaled by 3 stacks)
+2. Freeze explodes → Cold damage (scaled by 2 stacks)
+3. Static explodes → Lightning damage (scaled by 1 stack)
+All status effects removed
+```
+
+##### Trigger (Element-Specific) - Special Interactions
+
+Triggers can be element-specific (Fire, Ice, Lightning, Acid, Gravity) for unique effects.
+
+**Mechanics:**
+- Only triggers combos with **matching element**
+- Creates **special interactions** beyond just damage
+- Can **apply NEW stacks** of the same element while triggering
+- Often creates **hybrid effects** (damage + new status)
+
+**Element-Specific Trigger Effects:**
+
+Triggers can interact with matching OR different elements for unique cross-element combos!
+
+| Trigger Type | Same-Element Combo | Cross-Element Example |
+|--------------|-------------------|----------------------|
+| Trigger (Fire) | Burn → Inferno (reapply 3 Burn) | Freeze → Steam Explosion (Malfunction 3s) |
+| Trigger (Ice) | Freeze → Absolute Zero (Stun 1s) | Burn → Flash Freeze (Stun 1.5s, extinguish Burn) |
+| Trigger (Lightning) | Static → Chain Discharge (spread) | Acid → Electro-Corrosion (+50% acid damage 4s) |
+| Trigger (Acid) | Acid → Acid Pool (reapply 3 Acid) | Freeze → Brittle Corrosion (-5 armor, +20% damage) |
+| Trigger (Gravity) | Gravity → Gravitational Collapse (pull) | Burn → Supernova (AoE 2 Burn in 4 squares) |
+
+---
+
+#### Combo Damage Scaling
+
+Combo damage is calculated based on:
+
+1. **Base Trigger Damage** - Damage from the triggering ability itself
+2. **Status Stack Count** - Number of stacks being detonated
+3. **Element Type** - Different elements have different base combo damage
+4. **Combo Multipliers** - Some abilities boost combo damage
+
+**Formula (Basic Explosive Trigger):**
+```
+Combo Damage = Base_Combo_Damage × (1 + Stack_Count × 0.5)
+
+Example:
+Burn Base Combo = 20 damage
+Target has 3 Burn stacks
+
+Combo Damage = 20 × (1 + 3 × 0.5) = 20 × 2.5 = 50 fire damage
+```
+
+**Multi-Element Triggers:**
+When multiple elements are present, each triggers separately and sequentially:
+
+**Example 1: Explosive Trigger (Universal)**
+```
+Target has: 3 Burn, 2 Freeze
+Missile hits with Trigger (Explosive)
+
+Total Damage:
+- Missile direct damage: 30
+- Burn combo: 20 × (1 + 3 × 0.5) = 50 fire damage
+- Freeze combo: 15 × (1 + 2 × 0.5) = 30 cold damage
+= 110 total damage
+All stacks removed
+```
+
+**Example 2: Element-Specific Cross-Combos**
+```
+Target has: 2 Burn, 3 Freeze, 1 Static
+Tesla Cannon hits with Trigger (Lightning)
+
+Sequential Combos:
+1. Burn + Lightning = Plasma Storm
+   - Damage: 24 × (1 + 2 × 0.5) = 48 lightning damage
+   - Effect: Chain to 2 nearby enemies, apply 1 Burn each
+
+2. Freeze + Lightning = Shatter Shock
+   - Damage: 22 × (1 + 3 × 0.5) = 55 lightning damage
+   - Effect: Apply 2 Static to nearby enemies
+
+3. Static + Lightning = Chain Discharge (same-element)
+   - Damage: 23 × (1 + 1 × 0.5) = 34.5 lightning damage
+   - Effect: Chain to all enemies with Static within 5 squares
+
+Tesla Cannon direct damage: 28
+Total: 28 + 48 + 55 + 34.5 = 165.5 damage
+Plus: Burn applied to 2 enemies, Static applied to nearby enemies
+All stacks removed from original target
+```
+
+---
+
+#### Example Trigger Abilities
+
+##### Rocket
+- **Type**: Trigger (Explosive)
+- **Behavior**: Shoots straight down the lane
+- **Damage**: 30 direct damage
+- **Combo**: Detonates all status effects on hit
+
+##### Missile
+- **Type**: Trigger (Explosive)
+- **Behavior**: Homes toward current target
+- **Damage**: 30 direct damage
+- **Combo**: Detonates all status effects on hit
+
+##### Deathseeker Missile
+- **Type**: Trigger (Explosive)
+- **Behavior**: Targets enemy with lowest hull points
+- **Damage**: 30 direct damage
+- **Combo**: Detonates all status effects for **+50% combo damage**
+
+**Example:**
+```
+Target (low HP) has 3 Burn stacks
+Deathseeker hits
+
+Burn Combo: 20 × (1 + 3 × 0.5) = 50 fire damage
+Deathseeker Bonus: 50 × 1.5 = 75 fire damage (instead of 50)
+```
+
+##### Incinerator Ray
+- **Type**: Trigger (Fire)
+- **Behavior**: Beam weapon
+- **Damage**: 30 fire damage
+- **Combo**: Detonates Burn stacks, then applies 3 new Burn stacks
+
+**Example:**
+```
+Target has 2 Burn stacks
+Incinerator Ray hits
+
+1. Direct damage: 30 fire damage
+2. Burn combo triggers: 20 × (1 + 2 × 0.5) = 40 fire damage
+3. 2 Burn stacks removed
+4. 3 NEW Burn stacks applied
+= 70 total damage + 3 Burn stacks on target
+```
+
+---
+
+#### Setup vs. Trigger Philosophy
+
+**Abilities are divided into two categories:**
+
+**Setup Abilities** (Apply Status)
+- Apply elemental status effects (Burn, Freeze, Static, Acid, Gravity)
+- Can have the Trigger keyword, but Trigger will always check before an ability applies a stack.
+- Examples:
+  - Flamethrower (applies Burn)
+  - Ice Beam (applies Freeze)
+  - EMP Pulse (applies Static)
+
+**Trigger Abilities** (Detonate Status)
+- Have the Trigger keyword
+- Detonate existing status effects
+- Can apply status, but status is applied after checking for elemental combo triggers.
+- Examples:
+  - Rocket, Missile (explosive)
+  - Incinerator Ray (fire trigger that also applies burn.)
+
+**Why the Separation?**
+- Prevents infinite loops (setup + trigger on same ability)
+- Creates team synergy (setup ships + trigger ships)
+- Encourages tactical decision-making (when to detonate vs. stack more)
+- Balances burst damage (must coordinate setup → trigger)
+
+---
+
+#### Combo Strategy & Tactics
+
+**Stack Management:**
+- More stacks = bigger combo explosion
+- Trigger too early = waste potential
+- Wait too long = stacks expire
+
+**Multi-Element Combos:**
+- Multiple elements on one target = massive burst
+- Setup ships apply different elements
+- Trigger ship detonates all at once
+
+**Trigger Timing:**
+- Detonate immediately for burst damage
+- Stack to 3 for maximum combo damage
+- Consider stack duration before triggering
+
+**Team Composition:**
+- **Setup Ships**: Apply status effects (Flamethrower, Ice Beam, etc.)
+- **Trigger Ships**: Detonate combos (Missile ships, Rocket ships)
+- **Hybrid Ships**: Element-specific triggers (setup + detonate same element)
+
+---
+
+#### Implementation Notes
+
+**Trigger Ability CSV Columns:**
+```csv
+ability_id,ability_name,trigger_type,base_damage,combo_damage_bonus,special_effect
+rocket,Rocket,explosive,30,0,
+missile,Missile,explosive,30,0,
+deathseeker_missile,Deathseeker Missile,explosive,30,50,targets_lowest_hp
+incinerator_ray,Incinerator Ray,fire,30,0,applies_3_burn_after_trigger
+```
+
+**Combo Damage Database:**
+```csv
+element,base_combo_damage,scaling_per_stack
+burn,20,0.5
+freeze,15,0.5
+static,18,0.5
+acid,22,0.5
+gravity,17,0.5
+```
+
+**Trigger Resolution Order:**
+1. Trigger ability hits target
+2. Check for elemental status effects on target
+3. Calculate combo damage for each element present
+4. Apply combo damage (element by element, sequentially)
+5. Remove all triggered status stacks
+6. Apply trigger ability's direct damage
+7. Apply any special effects (element-specific triggers)
+
+---
+
+### Resilience & Status Effect Resistance
+
+#### What Resilience Blocks
+
+Resilience provides a **% chance to completely ignore** incoming status effects:
+
+**Elemental Status Effects:**
+- Burn
+- Freeze
+- Static
+- Acid
+- Gravity
+
+**Control Status Effects:**
+- Stun
+- Pinned Down
+- Blind
+- Malfunction
+
+#### How Resilience Works
+
+When a status effect is applied:
+1. Roll d100
+2. If roll ≤ Resilience, status effect is **completely negated**
+3. If roll > Resilience, status effect is **applied normally**
+
+**Example**: Ship has 30 Resilience
+- 30% chance to ignore any incoming status effect
+- 70% chance status effect applies normally
+
+#### What Resilience Does NOT Block
+
+- Direct damage from attacks
+- Critical hits
+- Miss chance (that's handled by Evasion)
+- Elemental combo damage (combos bypass Resilience)
+
+---
+
+## Implementation Notes
+
+### DamageCalculator Singleton
+
+The DamageCalculator autoload will handle:
+
+- `calculate_hit_chance(attacker, defender) -> float`
+- `calculate_crit_chance(attacker, defender) -> float`
+- `roll_to_hit(hit_chance) -> bool`
+- `roll_to_crit(crit_chance) -> bool`
+- `calculate_damage(attacker, defender, is_crit) -> float`
+- `apply_damage(target, damage) -> void` (shields then hull)
+
+### CombatManager Integration
+
+Ships will query DamageCalculator for all combat calculations:
+
+```gdscript
+var hit_chance = DamageCalculator.calculate_hit_chance(self, target)
+if DamageCalculator.roll_to_hit(hit_chance):
+    var crit_chance = DamageCalculator.calculate_crit_chance(self, target)
+    var is_crit = DamageCalculator.roll_to_crit(crit_chance)
+    var damage = DamageCalculator.calculate_damage(self, target, is_crit)
+    DamageCalculator.apply_damage(target, damage)
+```
+
+---
+
+## Future Considerations
+
+### To Be Determined
+
+- **Critical Hit Damage Multiplier**: 1.5x, 2.0x, or variable?
+- **Energy Generation Rates**: Per attack, per damage taken?
+- **Ability Energy Costs**: Fixed per ability or scaling?
+- **Stat Caps**: Maximum values for accuracy, evasion, etc.?
+- **Subsystem Damage**: Can large ships take localized damage?
+
+### Potential Expansions
+
+- **Armor Types**: Physical vs. Energy damage split
+- **Resistance Stats**: Reduce damage % instead of binary block
+- **Speed Stat Split**: Movement Speed vs. Attack Speed vs. Ability Speed
+- **Range Modifiers**: Accuracy penalty at max range
+- **Formation Bonuses**: Stats modified by ship positioning
+
+---
+
+## Summary
+
+The ship stat system provides deep customization through 16 core statistics across offense, defense, mobility, and utility. The d100 percentage-based hit/crit system creates intuitive math where each stat point = 1% chance, making balance adjustments straightforward.
+
+Key formulas:
+- **Hit Chance** = 100% - (Evasion - Accuracy)
+- **Crit Chance** = Precision - Reinforced Armor
+- **Damage** = Damage × Projectiles (per hit)
+
+This system supports diverse ship archetypes:
+- Fast, evasive interceptors
+- Tanky, armored frigates
+- Long-range, precise snipers
+- Ability-focused casters with Amplitude/Frequency
+- Crowd-control resistant bruisers with Resilience

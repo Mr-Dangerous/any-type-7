@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sector Explorer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            background-color: #0a0a0a;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            overflow: hidden;
+        }
+
+        h1 {
+            margin: 5px 0 10px 0;
+            font-size: 24px;
+        }
+
+        #gameContainer {
+            display: flex;
+            gap: 20px;
+        }
+
+        #canvas {
+            border: 2px solid #00ff00;
+            background-color: #000000;
+            cursor: crosshair;
+            width: 1200px;
+            height: 700px;
+        }
+
+        #hud {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            background-color: #1a1a1a;
+            border: 2px solid #00ff00;
+            min-width: 200px;
+        }
+
+        #hud h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 5px;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .stat-label {
+            color: #00aa00;
+        }
+
+        .stat-value {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        button {
+            background-color: #003300;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background-color: #005500;
+        }
+
+        button:disabled {
+            background-color: #1a1a1a;
+            color: #555555;
+            border-color: #555555;
+            cursor: not-allowed;
+        }
+
+        #message {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #003300;
+            border: 1px solid #00ff00;
+            min-height: 60px;
+            max-height: 120px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        #choiceDialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #0a0a0a;
+            border: 3px solid #00ff00;
+            padding: 20px;
+            z-index: 1000;
+            min-width: 300px;
+        }
+
+        #choiceDialog h3 {
+            margin: 0 0 15px 0;
+            color: #00ff00;
+        }
+
+        #choiceDialog .choice-info {
+            margin: 10px 0;
+            font-size: 12px;
+            color: #00aa00;
+        }
+
+        #choiceDialog .choice-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        #choiceDialog button {
+            flex: 1;
+            margin: 0;
+        }
+
+        #miningDialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #0a0a0a;
+            border: 3px solid #00ff00;
+            padding: 20px;
+            z-index: 1000;
+            min-width: 400px;
+            max-width: 500px;
+        }
+
+        #miningDialog h3 {
+            margin: 0 0 15px 0;
+            color: #00ff00;
+        }
+
+        #miningInfo {
+            margin: 10px 0;
+            font-size: 12px;
+            color: #00aa00;
+        }
+
+        #miningOptions {
+            margin: 15px 0;
+        }
+
+        .mining-resource {
+            background-color: #1a1a1a;
+            border: 1px solid #00ff00;
+            padding: 10px;
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mining-resource-info {
+            flex: 1;
+        }
+
+        .mining-resource-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .mining-resource-details {
+            font-size: 11px;
+            color: #00aa00;
+        }
+
+        .mining-resource button {
+            margin: 0;
+        }
+
+        .mining-resource.unavailable {
+            opacity: 0.5;
+            border-color: #555555;
+        }
+
+        #traderDialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #0a0a0a;
+            border: 3px solid #ffaa00;
+            padding: 20px;
+            z-index: 1000;
+            min-width: 400px;
+        }
+
+        #traderDialog h3 {
+            margin: 0 0 15px 0;
+            color: #ffaa00;
+        }
+
+        #traderInfo {
+            margin: 10px 0;
+            font-size: 12px;
+            color: #00aa00;
+        }
+
+        #tradeOptions {
+            margin: 15px 0;
+        }
+
+        .trade-option {
+            background-color: #1a1a1a;
+            border: 1px solid #ffaa00;
+            padding: 10px;
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .trade-option-info {
+            flex: 1;
+        }
+
+        .trade-option button {
+            margin: 0;
+        }
+
+        #combatWarning {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 120px;
+            font-weight: bold;
+            color: #ff0000;
+            text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000, 0 0 60px #ff0000;
+            z-index: 2000;
+            animation: flash 0.3s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <h1>SECTOR EXPLORER</h1>
+
+    <div id="choiceDialog">
+        <h3>GRAVITY ASSIST OPTIONS</h3>
+        <div class="choice-info" id="choiceInfo"></div>
+        <div class="choice-buttons">
+            <button id="normalTravelBtn">Normal Travel</button>
+            <button id="gravityAssistConfirmBtn">Gravity Assist</button>
+        </div>
+    </div>
+
+    <div id="miningDialog">
+        <h3>MINING OPERATIONS</h3>
+        <div id="miningInfo"></div>
+        <div id="miningOptions"></div>
+        <button id="closeMiningBtn">Close</button>
+    </div>
+
+    <div id="traderDialog">
+        <h3>TRADER EXCHANGE</h3>
+        <div id="traderInfo"></div>
+        <div id="tradeOptions"></div>
+        <button id="closeTraderBtn">Close</button>
+    </div>
+
+    <div id="combatWarning">
+        WARNING
+    </div>
+
+    <div id="gameContainer">
+        <canvas id="canvas" width="1200" height="700"></canvas>
+
+        <div id="hud">
+            <h2>STATUS</h2>
+            <div class="stat">
+                <span class="stat-label">Turn:</span>
+                <span class="stat-value" id="turnDisplay">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Fuel:</span>
+                <span class="stat-value" id="fuelDisplay">100</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Crystals:</span>
+                <span class="stat-value" id="crystalsDisplay">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Metal:</span>
+                <span class="stat-value" id="metalDisplay">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Artifacts:</span>
+                <span class="stat-value" id="artifactsDisplay">0</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Personnel:</span>
+                <span class="stat-value" id="personnelDisplay">30</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Ship Frames:</span>
+                <span class="stat-value" id="shipFramesDisplay">5</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Speed:</span>
+                <span class="stat-value" id="speedDisplay">1</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Position:</span>
+                <span class="stat-value" id="positionDisplay">---</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Miners:</span>
+                <span class="stat-value" id="minersDisplay">3</span>
+            </div>
+
+            <h2>ENEMY</h2>
+            <div class="stat">
+                <span class="stat-label">Status:</span>
+                <span class="stat-value" id="enemyStatusDisplay">Hidden</span>
+            </div>
+
+            <h2>ACTIONS</h2>
+            <button id="gravityAssistBtn" disabled>Gravity Assist</button>
+            <button id="slowDownBtn" disabled>Reduce Speed (-5)</button>
+            <button id="buildMinerBtn" disabled>Build Miner (10 Metal)</button>
+            <button id="buildShipFrameBtn" disabled>Build Ship Frame (10 Metal)</button>
+            <button id="restartBtn">Restart Game</button>
+
+            <div id="message">
+                <strong>MISSION BRIEFING:</strong><br>
+                Navigate the sector and evade enemy patrols. Click nodes to travel. Manage your fuel carefully.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game state
+        let gameState = {
+            nodes: [],
+            visitedPlanets: new Set(), // Track which planets have been visited to reveal their moons
+            player: {
+                x: 0,
+                y: 0,
+                speed: 1,
+                fuel: 100,
+                crystals: 0,
+                metal: 0,
+                artifacts: 0,
+                personnel: 30,
+                shipFrames: 5,
+                turn: 0,
+                currentNode: null,
+                availableMiners: 3,
+                canBuildMinerThisTurn: true,
+                canBuildThisTurn: true
+            },
+            deployedMiners: [],
+            enemies: [], // Array of enemy objects
+            enemySpawner: null, // Enemy spawner node
+            lastEnemySpawnTurn: 0, // Track when last enemy was spawned
+            maxEnemies: 3, // Maximum number of enemies
+            animation: {
+                active: false,
+                startX: 0,
+                startY: 0,
+                endX: 0,
+                endY: 0,
+                startTime: 0,
+                duration: 0,
+                callback: null
+            },
+            notifications: [], // Mining notifications to display over nodes
+            gameOver: false,
+            gravityAssistMode: false
+        };
+
+        // Node types with colors
+        const nodeTypes = {
+            sun: { color: '#ffff00', radius: 20 },
+            rockyPlanet: { color: '#4488ff', radius: 8 },
+            moon: { color: '#aaaaaa', radius: 5 },
+            asteroid: { color: '#888888', radius: 4 },
+            outpost: { color: '#00ff88', radius: 6 },
+            colonyShip: { color: '#8888ff', radius: 6 },
+            graveyard: { color: '#ff4444', radius: 6 },
+            asteroidField: { color: '#666666', radius: 8 },
+            gasPlanet: { color: '#aa5500', radius: 12 },
+            trader: { color: '#ffaa00', radius: 6 },
+            enemySpawner: { color: '#aa00ff', radius: 10 } // Purple for debug visibility
+        };
+
+        // Mining constants
+        const RARITY_WEIGHTS = {
+            common: 50,
+            uncommon: 30,
+            rare: 15,
+            epic: 4,
+            legendary: 1
+        };
+
+        const RARITY_REWARDS = {
+            common: 1,
+            uncommon: 2,
+            rare: 3,
+            epic: 4,
+            legendary: 5
+        };
+
+        const RARITY_COLORS = {
+            common: '#aaaaaa',
+            uncommon: '#00ff00',
+            rare: '#0088ff',
+            epic: '#aa00ff',
+            legendary: '#ffaa00'
+        };
+
+        const RESOURCE_TYPES = ['fuel', 'crystals', 'metal'];
+        const MINABLE_NODE_TYPES = ['asteroid', 'asteroidField', 'moon', 'rockyPlanet', 'gasPlanet'];
+
+        // Node types that need to be discovered (shown as ? until within 100px)
+        const HIDDEN_NODE_TYPES = ['asteroid', 'asteroidField', 'outpost', 'graveyard', 'colonyShip', 'enemySpawner'];
+        const DISCOVERY_RANGE = 100;
+
+        // Get weighted random rarity
+        function getRandomRarity() {
+            const total = Object.values(RARITY_WEIGHTS).reduce((a, b) => a + b, 0);
+            let random = Math.random() * total;
+
+            for (let [rarity, weight] of Object.entries(RARITY_WEIGHTS)) {
+                random -= weight;
+                if (random <= 0) return rarity;
+            }
+            return 'common';
+        }
+
+        // Generate mining resources for a node
+        function generateMiningResources(nodeType) {
+            const resources = [];
+
+            // Gas planets: artifact, crystal, fuel
+            if (nodeType === 'gasPlanet') {
+                if (Math.random() < 0.1) {
+                    // 1 resource + 1 artifact
+                    const resourceType = ['fuel', 'crystals'][Math.floor(Math.random() * 2)];
+                    resources.push({
+                        type: resourceType,
+                        rarity: getRandomRarity(),
+                        available: true
+                    });
+                    resources.push({
+                        type: 'artifact',
+                        rarity: 'legendary',
+                        available: true
+                    });
+                } else {
+                    // 2 different resources from fuel and crystals
+                    const availableTypes = ['fuel', 'crystals'];
+                    const shuffled = [...availableTypes].sort(() => Math.random() - 0.5);
+                    resources.push({
+                        type: shuffled[0],
+                        rarity: getRandomRarity(),
+                        available: true
+                    });
+                    resources.push({
+                        type: shuffled[1],
+                        rarity: getRandomRarity(),
+                        available: true
+                    });
+                }
+            }
+            // Rocky planets: artifact, metal, crystal, fuel
+            else if (nodeType === 'rockyPlanet') {
+                if (Math.random() < 0.1) {
+                    // 1 resource + 1 artifact
+                    const resourceType = RESOURCE_TYPES[Math.floor(Math.random() * RESOURCE_TYPES.length)];
+                    resources.push({
+                        type: resourceType,
+                        rarity: getRandomRarity(),
+                        available: true
+                    });
+                    resources.push({
+                        type: 'artifact',
+                        rarity: 'legendary',
+                        available: true
+                    });
+                } else {
+                    // 2 different resources from all types
+                    const shuffled = [...RESOURCE_TYPES].sort(() => Math.random() - 0.5);
+                    resources.push({
+                        type: shuffled[0],
+                        rarity: getRandomRarity(),
+                        available: true
+                    });
+                    resources.push({
+                        type: shuffled[1],
+                        rarity: getRandomRarity(),
+                        available: true
+                    });
+                }
+            }
+            // Other minable nodes (asteroids, moons, etc.)
+            else {
+                // 2 different resources
+                const shuffled = [...RESOURCE_TYPES].sort(() => Math.random() - 0.5);
+                resources.push({
+                    type: shuffled[0],
+                    rarity: getRandomRarity(),
+                    available: true
+                });
+                resources.push({
+                    type: shuffled[1],
+                    rarity: getRandomRarity(),
+                    available: true
+                });
+            }
+
+            return resources;
+        }
+
+        // Check if node is a gravity assist point
+        function isGravityAssistNode(node) {
+            return node.type === 'rockyPlanet' || node.type === 'gasPlanet';
+        }
+
+        // Check for discoveries near a position
+        function checkDiscoveries(x, y) {
+            let discovered = [];
+            gameState.nodes.forEach(node => {
+                if (node.discovered === false) {
+                    const dx = node.x - x;
+                    const dy = node.y - y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist <= DISCOVERY_RANGE) {
+                        node.discovered = true;
+                        discovered.push(node);
+                    }
+                }
+            });
+            return discovered;
+        }
+
+        // Check along a path for discoveries (for gravity assists)
+        function checkPathForDiscoveries(startX, startY, endX, endY) {
+            const steps = 20; // Check 20 points along the path
+            let allDiscovered = [];
+
+            for (let i = 0; i <= steps; i++) {
+                const progress = i / steps;
+                const x = startX + (endX - startX) * progress;
+                const y = startY + (endY - startY) * progress;
+
+                const discovered = checkDiscoveries(x, y);
+                allDiscovered = allDiscovered.concat(discovered);
+            }
+
+            return allDiscovered;
+        }
+
+        // Mark a planet as visited and reveal its moons
+        function markPlanetVisited(node) {
+            if (node && (node.type === 'rockyPlanet' || node.type === 'gasPlanet')) {
+                gameState.visitedPlanets.add(node.id);
+            }
+        }
+
+        // Check if a moon should be visible (parent planet has been visited)
+        function isMoonVisible(moon) {
+            if (moon.type !== 'moon' || !moon.parentPlanet) return true;
+            return gameState.visitedPlanets.has(moon.parentPlanet);
+        }
+
+        // Draw a hexagon
+        function drawHexagon(x, y, radius) {
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI / 3) * i;
+                const px = x + radius * Math.cos(angle);
+                const py = y + radius * Math.sin(angle);
+                if (i === 0) {
+                    ctx.moveTo(px, py);
+                } else {
+                    ctx.lineTo(px, py);
+                }
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Generate the star system
+        function generateNodes() {
+            const nodes = [];
+            let nodeId = 0;
+
+            // Central sun
+            nodes.push({
+                id: nodeId++,
+                type: 'sun',
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                radius: nodeTypes.sun.radius,
+                orbitRadius: null,
+                color: nodeTypes.sun.color
+            });
+
+            // Generate planets in orbits with better spacing
+            const numPlanets = 4 + Math.floor(Math.random() * 4); // 4-7 planets
+            const minOrbitRadius = 80;
+            const maxOrbitRadius = Math.min(canvas.height / 2, canvas.width / 2) - 30; // Keep nodes on screen
+            const planets = [];
+
+            for (let i = 0; i < numPlanets; i++) {
+                // Vary orbit radius more to spread planets out
+                const orbitRadius = minOrbitRadius + (maxOrbitRadius - minOrbitRadius) * (i / numPlanets) + (Math.random() - 0.5) * 40;
+                // Ensure better angular spacing with more variation
+                const baseAngle = (Math.PI * 2 * i / numPlanets);
+                const angle = baseAngle + (Math.random() - 0.5) * 0.8;
+
+                const planet = {
+                    id: nodeId++,
+                    type: 'rockyPlanet',
+                    x: canvas.width / 2 + Math.cos(angle) * orbitRadius,
+                    y: canvas.height / 2 + Math.sin(angle) * orbitRadius,
+                    radius: nodeTypes.rockyPlanet.radius,
+                    orbitRadius: orbitRadius,
+                    color: nodeTypes.rockyPlanet.color,
+                    mineable: true,
+                    resources: generateMiningResources('rockyPlanet')
+                };
+
+                nodes.push(planet);
+                planets.push(planet);
+            }
+
+            // Generate moons orbiting planets
+            const numMoons = 3 + Math.floor(Math.random() * 6); // 3-8 moons
+            for (let i = 0; i < numMoons; i++) {
+                const parentPlanet = planets[Math.floor(Math.random() * planets.length)];
+                const moonOrbitRadius = 20 + Math.random() * 25; // 20-45px from planet
+                const moonAngle = Math.random() * Math.PI * 2;
+
+                nodes.push({
+                    id: nodeId++,
+                    type: 'moon',
+                    x: parentPlanet.x + Math.cos(moonAngle) * moonOrbitRadius,
+                    y: parentPlanet.y + Math.sin(moonAngle) * moonOrbitRadius,
+                    radius: nodeTypes.moon.radius,
+                    orbitRadius: null,
+                    parentPlanet: parentPlanet.id,
+                    moonOrbitRadius: moonOrbitRadius,
+                    color: nodeTypes.moon.color,
+                    mineable: true,
+                    resources: generateMiningResources('moon')
+                });
+            }
+
+            // Generate other nodes
+            const otherNodeCounts = {
+                asteroid: 12,
+                outpost: 3,
+                colonyShip: 2,
+                graveyard: 2,
+                asteroidField: 3,
+                gasPlanet: 1,
+                trader: 3
+            };
+
+            for (let [type, count] of Object.entries(otherNodeCounts)) {
+                for (let i = 0; i < count; i++) {
+                    let x, y, tooClose;
+                    let attempts = 0;
+
+                    // Gas planets need more spacing from gravity assist nodes
+                    const minDistance = type === 'gasPlanet' ? 120 : 30;
+
+                    // Find a position not too close to other nodes
+                    do {
+                        x = 50 + Math.random() * (canvas.width - 100);
+                        y = 50 + Math.random() * (canvas.height - 100);
+
+                        tooClose = nodes.some(node => {
+                            const dx = node.x - x;
+                            const dy = node.y - y;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+
+                            // For gas planets, enforce larger distance from rocky planets and other gas planets
+                            if (type === 'gasPlanet' && (node.type === 'rockyPlanet' || node.type === 'gasPlanet')) {
+                                return dist < minDistance;
+                            }
+
+                            return dist < 30;
+                        });
+
+                        attempts++;
+                    } while (tooClose && attempts < 50);
+
+                    if (attempts < 50) {
+                        const node = {
+                            id: nodeId++,
+                            type: type,
+                            x: x,
+                            y: y,
+                            radius: nodeTypes[type].radius,
+                            orbitRadius: null,
+                            color: nodeTypes[type].color
+                        };
+
+                        // Add mining resources if minable
+                        if (MINABLE_NODE_TYPES.includes(type)) {
+                            node.mineable = true;
+                            node.resources = generateMiningResources(type);
+                        }
+
+                        // Add discovery property for hidden nodes
+                        if (HIDDEN_NODE_TYPES.includes(type)) {
+                            node.discovered = false;
+                        }
+
+                        // Add salvage property for graveyards (metal or artifact)
+                        if (type === 'graveyard') {
+                            node.salvaged = false;
+                            node.salvageResource = Math.random() < 0.5 ? 'metal' : 'artifact';
+                            node.salvageAmount = node.salvageResource === 'metal' ? 10 + Math.floor(Math.random() * 11) : 1; // 10-20 metal or 1 artifact
+                        }
+
+                        // Add bonus property for outposts
+                        if (type === 'outpost') {
+                            node.used = false;
+                            const bonusTypes = ['fuel', 'crystals', 'metal', 'personnel'];
+                            node.bonusResource = bonusTypes[Math.floor(Math.random() * bonusTypes.length)];
+                            node.bonusAmount = 5 + Math.floor(Math.random() * 11); // 5-15 units
+                        }
+
+                        nodes.push(node);
+                    }
+                }
+            }
+
+            // Enemy spawner at edge
+            const spawnAngle = Math.random() * Math.PI * 2;
+            const spawnRadius = Math.min(canvas.height / 2, canvas.width / 2) - 20;
+            nodes.push({
+                id: nodeId++,
+                type: 'enemySpawner',
+                x: canvas.width / 2 + Math.cos(spawnAngle) * (spawnRadius * 1.5),
+                y: canvas.height / 2 + Math.sin(spawnAngle) * spawnRadius,
+                radius: nodeTypes.enemySpawner.radius,
+                orbitRadius: null,
+                color: nodeTypes.enemySpawner.color,
+                discovered: false
+            });
+
+            return nodes;
+        }
+
+        // Deploy a miner to a resource
+        function deployMiner(nodeId, resourceIndex) {
+            const node = gameState.nodes.find(n => n.id === nodeId);
+            if (!node || !node.mineable) {
+                setMessage('This location cannot be mined.');
+                return false;
+            }
+
+            const resource = node.resources[resourceIndex];
+            if (!resource || !resource.available) {
+                setMessage('This resource is not available.');
+                return false;
+            }
+
+            if (gameState.player.availableMiners <= 0) {
+                setMessage('No miners available! Build more miners or wait for deployed miners to return.');
+                return false;
+            }
+
+            if (gameState.player.personnel <= 0) {
+                setMessage('No personnel available! Cannot deploy miner.');
+                return false;
+            }
+
+            // Calculate duration - all miners take exactly 5 turns
+            const duration = 5;
+
+            // Create deployed miner
+            const miner = {
+                id: Date.now() + Math.random(), // unique ID
+                nodeId: nodeId,
+                nodeName: node.type,
+                resourceType: resource.type,
+                rarity: resource.rarity,
+                rewardPerTurn: RARITY_REWARDS[resource.rarity],
+                duration: duration,
+                turnsRemaining: duration
+            };
+
+            gameState.deployedMiners.push(miner);
+            gameState.player.availableMiners--;
+            gameState.player.personnel--;
+            resource.available = false;
+
+            // Mark all other resources on this node as unavailable (can only mine one resource per planet)
+            node.resources.forEach(r => {
+                if (r !== resource) {
+                    r.available = false;
+                }
+            });
+
+            setMessage(`Deployed miner to ${resource.type} (${resource.rarity}) at ${node.type}. Will collect ${miner.rewardPerTurn}/turn for ${duration} turns.`);
+            updateHUD();
+
+            // Close the mining dialog automatically
+            hideMiningDialog();
+
+            return true;
+        }
+
+        // Build a new miner
+        function buildMiner() {
+            if (!gameState.player.canBuildThisTurn) {
+                setMessage('You can only build one thing per turn (miner or ship frame).');
+                return false;
+            }
+
+            if (gameState.player.metal < 10) {
+                setMessage('Not enough metal! Need 10 metal to build a miner.');
+                return false;
+            }
+
+            gameState.player.metal -= 10;
+            gameState.player.availableMiners++;
+            gameState.player.canBuildThisTurn = false;
+
+            setMessage(`Built a new miner! Available miners: ${gameState.player.availableMiners}`);
+            updateHUD();
+            return true;
+        }
+
+        function buildShipFrame() {
+            if (!gameState.player.canBuildThisTurn) {
+                setMessage('You can only build one thing per turn (miner or ship frame).');
+                return false;
+            }
+
+            if (gameState.player.metal < 10) {
+                setMessage('Not enough metal! Need 10 metal to build a ship frame.');
+                return false;
+            }
+
+            gameState.player.metal -= 10;
+            gameState.player.shipFrames++;
+            gameState.player.canBuildThisTurn = false;
+
+            setMessage(`Built a ship frame! Ship frames: ${gameState.player.shipFrames}`);
+            updateHUD();
+            return true;
+        }
+
+        // Process mining operations for this turn
+        function processMiningTurn() {
+            const completedMiners = [];
+
+            gameState.deployedMiners.forEach((miner, index) => {
+                // Collect resources
+                gameState.player[miner.resourceType === 'artifact' ? 'artifacts' : miner.resourceType] += miner.rewardPerTurn;
+
+                // Find the node and add notification
+                const node = gameState.nodes.find(n => n.id === miner.nodeId);
+                if (node) {
+                    const rarityColor = RARITY_COLORS[miner.rarity];
+                    const resourceName = miner.resourceType === 'artifact' ? 'Artifact' :
+                                         miner.resourceType.charAt(0).toUpperCase() + miner.resourceType.slice(1);
+                    const notificationText = `+${miner.rewardPerTurn} ${resourceName}`;
+                    addMiningNotification(node.x, node.y - 20, notificationText, rarityColor);
+                }
+
+                // Decrement turns
+                miner.turnsRemaining--;
+
+                if (miner.turnsRemaining <= 0) {
+                    completedMiners.push(index);
+                }
+            });
+
+            // Remove completed miners and return equipment
+            for (let i = completedMiners.length - 1; i >= 0; i--) {
+                const minerIndex = completedMiners[i];
+                const miner = gameState.deployedMiners[minerIndex];
+
+                // Return miner, worker, and personnel
+                gameState.player.availableMiners++;
+                gameState.player.personnel++;
+
+                // Mark resource as available again
+                const node = gameState.nodes.find(n => n.id === miner.nodeId);
+                if (node && node.resources) {
+                    const resource = node.resources.find(r => r.type === miner.resourceType && r.rarity === miner.rarity);
+                    if (resource) {
+                        resource.available = true;
+                    }
+                }
+
+                setMessage(`Miner returned from ${miner.nodeName} with equipment and worker!`);
+                gameState.deployedMiners.splice(minerIndex, 1);
+            }
+        }
+
+        // Add a mining notification
+        function addMiningNotification(x, y, text, color) {
+            gameState.notifications.push({
+                x: x,
+                y: y,
+                text: text,
+                color: color,
+                startTime: Date.now(),
+                duration: 2000, // 2 seconds
+                offsetY: 0
+            });
+        }
+
+        // Update and remove expired notifications
+        function updateNotifications() {
+            const now = Date.now();
+            gameState.notifications = gameState.notifications.filter(notif => {
+                const elapsed = now - notif.startTime;
+                if (elapsed >= notif.duration) {
+                    return false; // Remove expired notification
+                }
+                // Float upward
+                notif.offsetY = -(elapsed / notif.duration) * 30; // Float up 30 pixels over duration
+                return true;
+            });
+        }
+
+        // Render notifications over nodes
+        function renderNotifications() {
+            const now = Date.now();
+            gameState.notifications.forEach(notif => {
+                const elapsed = now - notif.startTime;
+                const progress = elapsed / notif.duration;
+
+                // Fade out in the last 25% of duration
+                let alpha = 1.0;
+                if (progress > 0.75) {
+                    alpha = 1.0 - ((progress - 0.75) / 0.25);
+                }
+
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.font = 'bold 14px monospace';
+                ctx.fillStyle = notif.color;
+                ctx.textAlign = 'center';
+                ctx.fillText(notif.text, notif.x, notif.y + notif.offsetY);
+                ctx.restore();
+            });
+        }
+
+        // Initialize game
+        function initGame() {
+            gameState.nodes = generateNodes();
+
+            // Place player on a random moon
+            const moons = gameState.nodes.filter(n => n.type === 'moon');
+            const startMoon = moons[Math.floor(Math.random() * moons.length)];
+
+            gameState.player.x = startMoon.x;
+            gameState.player.y = startMoon.y;
+            gameState.player.currentNode = startMoon;
+            gameState.player.speed = 1;
+            gameState.player.fuel = 100;
+            gameState.player.crystals = 0;
+            gameState.player.metal = 0;
+            gameState.player.artifacts = 0;
+            gameState.player.personnel = 30;
+            gameState.player.shipFrames = 5;
+            gameState.player.turn = 0;
+            gameState.player.availableMiners = 3;
+            gameState.player.canBuildMinerThisTurn = true;
+            gameState.player.canBuildThisTurn = true;
+
+            // Reset deployed miners
+            gameState.deployedMiners = [];
+
+            // Reset visited planets and mark starting planet as visited
+            gameState.visitedPlanets = new Set();
+            if (startMoon.parentPlanet !== undefined) {
+                gameState.visitedPlanets.add(startMoon.parentPlanet);
+            }
+
+            // Discover nodes near starting position
+            checkDiscoveries(startMoon.x, startMoon.y);
+
+            // Set up enemy system
+            const planets = gameState.nodes.filter(n => n.type === 'rockyPlanet' || n.type === 'gasPlanet');
+            const spawner = gameState.nodes.find(n => n.type === 'enemySpawner');
+
+            gameState.enemies = [];
+            gameState.enemySpawner = spawner;
+            gameState.lastEnemySpawnTurn = 0;
+
+            // Spawn first enemy
+            if (spawner && planets.length > 0) {
+                spawnEnemy(gameState.nodes, spawner);
+            }
+
+            gameState.gameOver = false;
+            gameState.gravityAssistMode = false;
+
+            updateHUD();
+            render();
+
+            setMessage('Game started! You are on a moon. At speed 1, click anywhere within 100px to move freely.');
+        }
+
+        // Render the game
+        function render() {
+            // Clear canvas
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw orbit paths
+            ctx.strokeStyle = '#222222';
+            ctx.lineWidth = 1;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            const orbitRadii = [...new Set(gameState.nodes
+                .filter(n => n.orbitRadius !== null)
+                .map(n => n.orbitRadius))];
+
+            orbitRadii.forEach(radius => {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.stroke();
+            });
+
+            // Draw movement range
+            if (!gameState.gameOver && !gameState.gravityAssistMode) {
+                ctx.strokeStyle = '#00ff0033';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                const range = gameState.player.speed * 100;
+                ctx.arc(gameState.player.x, gameState.player.y, range, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Draw nodes
+            gameState.nodes.forEach(node => {
+                // Determine if node should be visible
+                let isVisible = true;
+                let showAsUnknown = false;
+
+                // Moons are only visible if parent planet has been visited
+                if (node.type === 'moon') {
+                    isVisible = isMoonVisible(node);
+                }
+
+                // Hidden nodes show as "?" until discovered
+                if (HIDDEN_NODE_TYPES.includes(node.type)) {
+                    if (node.discovered === false) {
+                        showAsUnknown = true;
+                    }
+                }
+
+                if (!isVisible) return; // Skip rendering this node
+
+                // Draw the node
+                ctx.fillStyle = showAsUnknown ? '#555555' : node.color;
+
+                if (showAsUnknown) {
+                    // Draw question mark for undiscovered nodes
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (node.type === 'outpost') {
+                    // Draw hexagon for outposts
+                    drawHexagon(node.x, node.y, node.radius);
+                } else {
+                    // Draw circle for other nodes
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Draw node label
+                ctx.fillStyle = '#00ff0088';
+                ctx.font = '8px Courier New';
+                ctx.textAlign = 'center';
+
+                // Always show labels for planets, "?" for undiscovered
+                if (showAsUnknown) {
+                    ctx.fillText('?', node.x, node.y + 12);
+                } else if (node.type === 'rockyPlanet') {
+                    ctx.fillText('rocky planet', node.x, node.y + node.radius + 10);
+                } else if (node.type === 'gasPlanet') {
+                    ctx.fillText('gas planet', node.x, node.y + node.radius + 10);
+                }
+
+                // Highlight gravity assist targets in yellow when in gravity assist mode
+                if (gameState.gravityAssistMode && isGravityAssistNode(node) && node !== gameState.player.currentNode) {
+                    ctx.strokeStyle = '#ffff00';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, node.radius + 8, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            });
+
+            // Draw enemy patrol paths (next 5 moves only)
+            gameState.enemies.forEach(enemy => {
+                if (enemy.defeated) return;
+
+                // Draw next 5 moves of patrol path
+                if (enemy.patrolPath && enemy.patrolPath.length > 0) {
+                    ctx.strokeStyle = enemy.patrolColor + '44'; // Use enemy's color with transparency
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]); // Dashed line
+                    ctx.beginPath();
+
+                    // Start from enemy's current position
+                    ctx.moveTo(enemy.x, enemy.y);
+
+                    // Draw next 5 waypoints
+                    for (let i = 1; i <= 5 && i < enemy.patrolPath.length; i++) {
+                        const nextIndex = (enemy.currentPathIndex + i) % enemy.patrolPath.length;
+                        const waypoint = enemy.patrolPath[nextIndex];
+                        ctx.lineTo(waypoint.x, waypoint.y);
+                    }
+
+                    ctx.stroke();
+                    ctx.setLineDash([]); // Reset line dash
+                }
+            });
+
+            // Draw all enemies
+            gameState.enemies.forEach(enemy => {
+                if (enemy.defeated) return;
+
+                // Draw square for enemy
+                ctx.fillStyle = '#ff0000';
+                const enemySize = 16;
+                ctx.fillRect(enemy.x - enemySize / 2, enemy.y - enemySize / 2, enemySize, enemySize);
+
+                // Enemy indicator (square outline)
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 2;
+                const indicatorSize = 24;
+                ctx.strokeRect(enemy.x - indicatorSize / 2, enemy.y - indicatorSize / 2, indicatorSize, indicatorSize);
+            });
+
+            // Draw ship path during animation
+            if (gameState.animation.active) {
+                ctx.strokeStyle = '#ff666666'; // Light red with transparency
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(gameState.animation.startX, gameState.animation.startY);
+                ctx.lineTo(gameState.player.x, gameState.player.y);
+                ctx.stroke();
+            }
+
+            // Draw player (square)
+            ctx.fillStyle = '#00ff00';
+            const playerSize = 12;
+            ctx.fillRect(gameState.player.x - playerSize / 2, gameState.player.y - playerSize / 2, playerSize, playerSize);
+
+            // Player speed indicator (square outline)
+            if (gameState.player.speed > 1) {
+                ctx.strokeStyle = '#00ff00';
+                ctx.lineWidth = 2;
+                const speedIndicatorSize = 20;
+                ctx.strokeRect(gameState.player.x - speedIndicatorSize / 2, gameState.player.y - speedIndicatorSize / 2, speedIndicatorSize, speedIndicatorSize);
+            }
+
+            // Draw sight range circle (enemy detection range)
+            ctx.strokeStyle = '#ff000033';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(gameState.player.x, gameState.player.y, 100, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Update and render mining notifications
+            updateNotifications();
+            renderNotifications();
+        }
+
+        // Update HUD
+        function updateHUD() {
+            document.getElementById('turnDisplay').textContent = gameState.player.turn;
+            document.getElementById('fuelDisplay').textContent = gameState.player.fuel;
+            document.getElementById('crystalsDisplay').textContent = gameState.player.crystals;
+            document.getElementById('metalDisplay').textContent = gameState.player.metal;
+            document.getElementById('artifactsDisplay').textContent = gameState.player.artifacts;
+            document.getElementById('personnelDisplay').textContent = gameState.player.personnel;
+            document.getElementById('shipFramesDisplay').textContent = gameState.player.shipFrames;
+            document.getElementById('speedDisplay').textContent = `${gameState.player.speed}/16`;
+            document.getElementById('minersDisplay').textContent = gameState.player.availableMiners;
+
+            if (gameState.player.currentNode) {
+                document.getElementById('positionDisplay').textContent = gameState.player.currentNode.type;
+            } else {
+                document.getElementById('positionDisplay').textContent = 'space';
+            }
+
+            // Update enemy status - show count
+            const activeEnemies = gameState.enemies.filter(e => !e.defeated).length;
+            const defeatedEnemies = gameState.enemies.filter(e => e.defeated).length;
+            let enemyStatus = `Active: ${activeEnemies}/${gameState.maxEnemies}`;
+            if (defeatedEnemies > 0) {
+                enemyStatus += ` (${defeatedEnemies} defeated)`;
+            }
+            document.getElementById('enemyStatusDisplay').textContent = enemyStatus;
+
+            // Update button states
+            const onGANode = gameState.player.currentNode && isGravityAssistNode(gameState.player.currentNode);
+            const canUseGravity = onGANode && gameState.player.turn >= 1 && !gameState.gameOver;
+            const canSlowDown = onGANode && gameState.player.speed > 1 && !gameState.gameOver;
+            const canBuildMiner = gameState.player.metal >= 10 && gameState.player.canBuildThisTurn && !gameState.gameOver;
+            const canBuildShipFrame = gameState.player.metal >= 10 && gameState.player.canBuildThisTurn && !gameState.gameOver;
+
+            document.getElementById('gravityAssistBtn').disabled = !canUseGravity;
+            document.getElementById('slowDownBtn').disabled = !canSlowDown;
+            document.getElementById('buildMinerBtn').disabled = !canBuildMiner;
+            document.getElementById('buildShipFrameBtn').disabled = !canBuildShipFrame;
+        }
+
+        // Set message
+        function setMessage(text) {
+            document.getElementById('message').innerHTML = text;
+        }
+
+        // Start enemy animation
+        function startEnemyAnimation(enemy, endX, endY, callback) {
+            enemy.animating = true;
+            enemy.animStartX = enemy.x;
+            enemy.animStartY = enemy.y;
+            enemy.animEndX = endX;
+            enemy.animEndY = endY;
+            enemy.animStartTime = performance.now();
+            enemy.animCallback = callback;
+
+            animateEnemy(enemy);
+        }
+
+        // Animate enemy movement
+        function animateEnemy(enemy) {
+            if (!enemy.animating) return;
+
+            const now = performance.now();
+            const elapsed = now - enemy.animStartTime;
+            const progress = Math.min(elapsed / enemy.animDuration, 1);
+
+            // Linear movement for enemy (no easing)
+            enemy.x = enemy.animStartX +
+                (enemy.animEndX - enemy.animStartX) * progress;
+            enemy.y = enemy.animStartY +
+                (enemy.animEndY - enemy.animStartY) * progress;
+
+            render();
+
+            if (progress < 1) {
+                requestAnimationFrame(() => animateEnemy(enemy));
+            } else {
+                // Animation complete
+                enemy.animating = false;
+                enemy.x = enemy.animEndX;
+                enemy.y = enemy.animEndY;
+
+                if (enemy.animCallback) {
+                    enemy.animCallback();
+                    enemy.animCallback = null;
+                }
+            }
+        }
+
+        // Start player animation
+        function startPlayerAnimation(endX, endY, callback) {
+            gameState.animation.active = true;
+            gameState.animation.startX = gameState.player.x;
+            gameState.animation.startY = gameState.player.y;
+            gameState.animation.endX = endX;
+            gameState.animation.endY = endY;
+            gameState.animation.startTime = performance.now();
+            // Duration based on speed: faster speed = faster animation
+            gameState.animation.duration = 1000 / gameState.player.speed;
+            gameState.animation.callback = callback;
+
+            animatePlayer();
+        }
+
+        // Animate player movement
+        function animatePlayer() {
+            if (!gameState.animation.active) return;
+
+            const now = performance.now();
+            const elapsed = now - gameState.animation.startTime;
+            const progress = Math.min(elapsed / gameState.animation.duration, 1);
+
+            // Easing function for smooth motion (ease-in-out)
+            const eased = progress < 0.5
+                ? 2 * progress * progress
+                : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+            // Interpolate position
+            gameState.player.x = gameState.animation.startX +
+                (gameState.animation.endX - gameState.animation.startX) * eased;
+            gameState.player.y = gameState.animation.startY +
+                (gameState.animation.endY - gameState.animation.startY) * eased;
+
+            // Check for discoveries along the path
+            checkDiscoveries(gameState.player.x, gameState.player.y);
+
+            render();
+
+            if (progress < 1) {
+                requestAnimationFrame(animatePlayer);
+            } else {
+                // Animation complete
+                gameState.animation.active = false;
+                gameState.player.x = gameState.animation.endX;
+                gameState.player.y = gameState.animation.endY;
+
+                if (gameState.animation.callback) {
+                    gameState.animation.callback();
+                }
+            }
+        }
+
+        // Show gravity assist choice dialog
+        function showGravityAssistChoice(targetNode, distance) {
+            const maxRange = gameState.player.speed * 100;
+            const inRange = distance <= maxRange;
+            const speedChange = Math.floor(distance / 100) - 1;
+            const newSpeed = Math.min(16, gameState.player.speed + speedChange);
+
+            let info = `Target: ${targetNode.type}<br>`;
+            info += `Distance: ${Math.floor(distance)}px<br><br>`;
+
+            if (inRange) {
+                info += `<strong>Normal Travel:</strong> Travel to node (no speed change)<br><br>`;
+            } else {
+                info += `<strong>Normal Travel:</strong> OUT OF RANGE (need ${maxRange}px)<br><br>`;
+            }
+
+            info += `<strong>Gravity Assist:</strong> Teleport to node<br>`;
+            info += `Current speed: ${gameState.player.speed} → New speed: ${newSpeed}`;
+
+            document.getElementById('choiceInfo').innerHTML = info;
+            document.getElementById('normalTravelBtn').disabled = !inRange;
+            document.getElementById('choiceDialog').style.display = 'block';
+
+            // Store target for button handlers
+            gameState.choiceTarget = targetNode;
+            gameState.choiceDistance = distance;
+        }
+
+        // Hide choice dialog
+        function hideChoiceDialog() {
+            document.getElementById('choiceDialog').style.display = 'none';
+            gameState.choiceTarget = null;
+            gameState.choiceDistance = null;
+        }
+
+        // Show mining dialog
+        function showMiningDialog(node) {
+            if (!node || !node.mineable || !node.resources) return;
+
+            const info = `Location: ${node.type}<br>Available Miners: ${gameState.player.availableMiners}`;
+            document.getElementById('miningInfo').innerHTML = info;
+
+            // Build mining options
+            let optionsHTML = '';
+            node.resources.forEach((resource, index) => {
+                const unavailable = !resource.available;
+                const duration = resource.type === 'artifact' ? 5 : '7-13';
+                const reward = RARITY_REWARDS[resource.rarity];
+                const color = RARITY_COLORS[resource.rarity];
+
+                optionsHTML += `
+                    <div class="mining-resource ${unavailable ? 'unavailable' : ''}">
+                        <div class="mining-resource-info">
+                            <div class="mining-resource-name" style="color: ${color}">
+                                ${resource.type.toUpperCase()} (${resource.rarity})
+                            </div>
+                            <div class="mining-resource-details">
+                                +${reward}/turn for ${duration} turns
+                                ${unavailable ? ' - UNAVAILABLE' : ''}
+                            </div>
+                        </div>
+                        <button onclick="deployMiner(${node.id}, ${index})" ${unavailable || gameState.player.availableMiners <= 0 ? 'disabled' : ''}>
+                            Deploy Miner
+                        </button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('miningOptions').innerHTML = optionsHTML;
+            document.getElementById('miningDialog').style.display = 'block';
+        }
+
+        // Hide mining dialog
+        function hideMiningDialog() {
+            document.getElementById('miningDialog').style.display = 'none';
+        }
+
+        // Show trader dialog
+        function showTraderDialog(node) {
+            const info = `Your Crystals: ${gameState.player.crystals}`;
+            document.getElementById('traderInfo').innerHTML = info;
+
+            // Build trade options (5 crystals -> 10 fuel/metal/personnel, 15 crystals -> 1 artifact)
+            const trades = [
+                { cost: 5, give: 'fuel', amount: 10 },
+                { cost: 5, give: 'metal', amount: 10 },
+                { cost: 5, give: 'personnel', amount: 10 },
+                { cost: 15, give: 'artifacts', amount: 1 }
+            ];
+
+            let optionsHTML = '';
+            trades.forEach((trade, index) => {
+                const canAfford = gameState.player.crystals >= trade.cost;
+                optionsHTML += `
+                    <div class="trade-option">
+                        <div class="trade-option-info">
+                            <strong>${trade.cost} Crystals → ${trade.amount} ${trade.give}</strong>
+                        </div>
+                        <button onclick="executeTrade(${index})" ${!canAfford ? 'disabled' : ''}>
+                            Trade
+                        </button>
+                    </div>
+                `;
+            });
+
+            document.getElementById('tradeOptions').innerHTML = optionsHTML;
+            document.getElementById('traderDialog').style.display = 'block';
+
+            // Store trades for execution
+            gameState.currentTrades = trades;
+        }
+
+        // Hide trader dialog
+        function hideTraderDialog() {
+            document.getElementById('traderDialog').style.display = 'none';
+            gameState.currentTrades = null;
+        }
+
+        // Execute a trade
+        function executeTrade(tradeIndex) {
+            const trade = gameState.currentTrades[tradeIndex];
+
+            if (gameState.player.crystals < trade.cost) {
+                setMessage('Not enough crystals for this trade!');
+                return;
+            }
+
+            gameState.player.crystals -= trade.cost;
+            gameState.player[trade.give] += trade.amount;
+
+            setMessage(`Traded ${trade.cost} crystals for ${trade.amount} ${trade.give}!`);
+            updateHUD();
+            hideTraderDialog();
+        }
+
+        // Canvas click handler
+        canvas.addEventListener('click', (e) => {
+            if (gameState.gameOver || gameState.animation.active) return;
+
+            const rect = canvas.getBoundingClientRect();
+
+            // Account for canvas scaling (CSS size vs internal size)
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const clickX = (e.clientX - rect.left) * scaleX;
+            const clickY = (e.clientY - rect.top) * scaleY;
+
+            if (gameState.gravityAssistMode) {
+                handleGravityAssistClick(clickX, clickY);
+            } else {
+                handleMovementClick(clickX, clickY);
+            }
+        });
+
+        // Handle normal movement
+        function handleMovementClick(clickX, clickY) {
+            // Check if clicking on any enemy (for combat)
+            let clickingEnemy = false;
+            let clickedEnemy = null;
+            for (let enemy of gameState.enemies) {
+                if (enemy.defeated) continue;
+
+                const enemyDx = enemy.x - clickX;
+                const enemyDy = enemy.y - clickY;
+                const enemyDist = Math.sqrt(enemyDx * enemyDx + enemyDy * enemyDy);
+
+                if (enemyDist <= 20) { // Within 20px of enemy
+                    clickingEnemy = true;
+                    clickedEnemy = enemy;
+                    // Override click position to enemy position for exact targeting
+                    clickX = enemy.x;
+                    clickY = enemy.y;
+                    break;
+                }
+            }
+
+            // Check if clicking on a node
+            let targetNode = null;
+            if (!clickingEnemy) {
+                for (let node of gameState.nodes) {
+                    const dx = node.x - clickX;
+                    const dy = node.y - clickY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist <= node.radius + 5) {
+                        targetNode = node;
+                        break;
+                    }
+                }
+            }
+
+            // Calculate distance to click point
+            const dx = clickX - gameState.player.x;
+            const dy = clickY - gameState.player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const maxRange = gameState.player.speed * 100;
+
+            // Speed 1: Can click anywhere within range (doesn't need to be a node)
+            if (gameState.player.speed === 1) {
+                if (distance > maxRange) {
+                    setMessage(`Out of range! Distance: ${Math.floor(distance)}px, Max range: ${maxRange}px`);
+                    return;
+                }
+
+                // Animate movement to clicked location
+                startPlayerAnimation(clickX, clickY, () => {
+                    gameState.player.currentNode = targetNode;
+                    gameState.player.fuel--;
+                    gameState.player.turn++;
+                    gameState.player.canBuildThisTurn = true;
+
+                    // Check for combat with enemy
+                    const nearbyEnemy = isNearEnemy(gameState.player.x, gameState.player.y);
+                    if (nearbyEnemy) {
+                        initiateCombat(nearbyEnemy);
+                        return; // Combat handles everything else
+                    }
+
+                    // Mark planet as visited if landing on one
+                    if (targetNode) {
+                        markPlanetVisited(targetNode);
+                        setMessage(`Traveled to ${targetNode.type}. ${nodeEvent(targetNode)}`);
+                    } else {
+                        setMessage('Drifting through space...');
+                    }
+
+                    // Final discovery check at destination
+                    checkDiscoveries(gameState.player.x, gameState.player.y);
+
+                    // Check for game over
+                    if (gameState.player.fuel <= 0) {
+                        gameOver('OUT OF FUEL');
+                        return;
+                    }
+
+                    // Process mining operations
+                    processMiningTurn();
+
+                    // Enemy phase
+                    enemyTurn();
+                    updateHUD();
+                    render();
+                });
+                return;
+            }
+
+            // Speed > 1: Can only click gravity assist points
+            if (!targetNode) {
+                setMessage('At high speed, you can only travel to gravity assist points (rocky or gas planets).');
+                return;
+            }
+
+            if (!isGravityAssistNode(targetNode)) {
+                setMessage('At high speed, you can only travel to rocky or gas planets.');
+                return;
+            }
+
+            // Gravity assist node clicked - show choice
+            showGravityAssistChoice(targetNode, distance);
+        }
+
+        // Handle gravity assist click (from button mode)
+        function handleGravityAssistClick(clickX, clickY) {
+            // Check if clicking on a gravity assist node
+            let targetNode = null;
+            for (let node of gameState.nodes) {
+                if (!isGravityAssistNode(node)) continue;
+
+                const dx = node.x - clickX;
+                const dy = node.y - clickY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist <= node.radius + 5) {
+                    targetNode = node;
+                    break;
+                }
+            }
+
+            if (!targetNode) {
+                setMessage('Select a gravity assist point (rocky or gas planet).');
+                return;
+            }
+
+            // Prevent selecting current planet
+            if (targetNode === gameState.player.currentNode) {
+                setMessage('Cannot gravity assist from your current location!');
+                return;
+            }
+
+            // Calculate distance and new speed
+            const dx = targetNode.x - gameState.player.x;
+            const dy = targetNode.y - gameState.player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const speedChange = Math.floor(distance / 100) - 1;
+            const oldSpeed = gameState.player.speed;
+            const newSpeed = Math.min(16, gameState.player.speed + speedChange);
+
+            gameState.gravityAssistMode = false;
+
+            // Animate movement to target
+            startPlayerAnimation(targetNode.x, targetNode.y, () => {
+                gameState.player.currentNode = targetNode;
+                gameState.player.speed = newSpeed;
+                gameState.player.fuel--;
+                gameState.player.turn++;
+                gameState.player.canBuildMinerThisTurn = true;
+
+                // Check for combat with enemy
+                const nearbyEnemy = isNearEnemy(gameState.player.x, gameState.player.y);
+                if (nearbyEnemy) {
+                    initiateCombat(nearbyEnemy);
+                    return; // Combat handles everything else
+                }
+
+                // Mark planet as visited
+                markPlanetVisited(targetNode);
+
+                setMessage(`GRAVITY ASSIST! Launched to ${targetNode.type}. Speed: ${oldSpeed} → ${newSpeed}. ${nodeEvent(targetNode)}`);
+
+                // Final discovery check at destination
+                checkDiscoveries(gameState.player.x, gameState.player.y);
+
+                // Check for game over
+                if (gameState.player.fuel <= 0) {
+                    gameOver('OUT OF FUEL');
+                    return;
+                }
+
+                // Process mining operations
+                processMiningTurn();
+
+                // Enemy phase
+                enemyTurn();
+
+                updateHUD();
+                render();
+            });
+        }
+
+        // Execute normal travel from choice dialog
+        function executeNormalTravel() {
+            const targetNode = gameState.choiceTarget;
+            hideChoiceDialog();
+
+            // Animate movement to target (no speed change)
+            startPlayerAnimation(targetNode.x, targetNode.y, () => {
+                gameState.player.currentNode = targetNode;
+                gameState.player.fuel--;
+                gameState.player.turn++;
+                gameState.player.canBuildMinerThisTurn = true;
+
+                // Check for combat with enemy
+                const nearbyEnemy = isNearEnemy(gameState.player.x, gameState.player.y);
+                if (nearbyEnemy) {
+                    initiateCombat(nearbyEnemy);
+                    return; // Combat handles everything else
+                }
+
+                // Mark planet as visited
+                markPlanetVisited(targetNode);
+
+                setMessage(`Traveled to ${targetNode.type}. ${nodeEvent(targetNode)}`);
+
+                // Final discovery check at destination
+                checkDiscoveries(gameState.player.x, gameState.player.y);
+
+                // Check for game over
+                if (gameState.player.fuel <= 0) {
+                    gameOver('OUT OF FUEL');
+                    return;
+                }
+
+                // Process mining operations
+                processMiningTurn();
+
+                // Enemy phase
+                enemyTurn();
+                updateHUD();
+                render();
+            });
+        }
+
+        // Execute gravity assist from choice dialog
+        function executeGravityAssist() {
+            const targetNode = gameState.choiceTarget;
+            const distance = gameState.choiceDistance;
+            hideChoiceDialog();
+
+            const speedChange = Math.floor(distance / 100) - 1;
+            const oldSpeed = gameState.player.speed;
+            const newSpeed = Math.min(16, gameState.player.speed + speedChange);
+
+            // Animate movement to target
+            startPlayerAnimation(targetNode.x, targetNode.y, () => {
+                gameState.player.currentNode = targetNode;
+                gameState.player.speed = newSpeed;
+                gameState.player.fuel--;
+                gameState.player.turn++;
+                gameState.player.canBuildMinerThisTurn = true;
+
+                // Check for combat with enemy
+                const nearbyEnemy = isNearEnemy(gameState.player.x, gameState.player.y);
+                if (nearbyEnemy) {
+                    initiateCombat(nearbyEnemy);
+                    return; // Combat handles everything else
+                }
+
+                // Mark planet as visited
+                markPlanetVisited(targetNode);
+
+                setMessage(`GRAVITY ASSIST! Launched to ${targetNode.type}. Speed: ${oldSpeed} → ${newSpeed}. ${nodeEvent(targetNode)}`);
+
+                // Final discovery check at destination
+                checkDiscoveries(gameState.player.x, gameState.player.y);
+
+                // Check for game over
+                if (gameState.player.fuel <= 0) {
+                    gameOver('OUT OF FUEL');
+                    return;
+                }
+
+                // Process mining operations
+                processMiningTurn();
+
+                // Enemy phase
+                enemyTurn();
+                updateHUD();
+                render();
+            });
+        }
+
+        // Node event (placeholder)
+        function nodeEvent(node) {
+            let message = '';
+
+            // Handle graveyard salvage
+            if (node.type === 'graveyard' && !node.salvaged) {
+                node.salvaged = true;
+                if (node.salvageResource === 'artifact') {
+                    gameState.player.artifacts += node.salvageAmount;
+                    message = `Salvaged ${node.salvageAmount} artifact from the wreckage!`;
+                } else {
+                    gameState.player.metal += node.salvageAmount;
+                    message = `Salvaged ${node.salvageAmount} metal from the wreckage!`;
+                }
+                updateHUD();
+            } else if (node.type === 'graveyard' && node.salvaged) {
+                message = 'Already salvaged this graveyard.';
+            }
+
+            // Handle outpost bonus
+            else if (node.type === 'outpost' && !node.used) {
+                node.used = true;
+                gameState.player[node.bonusResource] += node.bonusAmount;
+                message = `Outpost provided ${node.bonusAmount} ${node.bonusResource}!`;
+                updateHUD();
+            } else if (node.type === 'outpost' && node.used) {
+                message = 'Outpost already provided supplies.';
+            }
+
+            // Handle trader
+            else if (node.type === 'trader') {
+                showTraderDialog(node);
+                message = 'Traders willing to barter.';
+            }
+
+            // Handle exit node - WIN CONDITION!
+            else if (node.type === 'enemySpawner') {
+                gameState.gameOver = true;
+                message = '<strong>VICTORY!</strong><br>You reached the exit! Sector explored successfully!';
+                setTimeout(() => {
+                    if (confirm('YOU WIN! Play again?')) {
+                        initGame();
+                    }
+                }, 100);
+            }
+
+            // Default messages
+            else {
+                const events = {
+                    rockyPlanet: 'A solid, mineral-rich world.',
+                    gasPlanet: 'Strange gravitational readings from the gas giant.',
+                    moon: 'Orbiting a nearby planet.',
+                    asteroid: 'Found some minerals.',
+                    colonyShip: 'Ancient colony ship drifting.',
+                    asteroidField: 'Navigating debris field.',
+                    sun: 'Too hot to stay long!',
+                    enemySpawner: 'WARNING: Enemy territory!'
+                };
+                message = events[node.type] || 'Unknown location.';
+            }
+
+            // Show mining dialog if node is minable
+            if (node.mineable && node.resources) {
+                showMiningDialog(node);
+            }
+
+            return message;
+        }
+
+        // Generate spiral patrol pattern (outward from center)
+        function generateSpiralPatrol(allNodes) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const patrolableTypes = ['rockyPlanet', 'gasPlanet', 'moon', 'asteroid', 'asteroidField', 'outpost', 'graveyard', 'trader'];
+            const candidates = allNodes.filter(n => patrolableTypes.includes(n.type));
+
+            // Sort by distance from center
+            const sorted = candidates.sort((a, b) => {
+                const distA = Math.sqrt(Math.pow(a.x - centerX, 2) + Math.pow(a.y - centerY, 2));
+                const distB = Math.sqrt(Math.pow(b.x - centerX, 2) + Math.pow(b.y - centerY, 2));
+                return distA - distB;
+            });
+
+            return sorted.slice(0, 15);
+        }
+
+        // Generate sector search patrol (one quarter of map)
+        function generateSectorPatrol(allNodes) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const patrolableTypes = ['rockyPlanet', 'gasPlanet', 'moon', 'asteroid', 'asteroidField', 'outpost', 'graveyard', 'trader'];
+
+            // Choose a random quadrant (0-3)
+            const quadrant = Math.floor(Math.random() * 4);
+
+            const candidates = allNodes.filter(n => {
+                if (!patrolableTypes.includes(n.type)) return false;
+
+                const relX = n.x - centerX;
+                const relY = n.y - centerY;
+
+                // Determine which quadrant this node is in
+                if (quadrant === 0) return relX >= 0 && relY < 0;  // Top-right
+                if (quadrant === 1) return relX < 0 && relY < 0;   // Top-left
+                if (quadrant === 2) return relX < 0 && relY >= 0;  // Bottom-left
+                if (quadrant === 3) return relX >= 0 && relY >= 0; // Bottom-right
+            });
+
+            // Shuffle and take up to 15
+            return candidates.sort(() => Math.random() - 0.5).slice(0, 15);
+        }
+
+        // Generate planet loop patrol (just planets)
+        function generatePlanetLoopPatrol(allNodes) {
+            const planets = allNodes.filter(n => n.type === 'rockyPlanet' || n.type === 'gasPlanet');
+
+            // Sort planets by angle from center for a circular patrol
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            const sorted = planets.sort((a, b) => {
+                const angleA = Math.atan2(a.y - centerY, a.x - centerX);
+                const angleB = Math.atan2(b.y - centerY, b.x - centerX);
+                return angleA - angleB;
+            });
+
+            return sorted;
+        }
+
+        // Generate a patrol path based on random pattern type
+        function generatePatrolPath(allNodes) {
+            const patterns = ['spiral', 'sector', 'planetLoop'];
+            const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+
+            if (pattern === 'spiral') {
+                return generateSpiralPatrol(allNodes);
+            } else if (pattern === 'sector') {
+                return generateSectorPatrol(allNodes);
+            } else {
+                return generatePlanetLoopPatrol(allNodes);
+            }
+        }
+
+        // Spawn a new enemy with unique patrol path and color
+        function spawnEnemy(allNodes, spawner) {
+            const patrolColors = ['#ff0000', '#ff8800', '#ffff00', '#00ff00', '#00ffff'];
+            const colorIndex = gameState.enemies.length % patrolColors.length;
+
+            const enemy = {
+                id: Date.now() + Math.random(),
+                x: spawner.x,
+                y: spawner.y,
+                patrolPath: generatePatrolPath(allNodes),
+                patrolColor: patrolColors[colorIndex],
+                currentPathIndex: 0,
+                defeated: false,
+                animating: false,
+                animStartX: 0,
+                animStartY: 0,
+                animEndX: 0,
+                animEndY: 0,
+                animStartTime: 0,
+                animDuration: 1000
+            };
+            gameState.enemies.push(enemy);
+        }
+
+        // Enemy turn - handles all enemies
+        function enemyTurn() {
+            // Check if we should spawn a new enemy
+            // Spawn on turn 1, 3, 5, then every odd turn if less than 3 ACTIVE enemies
+            const activeEnemies = gameState.enemies.filter(e => !e.defeated).length;
+            const shouldSpawn = activeEnemies < gameState.maxEnemies &&
+                                gameState.enemySpawner &&
+                                gameState.player.turn !== gameState.lastEnemySpawnTurn &&
+                                ((gameState.player.turn === 1 || gameState.player.turn === 3 || gameState.player.turn === 5) ||
+                                 (gameState.player.turn > 5 && gameState.player.turn % 2 === 1));
+
+            if (shouldSpawn) {
+                spawnEnemy(gameState.nodes, gameState.enemySpawner);
+                gameState.lastEnemySpawnTurn = gameState.player.turn;
+                const newActiveCount = gameState.enemies.filter(e => !e.defeated).length;
+                setMessage(`WARNING: New enemy spawned! (${newActiveCount}/${gameState.maxEnemies} active)`);
+            }
+
+            // Move each enemy
+            gameState.enemies.forEach(enemy => {
+                // Don't move if defeated or animating
+                if (enemy.defeated || enemy.animating) return;
+
+                // Follow patrol path
+                enemy.currentPathIndex = (enemy.currentPathIndex + 1) % enemy.patrolPath.length;
+                const targetPlanet = enemy.patrolPath[enemy.currentPathIndex];
+
+                // Always animate movement (enemies are always visible)
+                startEnemyAnimation(enemy, targetPlanet.x, targetPlanet.y, () => {
+                    // Check for miners at this location and destroy them (after arrival)
+                    checkAndDestroyMiners(targetPlanet);
+                });
+            });
+
+            // Update HUD to reflect enemy status
+            updateHUD();
+        }
+
+        // Initiate combat with enemy
+        function initiateCombat(enemy) {
+            // Show warning flash
+            document.getElementById('combatWarning').style.display = 'block';
+
+            // After 1.5 seconds, resolve combat
+            setTimeout(() => {
+                // Hide warning
+                document.getElementById('combatWarning').style.display = 'none';
+
+                // Calculate win chance based on ship frames
+                // 5 frames = 100%, each missing frame = -20%
+                const winChance = Math.min(gameState.player.shipFrames * 0.2, 1.0);
+                const won = Math.random() < winChance;
+
+                // Battle costs: 1 personnel and 1 ship frame (always)
+                gameState.player.personnel -= 1;
+                gameState.player.shipFrames -= 1;
+
+                if (won) {
+                    // Victory!
+                    enemy.defeated = true;
+
+                    // Award player
+                    gameState.player.artifacts += 1;
+
+                    // Random bonus resource (5-20 units)
+                    const bonusTypes = ['fuel', 'crystals', 'metal'];
+                    const bonusType = bonusTypes[Math.floor(Math.random() * bonusTypes.length)];
+                    const bonusAmount = 5 + Math.floor(Math.random() * 16); // 5-20
+
+                    gameState.player[bonusType] += bonusAmount;
+
+                    // Show victory message
+                    const activeEnemies = gameState.enemies.filter(e => !e.defeated).length;
+                    setMessage(`<strong>COMBAT VICTORY!</strong> (${Math.round(winChance * 100)}% chance)<br>Cost: 1 personnel, 1 ship frame<br>Enemy destroyed! (${activeEnemies} remain)<br>Received: 1 artifact + ${bonusAmount} ${bonusType}`);
+                } else {
+                    // Defeat!
+                    setMessage(`<strong>COMBAT DEFEAT!</strong> (${Math.round(winChance * 100)}% win chance)<br>Lost: 1 personnel, 1 ship frame (${gameState.player.shipFrames} remaining)<br>Enemy retreats.`);
+                }
+
+                updateHUD();
+                render();
+            }, 1500);
+        }
+
+        // Check if position is near any enemy (for combat detection), returns enemy or null
+        function isNearEnemy(x, y) {
+            for (let enemy of gameState.enemies) {
+                if (enemy.defeated) continue;
+
+                const dx = x - enemy.x;
+                const dy = y - enemy.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist <= 20) { // Within 20px counts as combat
+                    return enemy;
+                }
+            }
+            return null;
+        }
+
+        // Check and destroy miners at a location
+        function checkAndDestroyMiners(targetPlanet) {
+            const minersToDestroy = [];
+            gameState.deployedMiners.forEach((miner, index) => {
+                if (miner.nodeId === targetPlanet.id) {
+                    minersToDestroy.push(index);
+                }
+            });
+
+            // Destroy miners but save workers
+            for (let i = minersToDestroy.length - 1; i >= 0; i--) {
+                const minerIndex = minersToDestroy[i];
+                const miner = gameState.deployedMiners[minerIndex];
+
+                // Worker is saved, but miner is destroyed
+                gameState.player.availableMiners++;
+
+                // Mark resource as available again
+                const node = gameState.nodes.find(n => n.id === miner.nodeId);
+                if (node && node.resources) {
+                    const resource = node.resources.find(r => r.type === miner.resourceType && r.rarity === miner.rarity);
+                    if (resource) {
+                        resource.available = true;
+                    }
+                }
+
+                setMessage(`Enemy destroyed your miner at ${miner.nodeName}! Worker escaped safely.`);
+                gameState.deployedMiners.splice(minerIndex, 1);
+            }
+        }
+
+        // Game over
+        function gameOver(reason) {
+            gameState.gameOver = true;
+            setMessage(`<strong>GAME OVER</strong><br>${reason}<br>Turns survived: ${gameState.player.turn}<br>Click RESTART to play again.`);
+            render();
+        }
+
+        // Button handlers
+        document.getElementById('gravityAssistBtn').addEventListener('click', () => {
+            gameState.gravityAssistMode = true;
+            setMessage('GRAVITY ASSIST MODE: Click a gravity assist point (rocky or gas planet) to launch. Unlimited range!');
+            render();
+        });
+
+        document.getElementById('slowDownBtn').addEventListener('click', () => {
+            gameState.player.speed = Math.max(1, gameState.player.speed - 5);
+            setMessage(`Speed reduced to ${gameState.player.speed}.`);
+            updateHUD();
+            render();
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            initGame();
+        });
+
+        document.getElementById('normalTravelBtn').addEventListener('click', () => {
+            executeNormalTravel();
+        });
+
+        document.getElementById('gravityAssistConfirmBtn').addEventListener('click', () => {
+            executeGravityAssist();
+        });
+
+        document.getElementById('buildMinerBtn').addEventListener('click', () => {
+            buildMiner();
+        });
+
+        document.getElementById('buildShipFrameBtn').addEventListener('click', () => {
+            buildShipFrame();
+        });
+
+        document.getElementById('closeMiningBtn').addEventListener('click', () => {
+            hideMiningDialog();
+        });
+
+        document.getElementById('closeTraderBtn').addEventListener('click', () => {
+            hideTraderDialog();
+        });
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>

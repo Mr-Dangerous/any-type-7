@@ -1,0 +1,12 @@
+drone_ID,sprite_path,sprite_width,sprite_height,animation_idle,animation_attack,animation_deploy,animation_death,trail_color,glow_color,particle_effect
+common_drone,res://assets/drones/common_assault_drone.png,16,16,idle,attack,deploy,death,#4488FF,#6699FF,engine_trail
+uncommon_drone,res://assets/drones/uncommon_assault_drone.png,16,16,idle,attack,deploy,death,#44AAFF,#66CCFF,engine_trail
+rare_drone,res://assets/drones/rare_assault_drone.png,20,20,idle,attack,deploy,death,#44DDFF,#66EEFF,enhanced_trail
+epic_drone,res://assets/drones/epic_assault_drone.png,20,20,idle,attack,deploy,death,#DD44FF,#EE66FF,plasma_trail
+legendary_drone,res://assets/drones/legendary_assault_drone.png,24,24,idle,attack,deploy,death,#FFDD44,#FFEE66,legendary_aura
+common_shield_drone,res://assets/drones/common_shield_drone.png,16,16,idle,shield_pulse,deploy,death,#44FF88,#66FFAA,shield_particles
+uncommon_shield_drone,res://assets/drones/uncommon_shield_drone.png,16,16,idle,shield_pulse,deploy,death,#44FFAA,#66FFCC,shield_particles
+rare_shield_drone,res://assets/drones/rare_shield_drone.png,20,20,idle,shield_pulse,deploy,death,#44FFDD,#66FFEE,enhanced_shield
+common_repair_drone,res://assets/drones/common_repair_drone.png,16,16,idle,repair_beam,deploy,death,#FFAA44,#FFCC66,repair_sparks
+uncommon_repair_drone,res://assets/drones/uncommon_repair_drone.png,16,16,idle,repair_beam,deploy,death,#FFCC44,#FFDD66,repair_sparks
+rare_repair_drone,res://assets/drones/rare_repair_drone.png,20,20,idle,repair_beam,deploy,death,#FFDD44,#FFEE66,enhanced_repair

@@ -1,0 +1,51 @@
+ability_id,ability_name,ability_type,energy_cost,cooldown,base_damage,trigger_type,combo_damage_bonus,range,targeting,projectile_behavior,status_effect_applied,status_stacks,status_duration,special_mechanic,description
+
+# TRIGGER ABILITIES (Explosive - Universal Detonation)
+rocket,Rocket,trigger,40,8.0,30,explosive,0,25,lane,straight_line,,,,,Shoots straight down the lane and deals 30 damage. Detonates all status effects on hit.
+missile,Missile,trigger,50,10.0,30,explosive,0,20,current_target,homing,,,,,Homes toward current target and deals 30 damage. Detonates all status effects on hit.
+deathseeker_missile,Deathseeker Missile,trigger,60,12.0,30,explosive,50,25,lowest_hp,homing,,,,,Targets enemy with lowest hull. Detonates status effects for +50% combo damage.
+cluster_missile,Cluster Missile,trigger,70,15.0,20,explosive,0,20,area,homing_cluster,,,,,Splits into 3 missiles that each trigger combos on separate targets.
+barrage_rockets,Rocket Barrage,trigger,80,10.0,15,explosive,0,25,lane,straight_line_multi,,,,,Fires 5 rockets in quick succession. Each can trigger combos.
+
+# TRIGGER ABILITIES (Element-Specific)
+incinerator_ray,Incinerator Ray,trigger,50,8.0,30,fire,0,15,current_target,beam,burn,3,5.0,trigger_then_apply,Deals 30 fire damage and detonates Burn. Applies 3 new Burn stacks after trigger.
+cryogenic_lance,Cryogenic Lance,trigger,55,9.0,25,ice,0,12,current_target,projectile,freeze,2,4.0,shatter_bonus,Detonates Freeze for bonus damage. Applies 2 Freeze stacks.
+tesla_cannon,Tesla Cannon,trigger,60,10.0,28,lightning,0,10,current_target,chain,static,2,6.0,chain_to_static,Detonates Static and chains to nearby enemies with Static stacks.
+acid_mortar,Acid Mortar,trigger,50,11.0,35,acid,0,18,ground_target,arc,acid,1,10.0,leaves_pool,Detonates Acid and leaves corrosive pool that deals damage over time.
+singularity_missile,Singularity Missile,trigger,65,13.0,32,gravity,0,20,current_target,homing,gravity,2,5.0,pull_enemies,Detonates Gravity and pulls nearby enemies toward impact point.
+
+# SETUP ABILITIES (Apply Status - No Trigger)
+flamethrower,Flamethrower,setup,30,5.0,10,none,0,8,cone,cone_aoe,burn,1,5.0,,Sprays fire in a cone. Applies 1 Burn stack per tick.
+ice_beam,Ice Beam,setup,35,6.0,12,none,0,10,current_target,beam,freeze,1,4.0,,Continuous beam that slows enemies. Applies 1 Freeze stack per second.
+emp_pulse,EMP Pulse,setup,40,7.0,5,none,0,12,area,pulse,static,2,6.0,,Electromagnetic pulse. Applies 2 Static stacks to all enemies in radius.
+corrosive_spray,Corrosive Spray,setup,35,6.0,8,none,0,9,cone,cone_aoe,acid,1,10.0,,Sprays acid in a cone. Applies 1 Acid stack and reduces armor.
+gravity_mine,Gravity Mine,setup,45,10.0,0,none,0,15,ground_target,deployable,gravity,3,8.0,,Deploys mine that applies 3 Gravity stacks when enemies pass.
+
+# HYBRID ABILITIES (Damage + Utility)
+plasma_cannon,Plasma Cannon,damage,50,6.0,40,none,0,12,current_target,projectile,burn,1,3.0,,High damage plasma shot. Applies 1 Burn stack.
+railgun,Railgun,damage,60,8.0,80,none,0,20,lane,piercing,,,,,Piercing shot that hits all enemies in a line. High single-target damage.
+ion_cannon,Ion Cannon,damage,70,10.0,60,none,0,15,current_target,charge_beam,static,1,5.0,,Charged beam weapon. Applies Static and deals high damage.
+nanite_swarm,Nanite Swarm,utility,40,12.0,5,none,0,8,area,swarm,acid,2,8.0,heal_on_kill,Deploys nanites that apply Acid and heal ship when enemies die.
+shield_battery,Shield Battery,utility,50,15.0,0,none,0,0,self,self_buff,,,,,Instantly regenerate 50% of max shields.
+
+# ULTIMATE ABILITIES (High Cost, High Impact)
+apocalypse_missile,Apocalypse Missile,ultimate,100,30.0,100,explosive,100,30,area,homing_mega,,,,,Massive missile that detonates ALL status effects for double combo damage.
+elemental_storm,Elemental Storm,ultimate,120,35.0,50,explosive,50,15,area,storm,burn;freeze;static,1,5.0,multi_element,Creates storm that applies random elements and triggers combos continuously.
+omega_beam,Omega Beam,ultimate,100,25.0,150,none,0,25,lane,piercing_beam,,,,,Devastating beam that pierces all enemies in lane.
+
+# SHIP-SPECIFIC ABILITIES (From Ship Database)
+missile_lock,Missile Lock,trigger,50,0,50,explosive,0,20,current_target,homing,,,,,Launch a missile that deals 50 damage. Detonates all elemental effects on hit.
+silent_running,Silent Running,utility,60,0,0,none,0,0,self,dash_cloak,,,10.0,bonus_damage_on_return,"When activated, cloak and boost down the row at high speed. Turn around and deal bonus damage based on distance traveled."
+barrage,Barrage,damage,70,0,5,none,0,15,lane,rapid_fire,,,3.0,16_shots,"Launch a blast of 16 auto-attacks down this ship's row at reduced damage (5 per shot)."
+mark_target,Mark Target,debuff,40,0,0,none,0,0,current_target,mark,,,3.0,damage_amplification,"Mark the ship's current target for 3 seconds. All auto-attacks against this target deal +50% damage."
+reactive_armor,Reactive Armor,defensive,50,0,0,none,0,0,self,shield_gain,,,10.0,damage_reflect,"Gain 40 shields. For the next 10 seconds, any ship that attacks this unit takes 10 damage."
+tactical_command,Tactical Command,buff,60,0,0,none,0,0,area,aura_buff,,,8.0,damage_buff,"When activated, all ships in a 2 square radius gain +30% attack damage for 8 seconds."
+shield_projection,Shield Projection,defensive,55,0,0,none,0,3,forward,obstacle,,,8.0,blocking_wall,"Blast forward 3 squares in the row. An obstacle is created that blocks enemy projectiles and slowly fades over 8 seconds."
+burning_field,Burning Field,setup,65,0,5,fire,0,2,area,damage_field,burn,1,10.0,periodic_burn_attempt,"Deal 5 fire damage per second to all enemies in a 2 square radius. Every 5 seconds in the field, attempt to apply 1 Burn stack."
+alpha_strike,Alpha Strike,damage,50,0,35,none,0,12,current_target,projectile,,,,,High-damage precision strike on current target.
+precision_strike,Precision Strike,damage,45,0,30,none,0,10,current_target,projectile,,,,,Precision attack with increased critical hit chance (+20% crit).
+emp_burst,EMP Burst,setup,60,0,15,none,0,10,area,pulse,static,2,5.0,energy_drain,"Electromagnetic pulse that applies 2 Static stacks and drains 20 energy from all enemies in radius."
+cloak,Cloak,utility,40,0,0,none,0,0,self,stealth,,,12.0,evasion_buff,"Gain stealth for 12 seconds. Cannot be targeted unless attacker is adjacent or ship takes damage. +20 evasion while active."
+fortify,Fortify,defensive,55,0,0,none,0,0,self,armor_buff,,,15.0,damage_reduction,"Increase armor by +25 for 15 seconds. Gain damage reduction and become harder to kill."
+weapon_overcharge,Weapon Overcharge,buff,50,0,0,none,0,0,self,weapon_buff,,,10.0,attack_speed_bonus,"Overcharge all equipped weapons. +50% attack speed and +20% damage for 10 seconds."
+fleet_coordination,Fleet Coordination,buff,70,0,0,none,0,3,area,multi_buff,,,12.0,all_stat_buff,"Grant all allies in 3 square radius +15% to all combat stats (damage, speed, accuracy, evasion) for 12 seconds."

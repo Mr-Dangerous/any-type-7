@@ -1,0 +1,50 @@
+element,base_combo_damage,scaling_per_stack,damage_type,visual_effect,special_mechanic_description
+,,,,,
+# ELEMENTAL COMBO BASE VALUES,,,,,
+burn,20,0.5,fire,fire_explosion,
+freeze,15,0.5,cold,ice_shatter,
+static,18,0.5,lightning,electric_discharge,
+acid,22,0.5,acid,corrosive_burst,
+gravity,17,0.5,gravity,gravity_implosion,
+,,,,,
+# ELEMENT-SPECIFIC TRIGGER EFFECTS (when trigger matches element),,,,,
+burn_fire_trigger,25,0.6,fire,inferno_detonation,Reapply 3 burn stacks
+freeze_ice_trigger,20,0.6,cold,absolute_zero_shatter,Stun for 1 second
+static_lightning_trigger,23,0.6,lightning,chain_lightning,Spread static
+acid_acid_trigger,28,0.6,acid,acid_pool,Reapply 3 acid stacks
+gravity_gravity_trigger,22,0.6,gravity,gravitational_collapse,Pull nearby enemies into this ships row
+,,,,,
+# CROSS-ELEMENT COMBOS: FIRE TRIGGER,,,,,
+burn_fire_trigger,25,0.6,fire,inferno_detonation,Reapply 3 burn stacks
+freeze_fire_trigger,22,0.5,fire,steam_explosion,Apply Malfunction for 3 seconds
+static_fire_trigger,24,0.5,fire,plasma_burst,Deal bonus damage and apply 2 Burn stacks
+acid_fire_trigger,23,0.5,fire,toxic_fumes,Leave poisonous cloud that deals 10 damage/sec for 5 seconds
+gravity_fire_trigger,25,0.5,fire,stellar_collapse,Pull nearby enemies 2 squares and apply 1 Burn stack
+,,,,,
+# CROSS-ELEMENT COMBOS: ICE TRIGGER,,,,,
+burn_ice_trigger,21,0.5,cold,flash_freeze,Apply Stun for 1.5 seconds and extinguish all Burn stacks
+freeze_ice_trigger,20,0.6,cold,absolute_zero_shatter,Apply Stun for 1 second
+static_ice_trigger,22,0.5,cold,subvoltage_pulse,Apply Energy Drain for 3 seconds
+acid_ice_trigger,23,0.5,cold,crystallize,Reduce movement by 50% and increase damage taken by 15% for 4 seconds
+gravity_ice_trigger,24,0.5,cold,cryostasis,Root target in place for 2 seconds
+,,,,,
+# CROSS-ELEMENT COMBOS: LIGHTNING TRIGGER,,,,,
+burn_lightning_trigger,24,0.5,lightning,plasma_storm,Chain to 2 nearby enemies and apply 1 Burn to each
+freeze_lightning_trigger,22,0.5,lightning,shatter_shock,Break frozen targets and apply 2 Static to nearby enemies
+static_lightning_trigger,23,0.6,lightning,chain_discharge,Chain to all enemies with Static within 5 squares
+acid_lightning_trigger,25,0.5,lightning,electro_corrosion,Amplify acid damage by 50% for 4 seconds
+gravity_lightning_trigger,23,0.5,lightning,emp_wave,Drain 20 energy from all enemies within 3 squares
+,,,,,
+# CROSS-ELEMENT COMBOS: ACID TRIGGER,,,,,
+burn_acid_trigger,24,0.5,acid,caustic_flames,Leave fire pool that deals 8 damage/sec for 6 seconds
+freeze_acid_trigger,23,0.5,acid,brittle_corrosion,Reduce armor by 5 and increase damage taken by 20% for 3 seconds
+static_acid_trigger,22,0.5,acid,battery_leak,Apply Energy Drain for 4 seconds and deal bonus damage
+acid_acid_trigger,28,0.6,acid,acid_pool,Reapply 3 acid stacks
+gravity_acid_trigger,25,0.5,acid,corrosive_singularity,Pull nearby enemies and splash 2 Acid stacks on all
+,,,,,
+# CROSS-ELEMENT COMBOS: GRAVITY TRIGGER,,,,,
+burn_gravity_trigger,26,0.5,gravity,supernova,Massive AoE explosion applying 2 Burn to all enemies within 4 squares
+freeze_gravity_trigger,24,0.5,gravity,absolute_zero_field,Freeze all enemies within 3 squares applying 2 Freeze stacks
+static_gravity_trigger,23,0.5,gravity,gravitational_pulse,EMP burst draining 15 energy and pulling enemies 2 squares
+acid_gravity_trigger,25,0.5,gravity,toxic_vortex,Pull enemies and create acid pool dealing 12 damage/sec for 5 seconds
+gravity_gravity_trigger,22,0.6,gravity,gravitational_collapse,Pull all nearby enemies into this ship's row

@@ -1,0 +1,15 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://d14lcopse7mbf"
+valid=false
+
+[deps]
+
+source_file="res://data/personnel_database.csv"
+
+[params]
+
+compress=true
+delimiter=0

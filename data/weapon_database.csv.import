@@ -1,0 +1,15 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dxouhkq8b31ur"
+valid=false
+
+[deps]
+
+source_file="res://data/weapon_database.csv"
+
+[params]
+
+compress=true
+delimiter=0

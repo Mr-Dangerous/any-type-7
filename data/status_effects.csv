@@ -1,0 +1,25 @@
+effect_id,effect_name,effect_type,is_stackable,max_stacks,base_duration,description,damage_per_stack,stat_modifier_key,stat_modifier_value,blocks_mechanic,visual_effect
+
+# ELEMENTAL STATUS EFFECTS (Stackable, used for combos)
+burn,Burn,elemental,true,3,5.0,Deals fire damage over time,2,,,shield_regen,flames
+freeze,Freeze,elemental,true,3,4.0,Reduces attack speed,-,attack_speed,-0.20,,frost
+static,Static,elemental,true,3,6.0,Drains energy and blocks shield regeneration,-3,,,shield_gain,lightning_arcs
+acid,Acid,elemental,true,3,10.0,Deals armor damage and blocks hull recovery,-1,reinforced_armor,-1,hull_recovery,corrosion
+gravity,Gravity,elemental,true,3,5.0,Reduces movement speed and evasion,-,movement_speed;evasion,-0.30;-0.30,,gravity_field
+
+# CONTROL STATUS EFFECTS (Non-stackable, ability-specific duration)
+stun,Stun,control,false,1,2.0,Cannot move attack or cast abilities. Attackers deal +25% damage,,,,,stasis_field
+pinned_down,Pinned Down,control,false,1,3.0,Cannot move. Loses 25 evasion,,evasion,-25,,tether_beams
+blind,Blind,control,false,1,4.0,Cannot auto-attack,,,,auto_attack,blinding_light
+malfunction,Malfunction,control,false,1,3.0,Cannot cast abilities or use non-auto-attack weapons,,,,abilities;weapons,system_errors
+
+# ADDITIONAL CONTROL EFFECTS
+slow,Slow,control,false,1,4.0,Reduces movement speed by 50%,,movement_speed,-0.50,,slow_aura
+weaken,Weaken,control,false,1,5.0,Reduces damage dealt by 30%,,attack_damage,-0.30,,weakness_debuff
+vulnerable,Vulnerable,control,false,1,4.0,Increases damage taken by 25%,,,,,vulnerability_mark
+silence,Silence,control,false,1,3.0,Cannot cast abilities,,,,abilities,silenced_icon
+disarm,Disarm,control,false,1,3.0,Cannot auto-attack or use weapons,,,,auto_attack;weapons,disarmed_icon
+root,Root,control,false,1,2.0,Cannot move but can still attack and cast,,,,movement,rooted_vines
+taunt,Taunt,control,false,1,3.0,Forced to attack the taunting unit,,,,target_selection,taunt_mark
+fear,Fear,control,false,1,2.0,Forced to move away from source at reduced speed,,,,movement_control,fear_effect
+energy_drain,Energy Drain,control,false,1,4.0,Steals 5 energy per second and transfers it to the caster,-5,,,energy_transfer,energy_siphon_beam

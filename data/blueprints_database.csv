@@ -1,0 +1,31 @@
+blueprint_id,blueprint_name,blueprint_type,item_id,tier,unlock_condition,description
+,,,,,,
+# INTERCEPTOR BLUEPRINTS,,,,,,
+blueprint_basic_interceptor,Striker Blueprint,ship,basic_interceptor,basic,starting,Basic interceptor. High evasion and speed. Unlocked at start.
+blueprint_viper_interceptor,Viper Blueprint,ship,viper_interceptor,common,research,Common striker interceptor. High damage and attack speed.
+blueprint_phantom_interceptor,Phantom Blueprint,ship,phantom_interceptor,uncommon,research,Uncommon scout interceptor. Stealth capabilities and high evasion.
+blueprint_pulse_interceptor,Pulse Disruptor Blueprint,ship,pulse_interceptor,rare,research,Rare disruptor interceptor. Powerful EMP abilities with high energy capacity.
+,,,,,,
+# FIGHTER BLUEPRINTS,,,,,,
+blueprint_basic_fighter,Fighter Blueprint,ship,basic_fighter,basic,starting,Basic fighter. Balanced stats with missile platform. Unlocked at start.
+blueprint_havoc_fighter,Havoc Blueprint,ship,havoc_fighter,common,research,Common gunship fighter. Multiple projectiles and weapon slots.
+blueprint_reaper_fighter,Reaper Blueprint,ship,reaper_fighter,uncommon,research,Uncommon hunter fighter. High precision for anti-interceptor combat.
+blueprint_sentinel_fighter,Sentinel Blueprint,ship,sentinel_fighter,uncommon,research,Uncommon guardian fighter. High survivability and defensive abilities.
+blueprint_shadow_fighter,Shadow Blueprint,ship,shadow_fighter,rare,research,Rare ranger fighter. Stealth capabilities with long range.
+blueprint_vanguard_fighter,Vanguard Leader Blueprint,ship,vanguard_fighter,rare,research,Rare strike leader fighter. Command abilities that buff nearby ships.
+,,,,,,
+# FRIGATE BLUEPRINTS,,,,,,
+blueprint_shield_frigate,Shield Frigate Blueprint,ship,shield_frigate,common,research,Common shield frigate. Heavy armor and shield restoration.
+blueprint_aurora_frigate,Aurora Blueprint,ship,aurora_frigate,common,research,Common support frigate. High energy for shield projection abilities.
+blueprint_bastion_frigate,Bastion Blueprint,ship,bastion_frigate,uncommon,research,Uncommon shield frigate. Massive armor and area denial.
+blueprint_tempest_frigate,Tempest Blueprint,ship,tempest_frigate,uncommon,research,Uncommon corvette frigate. Heavy weapons platform with multiple weapon slots.
+blueprint_resolute_frigate,Resolute Flagship Blueprint,ship,resolute_frigate,epic,research,Epic flagship frigate. Command vessel with fleet coordination abilities.
+,,,,,,
+# WEAPON BLUEPRINTS,,,,,,
+blueprint_missile_launcher,Missile Launcher Blueprint,weapon,missile_launcher,common,research,Deploy with 2 missiles that launch every ten attacks.
+blueprint_homing_missile_launcher,Homing Missile Blueprint,weapon,homing_missile_launcher,uncommon,research,Deploy with 1 homing missile that prioritizes stealth targets.
+blueprint_gatling_gun,Gatling Gun Blueprint,weapon,gatling_gun,common,research,Windup weapon. Charges for 6s then rapid-fires down lane for 18s.
+blueprint_kinetic_field,Kinetic Field Blueprint,weapon,kinetic_field,uncommon,research,Defensive system. Reduces non-elemental damage in 1-square radius after 6s charge.
+blueprint_laser_cannon,Laser Cannon Blueprint,weapon,laser_cannon,common,research,Adds laser damage to every auto-attack.
+blueprint_lightning_cannon,Lightning Cannon Blueprint,weapon,lightning_cannon,uncommon,research,Adds lightning/shock damage to every auto-attack.
+blueprint_shield_capacitor,Shield Capacitor Blueprint,weapon,shield_capacitor,rare,research,Start battles with double shields that decay to max shields over time.

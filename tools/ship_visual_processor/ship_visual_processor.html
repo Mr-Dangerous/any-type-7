@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ship Visual Processor - Any-Type-7</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #4a9eff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .section {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .section h2 {
+            color: #4a9eff;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .file-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            background: #0f3460;
+            border: 2px solid #4a9eff;
+            border-radius: 4px;
+            color: #eee;
+            cursor: pointer;
+        }
+
+        select {
+            padding: 10px;
+            background: #0f3460;
+            border: 2px solid #4a9eff;
+            border-radius: 4px;
+            color: #eee;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .ship-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #0f3460;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 0.9em;
+            color: #aaa;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            background: #0f3460;
+            border: 2px solid #4a9eff;
+            border-radius: 4px;
+            color: #eee;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .canvas-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0f3460;
+            border-radius: 4px;
+            padding: 20px;
+            overflow: auto;
+            min-height: 400px;
+        }
+
+        canvas {
+            border: 2px solid #4a9eff;
+            cursor: crosshair;
+            image-rendering: pixelated;
+        }
+
+        .point-list {
+            list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .point-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: #0f3460;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+
+        .point-item:hover {
+            background: #1a4d7a;
+        }
+
+        .point-label {
+            font-weight: bold;
+            color: #4a9eff;
+        }
+
+        .point-coords {
+            color: #aaa;
+            font-family: monospace;
+        }
+
+        .point-remove {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .point-remove:hover {
+            background: #c0392b;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #4a9eff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        button:hover {
+            background: #357abd;
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .preset-btn {
+            background: #2c5f7a;
+            font-size: 0.8em;
+        }
+
+        .preset-btn:hover {
+            background: #3a7a9a;
+        }
+
+        .preset-btn.active {
+            background: #4a9eff;
+            border: 2px solid #fff;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        #status {
+            padding: 10px;
+            background: #0f3460;
+            border-left: 4px solid #4a9eff;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .status-success {
+            border-left-color: #2ecc71 !important;
+            color: #2ecc71;
+        }
+
+        .status-error {
+            border-left-color: #e74c3c !important;
+            color: #e74c3c;
+        }
+
+        .zoom-display {
+            font-weight: bold;
+            color: #4a9eff;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Ship Visual Processor</h1>
+
+        <!-- CSV Load Section -->
+        <div class="section">
+            <h2>1. Load Ship Data</h2>
+            <div class="file-input-wrapper">
+                <input type="file" id="csvInput" accept=".csv">
+                <span id="csvStatus">No CSV loaded</span>
+            </div>
+        </div>
+
+        <!-- Ship Selection Section -->
+        <div class="section">
+            <h2>2. Select Ship</h2>
+            <select id="shipSelect" disabled>
+                <option value="">Load CSV first...</option>
+            </select>
+            <div id="shipInfo" class="ship-info" style="display:none;"></div>
+        </div>
+
+        <div class="grid">
+            <!-- Canvas Section -->
+            <div>
+                <!-- Controls Section -->
+                <div class="section">
+                    <h2>3. View Controls</h2>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Zoom: <span id="zoomLevel" class="zoom-display">100%</span></label>
+                            <input type="range" id="zoomSlider" min="25" max="800" value="100" step="25">
+                        </div>
+                        <div class="control-group">
+                            <label>
+                                <input type="checkbox" id="gridToggle">
+                                Show Pixel Grid
+                            </label>
+                        </div>
+                        <div class="control-group">
+                            <label>Point Label Presets</label>
+                            <div style="display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 5px;">
+                                <button class="preset-btn" data-label="projectile_odd_row_1" style="padding: 3px 6px; font-size: 0.8em;">P_Odd_1</button>
+                                <button class="preset-btn" data-label="projectile_odd_row_2" style="padding: 3px 6px; font-size: 0.8em;">P_Odd_2</button>
+                                <button class="preset-btn" data-label="projectile_odd_row_3" style="padding: 3px 6px; font-size: 0.8em;">P_Odd_3</button>
+                                <button class="preset-btn" data-label="projectile_even_row_1" style="padding: 3px 6px; font-size: 0.8em;">P_Even_1</button>
+                                <button class="preset-btn" data-label="projectile_even_row_2" style="padding: 3px 6px; font-size: 0.8em;">P_Even_2</button>
+                                <button class="preset-btn" data-label="projectile_even_row_3" style="padding: 3px 6px; font-size: 0.8em;">P_Even_3</button>
+                                <button class="preset-btn" data-label="exhaust_1" style="padding: 3px 6px; font-size: 0.8em;">Exhaust_1</button>
+                                <button class="preset-btn" data-label="exhaust_2" style="padding: 3px 6px; font-size: 0.8em;">Exhaust_2</button>
+                                <button class="preset-btn" data-label="exhaust_3" style="padding: 3px 6px; font-size: 0.8em;">Exhaust_3</button>
+                            </div>
+                            <input type="text" id="pointLabel" placeholder="Or type custom label...">
+                        </div>
+                        <div class="control-group">
+                            <label>Canvas Size (override)</label>
+                            <div style="display: flex; gap: 5px;">
+                                <input type="number" id="canvasWidth" placeholder="Width" min="1" style="width: 80px;">
+                                <input type="number" id="canvasHeight" placeholder="Height" min="1" style="width: 80px;">
+                                <button id="applySizeBtn" style="padding: 5px 10px; font-size: 0.9em;">Apply</button>
+                                <button id="resetSizeBtn" style="padding: 5px 10px; font-size: 0.9em;">Reset</button>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label>
+                                <input type="checkbox" id="aspectLock" checked>
+                                Lock Aspect Ratio (PNG)
+                            </label>
+                            <div style="font-size: 0.8em; color: #aaa; margin-top: 5px;">
+                                Original: <span id="originalAspect">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canvas Display -->
+                <div class="section">
+                    <h2>4. Click to Mark Coordinates</h2>
+                    <div class="canvas-wrapper">
+                        <canvas id="shipCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Status Section -->
+                <div class="section">
+                    <div id="status">Load a CSV and select a ship to begin</div>
+                </div>
+            </div>
+
+            <!-- Point History Section -->
+            <div>
+                <div class="section">
+                    <h2>5. Marked Points</h2>
+                    <div style="margin-bottom: 10px; font-size: 0.85em; color: #aaa;">
+                        <span style="color: #2ecc71;">● From CSV</span> |
+                        <span style="color: #ff4444;">● Newly Marked</span>
+                    </div>
+                    <div style="margin-bottom: 10px; padding: 10px; background: #0f3460; border-radius: 4px; font-size: 0.85em; color: #aaa;">
+                        <strong style="color: #4a9eff;">Workflow:</strong><br>
+                        1. Export JSON → Save to <code>tools/ship_JSONS/</code><br>
+                        2. Run: <code>python3 tools/merge_ship_coordinates.py</code><br>
+                        3. Reload CSV in this tool to see updated points
+                    </div>
+                    <ul id="pointList" class="point-list"></ul>
+                    <div class="button-group">
+                        <button id="exportJSON" disabled>Export to ship_JSONS/</button>
+                        <button id="clearPoints" disabled>Clear New Points</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let shipData = [];
+        let currentShip = null;
+        let currentImage = null;
+        let zoomLevel = 1.0;
+        let showGrid = false;
+        let markedPoints = []; // Newly marked points (red)
+        let csvPoints = []; // Points loaded from CSV (green)
+        let pointCounter = 0;
+        let canvasSizeOverride = null; // {width, height} or null for default
+        let aspectLocked = true; // Lock aspect ratio by default
+        let originalAspectRatio = null; // PNG's original aspect ratio
+
+        // DOM elements
+        const csvInput = document.getElementById('csvInput');
+        const csvStatus = document.getElementById('csvStatus');
+        const shipSelect = document.getElementById('shipSelect');
+        const shipInfo = document.getElementById('shipInfo');
+        const canvas = document.getElementById('shipCanvas');
+        const ctx = canvas.getContext('2d');
+        const zoomSlider = document.getElementById('zoomSlider');
+        const zoomLevelDisplay = document.getElementById('zoomLevel');
+        const gridToggle = document.getElementById('gridToggle');
+        const pointLabel = document.getElementById('pointLabel');
+        const pointList = document.getElementById('pointList');
+        const exportJSON = document.getElementById('exportJSON');
+        const clearPoints = document.getElementById('clearPoints');
+        const status = document.getElementById('status');
+        const canvasWidth = document.getElementById('canvasWidth');
+        const canvasHeight = document.getElementById('canvasHeight');
+        const applySizeBtn = document.getElementById('applySizeBtn');
+        const resetSizeBtn = document.getElementById('resetSizeBtn');
+        const aspectLock = document.getElementById('aspectLock');
+        const originalAspect = document.getElementById('originalAspect');
+
+        // CSV Loading
+        csvInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                try {
+                    shipData = parseCSV(evt.target.result);
+                    populateShipDropdown();
+                    csvStatus.textContent = `Loaded ${shipData.length} ships`;
+                    showStatus('CSV loaded successfully!', 'success');
+                } catch (error) {
+                    showStatus('Error parsing CSV: ' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // Parse CSV (handles coordinate_points JSON column)
+        function parseCSV(text) {
+            const lines = text.split('\n').filter(line => line.trim() && !line.trim().startsWith('#'));
+            if (lines.length < 2) throw new Error('Invalid CSV format');
+
+            const headers = lines[0].split(',').map(h => h.trim());
+            const ships = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                const values = [];
+                let current = '';
+                let inBrackets = false;
+
+                // Parse CSV handling JSON arrays in coordinate_points column
+                for (let j = 0; j < line.length; j++) {
+                    const char = line[j];
+                    if (char === '[') inBrackets = true;
+                    if (char === ']') inBrackets = false;
+
+                    if (char === ',' && !inBrackets) {
+                        values.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                values.push(current.trim()); // Last value
+
+                if (values.length !== headers.length) continue;
+
+                const ship = {};
+                headers.forEach((header, idx) => {
+                    ship[header] = values[idx];
+                });
+
+                // Parse coordinate_points as JSON
+                if (ship.coordinate_points) {
+                    try {
+                        ship.coordinate_points = JSON.parse(ship.coordinate_points);
+                    } catch (e) {
+                        ship.coordinate_points = [];
+                    }
+                } else {
+                    ship.coordinate_points = [];
+                }
+
+                // Only include ships with existing sprites
+                if (ship.sprite_exists === 'TRUE') {
+                    ships.push(ship);
+                }
+            }
+
+            return ships;
+        }
+
+        // Populate ship dropdown
+        function populateShipDropdown() {
+            shipSelect.innerHTML = '<option value="">Select a ship...</option>';
+            shipData.forEach((ship, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${ship.ship_ID} (${ship.sprite_width}×${ship.sprite_height})`;
+                shipSelect.appendChild(option);
+            });
+            shipSelect.disabled = false;
+        }
+
+        // Ship selection
+        shipSelect.addEventListener('change', (e) => {
+            const index = e.target.value;
+            if (!index) return;
+
+            currentShip = shipData[index];
+            loadShipSprite(currentShip);
+            displayShipInfo(currentShip);
+            clearMarkedPoints();
+            loadCsvPoints(currentShip);
+        });
+
+        // Display ship info
+        function displayShipInfo(ship, imgNaturalWidth = null, imgNaturalHeight = null, scaleFactor = null) {
+            shipInfo.style.display = 'block';
+            let sizeInfo = `<strong>Godot Display Size:</strong> ${ship.sprite_width}×${ship.sprite_height}px`;
+
+            if (imgNaturalWidth && imgNaturalHeight) {
+                sizeInfo += `<br><strong>PNG Actual Size:</strong> ${imgNaturalWidth}×${imgNaturalHeight}px`;
+
+                if (imgNaturalWidth !== parseInt(ship.sprite_width) || imgNaturalHeight !== parseInt(ship.sprite_height)) {
+                    sizeInfo += ` <span style="color: #ffaa44;">⚠ Will be scaled in Godot</span>`;
+                }
+            }
+
+            if (scaleFactor !== null) {
+                sizeInfo += `<br><strong>Scale Factor:</strong> ${scaleFactor.toFixed(4)} <span style="color: #aaa;">(PNG → Godot)</span>`;
+            }
+
+            shipInfo.innerHTML = `
+                <strong>Ship ID:</strong> ${ship.ship_ID}<br>
+                ${sizeInfo}<br>
+                <strong>Canvas Size:</strong> ${canvas.width}×${canvas.height}px <span style="color: #4a9eff;">(Marking space)</span><br>
+                <strong>Path:</strong> ${ship.sprite_path}
+            `;
+        }
+
+        // Load ship sprite
+        function loadShipSprite(ship) {
+            const img = new Image();
+
+            // Convert Godot path to relative path
+            let path = ship.sprite_path.replace('res://', '../../');
+
+            img.onload = () => {
+                currentImage = img;
+
+                // Store original aspect ratio
+                originalAspectRatio = img.naturalWidth / img.naturalHeight;
+                if (originalAspect) {
+                    originalAspect.textContent = `${img.naturalWidth}×${img.naturalHeight} (${originalAspectRatio.toFixed(3)})`;
+                }
+
+                // Default to full PNG resolution
+                let width = canvasSizeOverride ? canvasSizeOverride.width : img.naturalWidth;
+                let height = canvasSizeOverride ? canvasSizeOverride.height : img.naturalHeight;
+
+                // Apply aspect lock if enabled
+                if (aspectLocked && canvasSizeOverride) {
+                    height = Math.round(width / originalAspectRatio);
+                }
+
+                // Calculate scale factor
+                const calculatedScaleFactor = parseInt(ship.sprite_width) / img.naturalWidth;
+
+                canvas.width = width;
+                canvas.height = height;
+
+                // Update size input fields to show current size
+                canvasWidth.value = width;
+                canvasHeight.value = height;
+
+                // Update ship info with actual PNG dimensions and scale factor
+                displayShipInfo(ship, img.naturalWidth, img.naturalHeight, calculatedScaleFactor);
+
+                redrawCanvas();
+                showStatus(`Loaded: ${ship.ship_ID} (PNG: ${img.naturalWidth}×${img.naturalHeight}, Scale: ${calculatedScaleFactor.toFixed(4)})`, 'success');
+            };
+
+            img.onerror = () => {
+                showStatus(`Failed to load image: ${path}`, 'error');
+            };
+
+            img.src = path;
+        }
+
+        // Redraw canvas
+        function redrawCanvas() {
+            if (!currentImage) return;
+
+            const scaledWidth = canvas.width * zoomLevel;
+            const scaledHeight = canvas.height * zoomLevel;
+
+            canvas.style.width = scaledWidth + 'px';
+            canvas.style.height = scaledHeight + 'px';
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw image scaled to canvas size
+            ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+
+            // Draw grid if enabled
+            if (showGrid) {
+                drawGrid();
+            }
+
+            // Redraw CSV points (green)
+            csvPoints.forEach(point => {
+                drawMarker(point.x, point.y, point.label, false, '#2ecc71');
+            });
+
+            // Redraw marked points (red)
+            markedPoints.forEach(point => {
+                drawMarker(point.x, point.y, point.label, false, '#ff4444');
+            });
+        }
+
+        // Draw pixel grid
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(74, 158, 255, 0.3)';
+            ctx.lineWidth = 1;
+
+            // Vertical lines
+            for (let x = 0; x <= canvas.width; x++) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+
+            // Horizontal lines
+            for (let y = 0; y <= canvas.height; y++) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        // Draw marker
+        function drawMarker(x, y, label, animate = true, color = '#ff4444') {
+            // Draw crosshair
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.moveTo(x - 5, y);
+            ctx.lineTo(x + 5, y);
+            ctx.moveTo(x, y - 5);
+            ctx.lineTo(x, y + 5);
+            ctx.stroke();
+
+            // Draw label with zoom-adjusted font size
+            if (label) {
+                ctx.fillStyle = color;
+                // Scale font size inversely with zoom to keep it readable
+                const fontSize = Math.max(8, Math.min(14, 10 / zoomLevel));
+                ctx.font = `bold ${fontSize}px monospace`;
+                const offset = 7 / zoomLevel;
+                ctx.fillText(label, x + offset, y - offset);
+            }
+        }
+
+        // Canvas click handler
+        canvas.addEventListener('click', (e) => {
+            if (!currentImage) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / zoomLevel);
+            const y = Math.floor((e.clientY - rect.top) / zoomLevel);
+
+            // Get label or generate one
+            const label = pointLabel.value.trim() || `point_${pointCounter++}`;
+            const coordStr = `${x},${y}`;
+
+            // Copy to clipboard
+            copyToClipboard(coordStr);
+
+            // Add point
+            addMarkedPoint(label, x, y);
+
+            // Redraw canvas
+            redrawCanvas();
+
+            // Show status
+            showStatus(`Copied: ${label} = (${x}, ${y})`, 'success');
+
+            // Clear label input
+            pointLabel.value = '';
+        });
+
+        // Add marked point
+        function addMarkedPoint(label, x, y) {
+            markedPoints.push({ label, x, y });
+            updatePointList();
+            exportJSON.disabled = false;
+            clearPoints.disabled = false;
+        }
+
+        // Load points from CSV
+        function loadCsvPoints(ship) {
+            csvPoints = [];
+            if (ship.coordinate_points && ship.coordinate_points.length > 0) {
+                csvPoints = ship.coordinate_points.map(p => ({
+                    label: p.label,
+                    x: p.x,
+                    y: p.y
+                }));
+                showStatus(`Loaded ${csvPoints.length} points from CSV`, 'success');
+            }
+            updatePointList();
+            redrawCanvas();
+        }
+
+        // Update point list display
+        function updatePointList() {
+            pointList.innerHTML = '';
+
+            // Show CSV points (green)
+            if (csvPoints.length > 0) {
+                const header = document.createElement('li');
+                header.style.cssText = 'background: #0f3460; color: #2ecc71; font-weight: bold; padding: 5px; margin-bottom: 5px;';
+                header.textContent = `From CSV (${csvPoints.length})`;
+                pointList.appendChild(header);
+
+                csvPoints.forEach((point, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'point-item';
+                    li.style.borderLeft = '3px solid #2ecc71';
+                    li.innerHTML = `
+                        <span class="point-label" style="color: #2ecc71">${point.label}</span>
+                        <span class="point-coords">(${point.x}, ${point.y})</span>
+                        <button class="point-remove" onclick="removeCsvPoint(${index})">Remove</button>
+                    `;
+                    pointList.appendChild(li);
+                });
+            }
+
+            // Show new marked points (red)
+            if (markedPoints.length > 0) {
+                const header = document.createElement('li');
+                header.style.cssText = 'background: #0f3460; color: #ff4444; font-weight: bold; padding: 5px; margin-bottom: 5px; margin-top: 10px;';
+                header.textContent = `Newly Marked (${markedPoints.length})`;
+                pointList.appendChild(header);
+
+                markedPoints.forEach((point, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'point-item';
+                    li.style.borderLeft = '3px solid #ff4444';
+                    li.innerHTML = `
+                        <span class="point-label" style="color: #ff4444">${point.label}</span>
+                        <span class="point-coords">(${point.x}, ${point.y})</span>
+                        <button class="point-remove" onclick="removePoint(${index})">Remove</button>
+                    `;
+                    pointList.appendChild(li);
+                });
+            }
+
+            // Update button states
+            const hasPoints = markedPoints.length > 0 || csvPoints.length > 0;
+            exportJSON.disabled = !hasPoints;
+            clearPoints.disabled = markedPoints.length === 0;
+        }
+
+        // Remove point
+        window.removePoint = function(index) {
+            markedPoints.splice(index, 1);
+            updatePointList();
+            redrawCanvas();
+        };
+
+        // Remove CSV point
+        window.removeCsvPoint = function(index) {
+            csvPoints.splice(index, 1);
+            updatePointList();
+            redrawCanvas();
+        };
+
+        // Clear all points
+        clearPoints.addEventListener('click', () => {
+            clearMarkedPoints();
+        });
+
+        function clearMarkedPoints() {
+            markedPoints = [];
+            pointCounter = 0;
+            updatePointList();
+            redrawCanvas();
+            exportJSON.disabled = true;
+            clearPoints.disabled = true;
+        }
+
+        // Export to JSON (combines CSV points and new points)
+        exportJSON.addEventListener('click', () => {
+            if (!currentShip) return;
+
+            const allPoints = [...csvPoints, ...markedPoints];
+            if (allPoints.length === 0) return;
+
+            const scaleFactor = currentImage ? (parseInt(currentShip.sprite_width) / currentImage.naturalWidth) : null;
+
+            const exportData = {
+                ship_id: currentShip.ship_ID,
+                png_size: currentImage ? {
+                    width: currentImage.naturalWidth,
+                    height: currentImage.naturalHeight
+                } : null,
+                sprite_size: {
+                    width: parseInt(currentShip.sprite_width),
+                    height: parseInt(currentShip.sprite_height)
+                },
+                canvas_size: {
+                    width: canvas.width,
+                    height: canvas.height
+                },
+                scale_factor: scaleFactor ? parseFloat(scaleFactor.toFixed(4)) : null,
+                points: allPoints
+            };
+
+            const json = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentShip.ship_ID}_points.json`;
+            a.click();
+
+            URL.revokeObjectURL(url);
+            showStatus(`Exported ${allPoints.length} points (scale: ${scaleFactor ? scaleFactor.toFixed(4) : 'N/A'})`, 'success');
+        });
+
+        // Zoom controls
+        zoomSlider.addEventListener('input', (e) => {
+            zoomLevel = e.target.value / 100;
+            zoomLevelDisplay.textContent = `${e.target.value}%`;
+            redrawCanvas();
+        });
+
+        // Grid toggle
+        gridToggle.addEventListener('change', (e) => {
+            showGrid = e.target.checked;
+            redrawCanvas();
+        });
+
+        // Aspect lock toggle
+        aspectLock.addEventListener('change', (e) => {
+            aspectLocked = e.target.checked;
+        });
+
+        // Canvas size override
+        applySizeBtn.addEventListener('click', () => {
+            let width = parseInt(canvasWidth.value);
+            let height = parseInt(canvasHeight.value);
+
+            if (isNaN(width) || width < 1) {
+                showStatus('Invalid width', 'error');
+                return;
+            }
+
+            if (aspectLocked && originalAspectRatio) {
+                height = Math.round(width / originalAspectRatio);
+                canvasHeight.value = height;
+            } else if (isNaN(height) || height < 1) {
+                showStatus('Invalid height', 'error');
+                return;
+            }
+
+            canvasSizeOverride = { width, height };
+
+            if (currentImage && currentShip) {
+                canvas.width = width;
+                canvas.height = height;
+                redrawCanvas();
+                showStatus(`Canvas resized to ${width}×${height}`, 'success');
+            }
+        });
+
+        resetSizeBtn.addEventListener('click', () => {
+            canvasSizeOverride = null;
+
+            if (currentImage && currentShip) {
+                const width = currentImage.naturalWidth;
+                const height = currentImage.naturalHeight;
+                canvas.width = width;
+                canvas.height = height;
+                canvasWidth.value = width;
+                canvasHeight.value = height;
+                redrawCanvas();
+                showStatus('Canvas reset to full PNG resolution', 'success');
+            }
+        });
+
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).catch(err => {
+                    console.error('Failed to copy:', err);
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        // Fallback copy method
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Show status
+        function showStatus(message, type = '') {
+            status.textContent = message;
+            status.className = '';
+            if (type === 'success') {
+                status.classList.add('status-success');
+            } else if (type === 'error') {
+                status.classList.add('status-error');
+            }
+        }
+
+        // Preset buttons
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const label = btn.getAttribute('data-label');
+                pointLabel.value = label;
+
+                // Highlight active preset
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                showStatus(`Preset selected: ${label}`, 'success');
+            });
+        });
+
+        // Clear preset highlight when typing custom label
+        pointLabel.addEventListener('input', () => {
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+Z to remove last point
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                if (markedPoints.length > 0) {
+                    removePoint(markedPoints.length - 1);
+                }
+            }
+            // R to reset zoom
+            if (e.key === 'r' || e.key === 'R') {
+                zoomSlider.value = 100;
+                zoomLevel = 1.0;
+                zoomLevelDisplay.textContent = '100%';
+                redrawCanvas();
+            }
+        });
+    </script>
+</body>
+</html>

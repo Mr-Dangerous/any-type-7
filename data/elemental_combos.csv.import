@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://8is7xpnciqpn"
+
+[deps]
+
+files=["res://data/elemental_combos.base.translation", "res://data/elemental_combos.scaling.translation", "res://data/elemental_combos.damage.translation", "res://data/elemental_combos.visual.translation", "res://data/elemental_combos.special.translation"]
+
+source_file="res://data/elemental_combos.csv"
+dest_files=["res://data/elemental_combos.base.translation", "res://data/elemental_combos.scaling.translation", "res://data/elemental_combos.damage.translation", "res://data/elemental_combos.visual.translation", "res://data/elemental_combos.special.translation"]
+
+[params]
+
+compress=true
+delimiter=0

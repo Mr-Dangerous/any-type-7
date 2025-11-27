@@ -1,0 +1,14 @@
+drone_ID,drone_name,drone_tier,drone_type,hull_points,shield_points,armor,attack_damage,attack_speed,projectile_count,attack_range,movement_speed,accuracy,evasion,precision,resilience,duration,special_ability
+common_drone,Common Assault Drone,common,combat,20,10,0,3,1.5,1,6,2.0,0,10,0,0,10,
+uncommon_drone,Uncommon Assault Drone,uncommon,combat,30,15,0,5,1.5,1,7,2.2,5,15,5,0,12,
+rare_drone,Rare Assault Drone,rare,combat,45,25,5,7,1.8,1,8,2.5,10,20,10,5,15,
+epic_drone,Epic Assault Drone,epic,combat,60,35,10,10,2.0,1,9,3.0,15,25,15,10,18,Enhanced Targeting
+legendary_drone,Legendary Assault Drone,legendary,combat,80,50,15,15,2.2,2,10,3.5,20,30,20,15,20,Adaptive Combat AI
+common_shield_drone,Common Shield Drone,common,support,15,20,0,0,0,0,0,2.0,0,15,0,0,10,Shield Projection
+uncommon_shield_drone,Uncommon Shield Drone,uncommon,support,25,30,5,0,0,0,0,2.2,0,20,0,5,12,Shield Projection
+rare_shield_drone,Rare Shield Drone,rare,support,35,45,10,0,0,0,0,2.5,0,25,0,10,15,Advanced Shield Projection
+common_repair_drone,Common Repair Drone,common,support,15,15,0,0,0,0,0,2.0,0,15,0,0,10,Hull Repair
+uncommon_repair_drone,Uncommon Repair Drone,uncommon,support,25,25,5,0,0,0,0,2.2,0,20,0,5,12,Hull Repair
+rare_repair_drone,Rare Repair Drone,rare,support,35,35,10,0,0,0,0,2.5,0,25,0,10,15,Advanced Hull Repair
+powerup_repair_drone,Powerup Repair Drone,common,support,30,0,0,0,0,0,0,0,0,0,0,0,10,Heals 15 hull per second for 10 seconds
+powerup_shield_drone,Powerup Shield Drone,common,support,30,30,0,0,0,0,0,0,0,0,0,0,10,Restores 25 shields per second for 10 seconds

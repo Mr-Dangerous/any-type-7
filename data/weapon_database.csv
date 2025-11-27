@@ -1,0 +1,8 @@
+ship_system_id,system_name,system_description,rarity,damage,duration,required_class
+missile_launcher,Missile Launcher,Deploy with 2 [missiles] that are launched every ten attacks,,,,
+homing_missile_launcher,Homing Missile,Deploy with 1 [missile] that launchs at stealth targets first,,,,
+gatling gun,Gatling Gun,"Windup for 6 seconds, then attack rapidly for 18 seconds down the lane",,,,!interceptor
+kinetic_field,Kinetic Field,"After charging for 6 seconds, deploy a kinetic field that reduces non-elemental damage for 10 seconds with a range of 1",,,,!interceptor
+laser_cannon,Laser Cannon,Add a laser to every auto-attack,,,,
+lightning_cannon,Lightning Cannon,Add a shock to every auto-attack,,,,
+shield_capacitor,Shield Capacitor,Start each battle with double shields that decay until you are at max shields,,,,
