@@ -1,0 +1,58 @@
+{
+  "ship_id": "tempest_frigate",
+  "png_size": {
+    "width": 139,
+    "height": 200
+  },
+  "sprite_size": {
+    "width": 64,
+    "height": 64
+  },
+  "canvas_size": {
+    "width": 139,
+    "height": 200
+  },
+  "scale_factor": 0.4604,
+  "points": [
+    {
+      "label": "projectile_odd_row_1",
+      "x": 30,
+      "y": 100
+    },
+    {
+      "label": "projectile_odd_row_2",
+      "x": 126,
+      "y": 71
+    },
+    {
+      "label": "projectile_odd_row_3",
+      "x": 125,
+      "y": 131
+    },
+    {
+      "label": "projectile_even_row_1",
+      "x": 130,
+      "y": 20
+    },
+    {
+      "label": "projectile_even_row_2",
+      "x": 131,
+      "y": 180
+    },
+    {
+      "label": "exhaust_1",
+      "x": 74,
+      "y": 100
+    },
+    {
+      "label": "exhaust_2",
+      "x": 82,
+      "y": 13
+    },
+    {
+      "label": "exhaust_3",
+      "x": 82,
+      "y": 186
+    }
+  ]
+}

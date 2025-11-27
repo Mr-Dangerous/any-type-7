@@ -1,0 +1,48 @@
+{
+  "ship_id": "basic_interceptor",
+  "png_size": {
+    "width": 69,
+    "height": 84
+  },
+  "sprite_size": {
+    "width": 32,
+    "height": 32
+  },
+  "canvas_size": {
+    "width": 69,
+    "height": 84
+  },
+  "scale_factor": 0.4638,
+  "points": [
+    {
+      "label": "projectile_odd_row_1",
+      "x": 45,
+      "y": 41
+    },
+    {
+      "label": "projectile_odd_row_2",
+      "x": 16,
+      "y": 8
+    },
+    {
+      "label": "projectile_odd_row_3",
+      "x": 16,
+      "y": 75
+    },
+    {
+      "label": "projectile_even_row_1",
+      "x": 40,
+      "y": 20
+    },
+    {
+      "label": "projectile_even_row_2",
+      "x": 39,
+      "y": 64
+    },
+    {
+      "label": "exhaust_1",
+      "x": 2,
+      "y": 41
+    }
+  ]
+}

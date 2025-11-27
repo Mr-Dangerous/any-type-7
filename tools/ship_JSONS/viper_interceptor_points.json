@@ -1,0 +1,48 @@
+{
+  "ship_id": "viper_interceptor",
+  "png_size": {
+    "width": 63,
+    "height": 99
+  },
+  "sprite_size": {
+    "width": 32,
+    "height": 32
+  },
+  "canvas_size": {
+    "width": 63,
+    "height": 99
+  },
+  "scale_factor": 0.5079,
+  "points": [
+    {
+      "label": "projectile_odd_row_1",
+      "x": 56,
+      "y": 49
+    },
+    {
+      "label": "projectile_odd_row_2",
+      "x": 38,
+      "y": 32
+    },
+    {
+      "label": "projectile_odd_row_3",
+      "x": 38,
+      "y": 65
+    },
+    {
+      "label": "projectile_even_row_1",
+      "x": 37,
+      "y": 21
+    },
+    {
+      "label": "projectile_even_row_2",
+      "x": 37,
+      "y": 76
+    },
+    {
+      "label": "exhaust_1",
+      "x": 5,
+      "y": 48
+    }
+  ]
+}

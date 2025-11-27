@@ -1,0 +1,48 @@
+{
+  "ship_id": "phantom_interceptor",
+  "png_size": {
+    "width": 63,
+    "height": 140
+  },
+  "sprite_size": {
+    "width": 32,
+    "height": 48
+  },
+  "canvas_size": {
+    "width": 63,
+    "height": 140
+  },
+  "scale_factor": 0.5079,
+  "points": [
+    {
+      "label": "point_0",
+      "x": 30,
+      "y": 70
+    },
+    {
+      "label": "projectile_odd_row_1",
+      "x": 57,
+      "y": 69
+    },
+    {
+      "label": "projectile_odd_row_2",
+      "x": 28,
+      "y": 28
+    },
+    {
+      "label": "projectile_odd_row_3",
+      "x": 29,
+      "y": 111
+    },
+    {
+      "label": "projectile_even_row_1",
+      "x": 41,
+      "y": 47
+    },
+    {
+      "label": "point_1",
+      "x": 43,
+      "y": 92
+    }
+  ]
+}

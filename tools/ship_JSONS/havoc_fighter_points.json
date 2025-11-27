@@ -1,0 +1,58 @@
+{
+  "ship_id": "havoc_fighter",
+  "png_size": {
+    "width": 85,
+    "height": 132
+  },
+  "sprite_size": {
+    "width": 40,
+    "height": 40
+  },
+  "canvas_size": {
+    "width": 85,
+    "height": 132
+  },
+  "scale_factor": 0.4706,
+  "points": [
+    {
+      "label": "projectile_odd_row_1",
+      "x": 69,
+      "y": 65
+    },
+    {
+      "label": "projectile_even_row_1",
+      "x": 65,
+      "y": 51
+    },
+    {
+      "label": "point_0",
+      "x": 66,
+      "y": 82
+    },
+    {
+      "label": "projectile_odd_row_2",
+      "x": 47,
+      "y": 104
+    },
+    {
+      "label": "projectile_odd_row_3",
+      "x": 47,
+      "y": 26
+    },
+    {
+      "label": "exhaust_1",
+      "x": 34,
+      "y": 66
+    },
+    {
+      "label": "exhaust_2",
+      "x": 21,
+      "y": 32
+    },
+    {
+      "label": "exhaust_3",
+      "x": 20,
+      "y": 102
+    }
+  ]
+}

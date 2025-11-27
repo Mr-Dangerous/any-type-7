@@ -1,0 +1,53 @@
+{
+  "ship_id": "pulse_interceptor",
+  "png_size": {
+    "width": 63,
+    "height": 80
+  },
+  "sprite_size": {
+    "width": 32,
+    "height": 32
+  },
+  "canvas_size": {
+    "width": 63,
+    "height": 80
+  },
+  "scale_factor": 0.5079,
+  "points": [
+    {
+      "label": "invalid_point",
+      "x": 100,
+      "y": 200
+    },
+    {
+      "label": "point_0",
+      "x": 37,
+      "y": 40
+    },
+    {
+      "label": "projectile_odd_row_2",
+      "x": 29,
+      "y": 6
+    },
+    {
+      "label": "projectile_odd_row_3",
+      "x": 28,
+      "y": 73
+    },
+    {
+      "label": "projectile_even_row_1",
+      "x": 21,
+      "y": 28
+    },
+    {
+      "label": "projectile_even_row_2",
+      "x": 20,
+      "y": 52
+    },
+    {
+      "label": "exhaust_1",
+      "x": 4,
+      "y": 39
+    }
+  ]
+}

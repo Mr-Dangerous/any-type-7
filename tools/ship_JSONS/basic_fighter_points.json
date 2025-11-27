@@ -1,0 +1,58 @@
+{
+  "ship_id": "basic_fighter",
+  "png_size": {
+    "width": 88,
+    "height": 140
+  },
+  "sprite_size": {
+    "width": 40,
+    "height": 40
+  },
+  "canvas_size": {
+    "width": 88,
+    "height": 140
+  },
+  "scale_factor": 0.4545,
+  "points": [
+    {
+      "label": "point_0",
+      "x": 6,
+      "y": 70
+    },
+    {
+      "label": "exhaust_2",
+      "x": 19,
+      "y": 49
+    },
+    {
+      "label": "exhaust_3",
+      "x": 18,
+      "y": 91
+    },
+    {
+      "label": "projectile_odd_row_1",
+      "x": 82,
+      "y": 69
+    },
+    {
+      "label": "projectile_odd_row_2",
+      "x": 38,
+      "y": 32
+    },
+    {
+      "label": "projectile_odd_row_3",
+      "x": 40,
+      "y": 107
+    },
+    {
+      "label": "projectile_even_row_2",
+      "x": 64,
+      "y": 90
+    },
+    {
+      "label": "projectile_even_row_3",
+      "x": 64,
+      "y": 50
+    }
+  ]
+}

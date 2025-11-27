@@ -1,0 +1,58 @@
+{
+  "ship_id": "resolute_frigate",
+  "png_size": {
+    "width": 194,
+    "height": 202
+  },
+  "sprite_size": {
+    "width": 64,
+    "height": 64
+  },
+  "canvas_size": {
+    "width": 194,
+    "height": 202
+  },
+  "scale_factor": 0.3299,
+  "points": [
+    {
+      "label": "projectile_odd_row_1",
+      "x": 187,
+      "y": 100
+    },
+    {
+      "label": "projectile_odd_row_2",
+      "x": 140,
+      "y": 72
+    },
+    {
+      "label": "projectile_odd_row_3",
+      "x": 138,
+      "y": 129
+    },
+    {
+      "label": "projectile_even_row_1",
+      "x": 137,
+      "y": 17
+    },
+    {
+      "label": "projectile_even_row_2",
+      "x": 137,
+      "y": 184
+    },
+    {
+      "label": "exhaust_1",
+      "x": 17,
+      "y": 101
+    },
+    {
+      "label": "exhaust_2",
+      "x": 19,
+      "y": 81
+    },
+    {
+      "label": "exhaust_3",
+      "x": 19,
+      "y": 119
+    }
+  ]
+}

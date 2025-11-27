@@ -1,0 +1,58 @@
+{
+  "ship_id": "shield_frigate",
+  "png_size": {
+    "width": 80,
+    "height": 132
+  },
+  "sprite_size": {
+    "width": 64,
+    "height": 64
+  },
+  "canvas_size": {
+    "width": 80,
+    "height": 132
+  },
+  "scale_factor": 0.8,
+  "points": [
+    {
+      "label": "exhaust_1",
+      "x": 43,
+      "y": 66
+    },
+    {
+      "label": "exhaust_2",
+      "x": 20,
+      "y": 37
+    },
+    {
+      "label": "exhaust_3",
+      "x": 21,
+      "y": 95
+    },
+    {
+      "label": "projectile_odd_row_1",
+      "x": 74,
+      "y": 65
+    },
+    {
+      "label": "projectile_even_row_1",
+      "x": 53,
+      "y": 30
+    },
+    {
+      "label": "projectile_even_row_2",
+      "x": 52,
+      "y": 101
+    },
+    {
+      "label": "projectile_odd_row_3",
+      "x": 39,
+      "y": 15
+    },
+    {
+      "label": "projectile_odd_row_2",
+      "x": 37,
+      "y": 117
+    }
+  ]
+}

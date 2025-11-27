@@ -1,26 +1,26 @@
-ship_ID,sprite_path,sprite_exists,sprite_width,sprite_height,scale_factor,animation_idle,animation_attack,animation_ability,animation_death,engine_trail_color,glow_color,faction,coordinate_points
-
-# INTERCEPTORS - Assets Found
-basic_interceptor,res://assets/ships/basic_interceptor.png,TRUE,32,32,0.4638,idle,attack,ability_cast,death,#4488FF,#6699FF,player,[{"label": "test_projectile_1", "x": 34, "y": 42}, {"label": "test_exhaust_1", "x": 5, "y": 70}]
-viper_interceptor,res://assets/ships/viper_interceptor.png,TRUE,32,32,,idle,attack,ability_cast,death,#FF4444,#FF6666,player,[{"label": "projectile_odd_row_1", "x": 28, "y": 16}, {"label": "projectile_even_row_1", "x": 17, "y": 7}, {"label": "projectile_even_row_2", "x": 17, "y": 24}, {"label": "exhaust_1", "x": 2, "y": 16}]
-phantom_interceptor,res://assets/ships/phantom_interceptor.png,TRUE,32,48,,idle,attack,ability_cast,death,#8844FF,#AA66FF,player,[{"label": "point_0", "x": 29, "y": 24}, {"label": "projectile_odd_row_2", "x": 5, "y": 2}, {"label": "projectile_odd_row_3", "x": 3, "y": 46}, {"label": "projectile_even_row_2", "x": 25, "y": 16}, {"label": "projectile_even_row_3", "x": 25, "y": 32}, {"label": "exhaust_1", "x": 16, "y": 24}]
-pulse_interceptor,res://assets/ships/pulse_interceptor.png,TRUE,32,32,1.0000,idle,attack,ability_cast,death,#44FFFF,#66FFFF,player,[{"label": "invalid_point", "x": 100, "y": 200}]
-
-# FIGHTERS - Assets Found
-basic_fighter,res://assets/ships/basic_fighter.png,TRUE,40,40,,idle,attack,ability_cast,death,#44FF88,#66FFAA,player,[]
-havoc_fighter,res://assets/ships/havoc_fighter.png,TRUE,40,40,,idle,attack,ability_cast,death,#FFAA44,#FFCC66,player,[]
-vanguard_fighter,res://assets/ships/vanguard_fighter.png,TRUE,40,40,,idle,attack,ability_cast,death,#FF88FF,#FFAAFF,player,[]
-
-# FIGHTERS - Assets Missing
-shadow_fighter,res://assets/ships/shadow_fighter.png,FALSE,40,40,,idle,attack,ability_cast,death,#444488,#666699,player,[]
-reaper_fighter,res://assets/ships/reaper_fighter.png,FALSE,40,40,,idle,attack,ability_cast,death,#884444,#996666,player,[]
-sentinel_fighter,res://assets/ships/sentinel_fighter.png,FALSE,40,40,,idle,attack,ability_cast,death,#4488AA,#66AACC,player,[]
-
-# FRIGATES - Assets Found
-shield_frigate,res://assets/ships/shield_frigate.png,TRUE,64,64,,idle,attack,ability_cast,death,#88FF44,#AAFF66,player,[]
-bastion_frigate,res://assets/ships/bastion_frigate.png,TRUE,64,64,,idle,attack,ability_cast,death,#FFAA88,#FFCCAA,player,[]
-tempest_frigate,res://assets/ships/tempest_frigate.png,TRUE,64,64,,idle,attack,ability_cast,death,#FF4488,#FF66AA,player,[]
-resolute_frigate,res://assets/ships/resolute_flagship.png,TRUE,64,64,,idle,attack,ability_cast,death,#FFDD44,#FFEE66,player,[]
-
-# FRIGATES - Assets Missing
-aurora_frigate,res://assets/ships/aurora_frigate.png,FALSE,64,64,,idle,attack,ability_cast,death,#44DDFF,#66EEFF,player,[]
+ship_ID,sprite_path,sprite_exists,sprite_width,sprite_height,scale_factor,animation_idle,animation_attack,animation_ability,animation_death,engine_trail_color,glow_color,faction,coordinate_points,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,
+# INTERCEPTORS - Assets Found,,,,,,,,,,,,,,,,,,,,,,
+basic_interceptor,res://assets/ships/basic_interceptor.png,TRUE,32,32,0.4638,idle,attack,ability_cast,death,#4488FF,#6699FF,player,"[{""label"": ""projectile_odd_row_1""","x"": 45, ""y"": 41}, {""label"": ""projectile_odd_row_2","x"": 16, ""y"": 8}, {""label"": ""projectile_odd_row_3","x"": 16, ""y"": 75}, {""label"": ""projectile_even_row_1","x"": 40, ""y"": 20}, {""label"": ""projectile_even_row_2","x"": 39, ""y"": 64}, {""label"": ""exhaust_1","""x"": 2","""y"": 41}]",,
+viper_interceptor,res://assets/ships/viper_interceptor.png,TRUE,32,32,0.5079,idle,attack,ability_cast,death,#FF4444,#FF6666,player,"[{""label"": ""projectile_odd_row_1""","x"": 56, ""y"": 49}, {""label"": ""projectile_odd_row_2","x"": 38, ""y"": 32}, {""label"": ""projectile_odd_row_3","x"": 38, ""y"": 65}, {""label"": ""projectile_even_row_1","x"": 37, ""y"": 21}, {""label"": ""projectile_even_row_2","x"": 37, ""y"": 76}, {""label"": ""exhaust_1","""x"": 5","""y"": 48}]",,
+phantom_interceptor,res://assets/ships/phantom_interceptor.png,TRUE,32,48,0.5079,idle,attack,ability_cast,death,#8844FF,#AA66FF,player,"[{""label"": ""point_0""","x"": 30, ""y"": 70}, {""label"": ""projectile_odd_row_1","x"": 57, ""y"": 69}, {""label"": ""projectile_odd_row_2","x"": 28, ""y"": 28}, {""label"": ""projectile_odd_row_3","x"": 29, ""y"": 111}, {""label"": ""projectile_even_row_1","x"": 41, ""y"": 47}, {""label"": ""point_1","""x"": 43","""y"": 92}]",,
+pulse_interceptor,res://assets/ships/pulse_interceptor.png,TRUE,32,32,0.5079,idle,attack,ability_cast,death,#44FFFF,#66FFFF,player,"[{""label"": ""invalid_point""","x"": 100, ""y"": 200}, {""label"": ""point_0","x"": 37, ""y"": 40}, {""label"": ""projectile_odd_row_2","x"": 29, ""y"": 6}, {""label"": ""projectile_odd_row_3","x"": 28, ""y"": 73}, {""label"": ""projectile_even_row_1","x"": 21, ""y"": 28}, {""label"": ""projectile_even_row_2","x"": 20, ""y"": 52}, {""label"": ""exhaust_1","""x"": 4","""y"": 39}]",
+,,,,,,,,,,,,,,,,,,,,,,
+# FIGHTERS - Assets Found,,,,,,,,,,,,,,,,,,,,,,
+basic_fighter,res://assets/ships/basic_fighter.png,TRUE,40,40,0.4545,idle,attack,ability_cast,death,#44FF88,#66FFAA,player,"[{""label"": ""point_0""","x"": 6, ""y"": 70}, {""label"": ""exhaust_2","x"": 19, ""y"": 49}, {""label"": ""exhaust_3","x"": 18, ""y"": 91}, {""label"": ""projectile_odd_row_1","x"": 82, ""y"": 69}, {""label"": ""projectile_odd_row_2","x"": 38, ""y"": 32}, {""label"": ""projectile_odd_row_3","x"": 40, ""y"": 107}, {""label"": ""projectile_even_row_2","x"": 64, ""y"": 90}, {""label"": ""projectile_even_row_3","""x"": 64","""y"": 50}]"
+havoc_fighter,res://assets/ships/havoc_fighter.png,TRUE,40,40,0.4706,idle,attack,ability_cast,death,#FFAA44,#FFCC66,player,"[{""label"": ""projectile_odd_row_1""","x"": 69, ""y"": 65}, {""label"": ""projectile_even_row_1","x"": 65, ""y"": 51}, {""label"": ""point_0","x"": 66, ""y"": 82}, {""label"": ""projectile_odd_row_2","x"": 47, ""y"": 104}, {""label"": ""projectile_odd_row_3","x"": 47, ""y"": 26}, {""label"": ""exhaust_1","x"": 34, ""y"": 66}, {""label"": ""exhaust_2","x"": 21, ""y"": 32}, {""label"": ""exhaust_3","""x"": 20","""y"": 102}]"
+vanguard_fighter,res://assets/ships/vanguard_fighter.png,TRUE,40,40,,idle,attack,ability_cast,death,#FF88FF,#FFAAFF,player,[],,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,
+# FIGHTERS - Assets Missing,,,,,,,,,,,,,,,,,,,,,,
+shadow_fighter,res://assets/ships/shadow_fighter.png,FALSE,40,40,,idle,attack,ability_cast,death,#444488,#666699,player,[],,,,,,,,,
+reaper_fighter,res://assets/ships/reaper_fighter.png,FALSE,40,40,,idle,attack,ability_cast,death,#884444,#996666,player,[],,,,,,,,,
+sentinel_fighter,res://assets/ships/sentinel_fighter.png,FALSE,40,40,,idle,attack,ability_cast,death,#4488AA,#66AACC,player,[],,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,
+# FRIGATES - Assets Found,,,,,,,,,,,,,,,,,,,,,,
+shield_frigate,res://assets/ships/shield_frigate.png,TRUE,64,64,0.8,idle,attack,ability_cast,death,#88FF44,#AAFF66,player,"[{""label"": ""exhaust_1""","x"": 43, ""y"": 66}, {""label"": ""exhaust_2","x"": 20, ""y"": 37}, {""label"": ""exhaust_3","x"": 21, ""y"": 95}, {""label"": ""projectile_odd_row_1","x"": 74, ""y"": 65}, {""label"": ""projectile_even_row_1","x"": 53, ""y"": 30}, {""label"": ""projectile_even_row_2","x"": 52, ""y"": 101}, {""label"": ""projectile_odd_row_3","x"": 39, ""y"": 15}, {""label"": ""projectile_odd_row_2","""x"": 37","""y"": 117}]"
+bastion_frigate,res://assets/ships/bastion_frigate.png,TRUE,64,64,0.9412,idle,attack,ability_cast,death,#FFAA88,#FFCCAA,player,"[{""label"": ""projectile_odd_row_1""","x"": 56, ""y"": 67}, {""label"": ""projectile_even_row_1","x"": 48, ""y"": 56}, {""label"": ""projectile_even_row_2","x"": 48, ""y"": 78}, {""label"": ""projectile_odd_row_2","x"": 33, ""y"": 6}, {""label"": ""projectile_odd_row_3","x"": 33, ""y"": 130}, {""label"": ""exhaust_1","x"": 19, ""y"": 67}, {""label"": ""exhaust_2","x"": 18, ""y"": 56}, {""label"": ""exhaust_3","""x"": 19","""y"": 79}]"
+tempest_frigate,res://assets/ships/tempest_frigate.png,TRUE,64,64,0.4604,idle,attack,ability_cast,death,#FF4488,#FF66AA,player,"[{""label"": ""projectile_odd_row_1""","x"": 30, ""y"": 100}, {""label"": ""projectile_odd_row_2","x"": 126, ""y"": 71}, {""label"": ""projectile_odd_row_3","x"": 125, ""y"": 131}, {""label"": ""projectile_even_row_1","x"": 130, ""y"": 20}, {""label"": ""projectile_even_row_2","x"": 131, ""y"": 180}, {""label"": ""exhaust_1","x"": 74, ""y"": 100}, {""label"": ""exhaust_2","x"": 82, ""y"": 13}, {""label"": ""exhaust_3","""x"": 82","""y"": 186}]"
+resolute_frigate,res://assets/ships/resolute_flagship.png,TRUE,64,64,0.3299,idle,attack,ability_cast,death,#FFDD44,#FFEE66,player,"[{""label"": ""projectile_odd_row_1""","x"": 187, ""y"": 100}, {""label"": ""projectile_odd_row_2","x"": 140, ""y"": 72}, {""label"": ""projectile_odd_row_3","x"": 138, ""y"": 129}, {""label"": ""projectile_even_row_1","x"": 137, ""y"": 17}, {""label"": ""projectile_even_row_2","x"": 137, ""y"": 184}, {""label"": ""exhaust_1","x"": 17, ""y"": 101}, {""label"": ""exhaust_2","x"": 19, ""y"": 81}, {""label"": ""exhaust_3","""x"": 19","""y"": 119}]"
+,,,,,,,,,,,,,,,,,,,,,,
+# FRIGATES - Assets Missing,,,,,,,,,,,,,,,,,,,,,,
+aurora_frigate,res://assets/ships/aurora_frigate.png,FALSE,64,64,,idle,attack,ability_cast,death,#44DDFF,#66EEFF,player,[],,,,,,,,,
