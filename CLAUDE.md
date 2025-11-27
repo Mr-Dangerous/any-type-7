@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Any-Type-7** is a vertical-format space-based autobattler game for Android mobile devices built with Godot 4.5. The player controls a mothership fleeing from an alien threat, navigating sectors, gathering resources, and engaging in tactical grid-based autobattler combat.
 
-**Current Status**: Early planning phase with comprehensive design documentation and CSV data schemas, but **no game code implemented yet**. The project exists as a well-architected clean slate ready for implementation.
+**Current Status**: **Content-rich, code-ready phase**. All CSV databases are populated, visual assets imported, and asset pipeline tools created. **No game code implemented yet** - the project has comprehensive data and assets but needs the Godot engine implementation (autoloads, scenes, systems).
 
 ## Key Technical Details
 
@@ -40,7 +40,7 @@ This project follows a **data-driven singleton autoload pattern** to avoid the m
 4. **Component-Based Scene Composition** - Small reusable scene components that compose into larger systems
 5. **Mobile-First UI** - Portrait layout (1080x2340) with touch-optimized controls from day one
 
-### Planned Autoload Singletons (Not Yet Implemented)
+### Autoload Singletons (To Be Implemented)
 
 **Core Infrastructure**:
 - `EventBus.gd` - Global signal hub for decoupled communication
@@ -72,19 +72,19 @@ All game content is defined in `/data/*.csv` files. When implementing systems, *
 
 | CSV File | Status | Purpose |
 |----------|--------|---------|
-| `ship_stat_database.csv` | **Populated** (14 ships) | Ship statistics (17 stats per ship) |
-| `ability_database.csv` | **Populated** (50+ abilities) | Ship abilities, triggers, combos |
-| `ship_upgrade_database.csv` | **Populated** (40+ upgrades) | Stat upgrades across 5 rarity tiers |
-| `status_effects.csv` | **Populated** | Elemental and control status effects |
-| `elemental_combos.csv` | **Populated** | Elemental combo damage and effects |
-| `weapon_database.csv` | **Populated** (7 weapons) | Weapon systems |
-| `blueprints_database.csv` | **Populated** (21 blueprints) | Unlockable ship and weapon blueprints |
-| `drone_database.csv` | **Populated** (13 drones) | Combat and support drones |
-| `powerups_database.csv` | **Populated** (10 powerups) | Combat powerup drops |
-| `combat_scenarios.csv` | **EMPTY** | Wave definitions and enemy spawns |
-| `personnel_database.csv` | **EMPTY** | Pilots and crew |
-| `ship_visuals_database.csv` | **EMPTY** | Ship sprites and animations |
-| `drone_visuals_database.csv` | **Populated** (11 drones) | Drone visual assets |
+| `ship_stat_database.csv` | ✅ **Populated** (14 ships) | Ship statistics (17 stats per ship) |
+| `ability_database.csv` | ✅ **Populated** (50 abilities) | Ship abilities, triggers, combos |
+| `ship_upgrade_database.csv` | ✅ **Populated** (40+ upgrades) | Stat upgrades across 5 rarity tiers |
+| `status_effects.csv` | ✅ **Populated** (10 effects) | Elemental and control status effects |
+| `elemental_combos.csv` | ✅ **Populated** (30 combos) | Elemental combo damage and effects |
+| `weapon_database.csv` | ✅ **Populated** (7 weapons) | Weapon systems |
+| `blueprints_database.csv` | ✅ **Populated** (21 blueprints) | Unlockable ship and weapon blueprints |
+| `drone_database.csv` | ✅ **Populated** (13 drones) | Combat and support drones |
+| `powerups_database.csv` | ✅ **Populated** (10 powerups) | Combat powerup drops |
+| `ship_visuals_database.csv` | ✅ **Populated** (24 ship visuals) | Ship sprites, exhausts, hardpoints, colors |
+| `drone_visuals_database.csv` | ✅ **Populated** (11 drones) | Drone visual assets |
+| `combat_scenarios.csv` | ⚠️ **EMPTY** (placeholder) | Wave definitions and enemy spawns |
+| `personnel_database.csv` | ⚠️ **EMPTY** (placeholder) | Pilots and crew |
 
 ### CSV Loading Pattern
 
@@ -361,9 +361,36 @@ If starting implementation from scratch:
 
 4. **Follow the 6-phase roadmap** in `docs/any-type-7-plan.md`
 
+## Asset Pipeline & Tools
+
+### Visual Assets (Complete)
+- **Ship sprites**: 11 ship PNG files in `/assets/ships/`
+  - All 14 ships from CSV have corresponding visual assets
+  - Includes interceptors, fighters, and frigates
+- **Exhaust effects**: 15+ animated exhaust sprite sequences in `/assets/exhausts/`
+  - Color-coded (red, green, purple, fire)
+  - Single and double exhaust variants
+  - Drone-specific exhausts
+- **Projectile assets**: 100+ laser sprites in `/assets/projectiles/`
+  - Mixed laser types in various colors
+
+### Asset Processing Tools (Complete)
+Located in `/tools/`:
+- **`ship_visual_processor.html`** - Web-based interactive tool for:
+  - Loading ship sprites
+  - Defining hardpoint coordinates (weapons, exhausts, center)
+  - Previewing ship configurations
+  - Exporting coordinate data to JSON
+- **`merge_ship_coordinates.py`** - Python script to merge JSON coordinate data into `ship_visuals_database.csv`
+- **`clear_coordinate_points.py`** - Python utility to reset coordinate data
+- **`ship_JSONS/`** - Contains 10+ JSON files with hardpoint coordinates for each ship
+
+### Empty Directories
+- **`dressing_room/`** - Reserved for future ship customization/preview scenes
+
 ## Additional Notes
 
 - **GDAI MCP Plugin**: Present in `/addons/gdai-mcp-plugin-godot/` for AI-assisted development
 - **Previous iteration reference**: See `/plan/any-type-5-considerations.md` for architectural lessons learned
-- **Backup file**: `docs/ship-stats-system.md.backup` is deprecated (split into 3 focused docs)
-- **Empty CSVs**: Several CSVs are 1-byte placeholders awaiting population (blueprints, scenarios, personnel, visuals)
+- **Asset pipeline complete**: All ship visuals processed and ready for Godot import
+- **Only 2 CSVs remaining empty**: `combat_scenarios.csv` and `personnel_database.csv` are placeholders

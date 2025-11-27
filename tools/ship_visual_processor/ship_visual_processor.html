@@ -320,6 +320,42 @@
                     </div>
                 </div>
 
+                <!-- Exhaust Preview Section -->
+                <div class="section">
+                    <h2>3.5. Exhaust Preview</h2>
+                    <div class="controls">
+                        <div class="control-group">
+                            <label>Select Exhaust Sprite</label>
+                            <select id="exhaustSelect">
+                                <option value="">No exhaust preview</option>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Scale: <span id="exhaustScale" class="zoom-display">100%</span></label>
+                            <input type="range" id="exhaustScaleSlider" min="25" max="200" value="100" step="5">
+                        </div>
+                        <div class="control-group">
+                            <label>Rotation: <span id="exhaustRotation" class="zoom-display">0°</span></label>
+                            <input type="range" id="exhaustRotationSlider" min="0" max="360" value="0" step="5">
+                        </div>
+                        <div class="control-group">
+                            <label>X Offset (px)</label>
+                            <input type="number" id="exhaustOffsetX" value="0" step="1">
+                        </div>
+                        <div class="control-group">
+                            <label>Y Offset (px)</label>
+                            <input type="number" id="exhaustOffsetY" value="0" step="1">
+                        </div>
+                        <div class="control-group">
+                            <label>
+                                <input type="checkbox" id="exhaustPreviewToggle" checked>
+                                Show Exhaust Preview
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Canvas Display -->
                 <div class="section">
                     <h2>4. Click to Mark Coordinates</h2>
@@ -372,6 +408,33 @@
         let aspectLocked = true; // Lock aspect ratio by default
         let originalAspectRatio = null; // PNG's original aspect ratio
 
+        // Exhaust preview state
+        let exhaustImage = null;          // Currently loaded exhaust Image object
+        let exhaustScale = 1.0;            // Scale factor (0.25 - 2.0)
+        let exhaustRotation = 0;           // Rotation in degrees (0-360)
+        let exhaustOffsetX = 0;            // X offset in pixels
+        let exhaustOffsetY = 0;            // Y offset in pixels
+        let showExhaustPreview = true;     // Toggle preview visibility
+
+        // Available exhaust sprites
+        const exhaustSprites = [
+            'assets/exhausts/s_exhaust_1_drone/s_exhaust_1_drone.png',
+            'assets/exhausts/s_exhaust_2_drone/s_exhaust_2_drone.png',
+            'assets/exhausts/s_exhaust_3_drone/s_exhaust_3_drone.png',
+            'assets/exhausts/s_fire_double_exhaust/s_fire_double_exhaust.png',
+            'assets/exhausts/s_fire_single_exhaust/s_fire_single_exhaust.png',
+            'assets/exhausts/s_fire_strong_double_exhaust/s_fire_strong_double_exhaust.png',
+            'assets/exhausts/s_fire_strong_single_exhaust/s_fire_strong_single_exhaust.png',
+            'assets/exhausts/s_green_double_exhaust/s_green_double_exhaust.png',
+            'assets/exhausts/s_green_single_exhaust/s_green_single_exhaust.png',
+            'assets/exhausts/s_purple_double_exhaust/s_purple_double_exhaust.png',
+            'assets/exhausts/s_purple_single_exhaust/s_purple_single_exhaust.png',
+            'assets/exhausts/s_red_double_exhaust/s_red_double_exhaust.png',
+            'assets/exhausts/s_red_single_exhaust/s_red_single_exhaust.png',
+            'assets/exhausts/s_silver_double_exhaust/s_silver_double_exhaust.png',
+            'assets/exhausts/s_silver_single_exhaust/s_silver_single_exhaust.png'
+        ];
+
         // DOM elements
         const csvInput = document.getElementById('csvInput');
         const csvStatus = document.getElementById('csvStatus');
@@ -393,6 +456,14 @@
         const resetSizeBtn = document.getElementById('resetSizeBtn');
         const aspectLock = document.getElementById('aspectLock');
         const originalAspect = document.getElementById('originalAspect');
+        const exhaustSelect = document.getElementById('exhaustSelect');
+        const exhaustScaleSlider = document.getElementById('exhaustScaleSlider');
+        const exhaustScaleDisplay = document.getElementById('exhaustScale');
+        const exhaustRotationSlider = document.getElementById('exhaustRotationSlider');
+        const exhaustRotationDisplay = document.getElementById('exhaustRotation');
+        const exhaustOffsetXInput = document.getElementById('exhaustOffsetX');
+        const exhaustOffsetYInput = document.getElementById('exhaustOffsetY');
+        const exhaustPreviewToggle = document.getElementById('exhaustPreviewToggle');
 
         // CSV Loading
         csvInput.addEventListener('change', (e) => {
@@ -418,42 +489,67 @@
             const lines = text.split('\n').filter(line => line.trim() && !line.trim().startsWith('#'));
             if (lines.length < 2) throw new Error('Invalid CSV format');
 
-            const headers = lines[0].split(',').map(h => h.trim());
+            const headers = parseCSVLine(lines[0]);
             const ships = [];
 
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i];
-                const values = [];
-                let current = '';
-                let inBrackets = false;
 
-                // Parse CSV handling JSON arrays in coordinate_points column
-                for (let j = 0; j < line.length; j++) {
-                    const char = line[j];
-                    if (char === '[') inBrackets = true;
-                    if (char === ']') inBrackets = false;
+                // Extract coordinate_points JSON more carefully
+                // Find the JSON array in the line (starts with "[{" and ends with "}]")
+                const jsonMatch = line.match(/"(\[.*\])"/);
+                let coordinatePointsJSON = null;
 
-                    if (char === ',' && !inBrackets) {
-                        values.push(current.trim());
-                        current = '';
-                    } else {
-                        current += char;
-                    }
+                if (jsonMatch) {
+                    coordinatePointsJSON = jsonMatch[1];
                 }
-                values.push(current.trim()); // Last value
 
-                if (values.length !== headers.length) continue;
+                const values = parseCSVLine(line);
+
+                // Skip lines that don't have enough columns (empty rows or incomplete data)
+                if (values.length < 3) continue;
 
                 const ship = {};
                 headers.forEach((header, idx) => {
                     ship[header] = values[idx];
                 });
 
-                // Parse coordinate_points as JSON
-                if (ship.coordinate_points) {
+                // Parse coordinate_points - use regex extraction since CSV JSON is malformed
+                if (coordinatePointsJSON) {
                     try {
-                        ship.coordinate_points = JSON.parse(ship.coordinate_points);
+                        // Instead of trying to parse the malformed JSON, extract coordinates directly
+                        const points = [];
+
+                        // Split by object boundaries and process each one
+                        // Pattern: find content between { and }
+                        const objectRegex = /\{[^}]+\}/g;
+                        const objects = coordinatePointsJSON.match(objectRegex);
+
+                        if (objects) {
+                            objects.forEach(obj => {
+                                // Extract label
+                                const labelMatch = obj.match(/""?label""?\s*:\s*""([^"]+)""/);
+                                // Extract x coordinate (handles both "x" and ""x"" patterns)
+                                const xMatch = obj.match(/""?x""?\s*:\s*"?(\d+)"?/);
+                                // Extract y coordinate (handles both "y" and ""y"" patterns)
+                                const yMatch = obj.match(/""?y""?\s*:\s*"?(\d+)"?/);
+
+                                if (labelMatch && xMatch && yMatch) {
+                                    points.push({
+                                        label: labelMatch[1],
+                                        x: parseInt(xMatch[1]),
+                                        y: parseInt(yMatch[1])
+                                    });
+                                }
+                            });
+                        }
+
+                        ship.coordinate_points = points;
+
+                        console.log(ship.ship_ID + ': extracted ' + points.length + ' points');
                     } catch (e) {
+                        console.error('Failed to extract coordinate_points for ' + ship.ship_ID + ':', e.message);
+                        console.error('JSON string:', coordinatePointsJSON);
                         ship.coordinate_points = [];
                     }
                 } else {
@@ -467,6 +563,39 @@
             }
 
             return ships;
+        }
+
+        // Properly parse CSV line handling quoted fields
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const nextChar = i + 1 < line.length ? line[i + 1] : null;
+
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        // Escaped quote ("") - add one quote to current value
+                        current += '"';
+                        i++; // Skip next quote
+                    } else {
+                        // Toggle quote state
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    // Field separator (only when not inside quotes)
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+
+            // Add last value
+            values.push(current.trim());
+            return values;
         }
 
         // Populate ship dropdown
@@ -583,6 +712,11 @@
             // Draw image scaled to canvas size
             ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
 
+            // Draw exhaust sprites at exhaust points
+            if (exhaustImage && showExhaustPreview) {
+                drawExhaustPreviews();
+            }
+
             // Draw grid if enabled
             if (showGrid) {
                 drawGrid();
@@ -619,6 +753,57 @@
                 ctx.lineTo(canvas.width, y);
                 ctx.stroke();
             }
+        }
+
+        // Draw exhaust previews at all exhaust points
+        function drawExhaustPreviews() {
+            if (!exhaustImage) return;
+
+            // Collect all exhaust points from both CSV and newly marked points
+            const allPoints = [...csvPoints, ...markedPoints];
+
+            // Filter for exhaust points only (exhaust_1, exhaust_2, exhaust_3)
+            const exhaustPoints = allPoints.filter(point =>
+                point.label.startsWith('exhaust_')
+            );
+
+            // Draw exhaust sprite at each exhaust point
+            exhaustPoints.forEach(point => {
+                drawExhaustAtPoint(point.x, point.y);
+            });
+        }
+
+        // Draw exhaust sprite at a specific point
+        function drawExhaustAtPoint(x, y) {
+            ctx.save();
+
+            // Apply offsets to position
+            const drawX = x + exhaustOffsetX;
+            const drawY = y + exhaustOffsetY;
+
+            // Move to the exhaust point
+            ctx.translate(drawX, drawY);
+
+            // Apply rotation (convert degrees to radians)
+            ctx.rotate(exhaustRotation * Math.PI / 180);
+
+            // Apply scale
+            ctx.scale(exhaustScale, exhaustScale);
+
+            // Draw exhaust with origin at right-center
+            // Origin on right side (x = 0) and vertically centered (y = -height/2)
+            const exhaustWidth = exhaustImage.naturalWidth;
+            const exhaustHeight = exhaustImage.naturalHeight;
+
+            ctx.drawImage(
+                exhaustImage,
+                -exhaustWidth,              // X: Right edge at origin
+                -exhaustHeight / 2,         // Y: Vertically centered
+                exhaustWidth,
+                exhaustHeight
+            );
+
+            ctx.restore();
         }
 
         // Draw marker
@@ -951,6 +1136,79 @@
                 redrawCanvas();
             }
         });
+
+        // Populate exhaust dropdown
+        function initializeExhaustDropdown() {
+            exhaustSprites.forEach(path => {
+                const option = document.createElement('option');
+                option.value = path;
+                // Extract friendly name: "s_fire_single_exhaust.png" -> "Fire Single"
+                const filename = path.split('/').pop().replace('.png', '');
+                const displayName = filename
+                    .replace('s_', '')
+                    .split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+                option.textContent = displayName;
+                exhaustSelect.appendChild(option);
+            });
+        }
+
+        // Exhaust selection event handler
+        exhaustSelect.addEventListener('change', (e) => {
+            if (!e.target.value) {
+                exhaustImage = null;
+                redrawCanvas();
+                return;
+            }
+
+            const img = new Image();
+            img.onload = () => {
+                exhaustImage = img;
+                redrawCanvas();
+                showStatus(`Loaded exhaust: ${img.naturalWidth}×${img.naturalHeight}px`, 'success');
+            };
+            img.onerror = () => {
+                showStatus(`Failed to load exhaust: ${e.target.value}`, 'error');
+                exhaustImage = null;
+            };
+            // Convert path for web access (relative from HTML file location)
+            img.src = '../../' + e.target.value;
+        });
+
+        // Exhaust scale control
+        exhaustScaleSlider.addEventListener('input', (e) => {
+            exhaustScale = e.target.value / 100;
+            exhaustScaleDisplay.textContent = `${e.target.value}%`;
+            redrawCanvas();
+        });
+
+        // Exhaust rotation control
+        exhaustRotationSlider.addEventListener('input', (e) => {
+            exhaustRotation = parseInt(e.target.value);
+            exhaustRotationDisplay.textContent = `${e.target.value}°`;
+            redrawCanvas();
+        });
+
+        // Exhaust offset controls
+        exhaustOffsetXInput.addEventListener('input', (e) => {
+            exhaustOffsetX = parseInt(e.target.value) || 0;
+            redrawCanvas();
+        });
+
+        exhaustOffsetYInput.addEventListener('input', (e) => {
+            exhaustOffsetY = parseInt(e.target.value) || 0;
+            redrawCanvas();
+        });
+
+        // Exhaust preview toggle
+        exhaustPreviewToggle.addEventListener('change', (e) => {
+            showExhaustPreview = e.target.checked;
+            redrawCanvas();
+        });
+
+        // Initialize exhaust dropdown on page load
+        initializeExhaustDropdown();
     </script>
 </body>
 </html>
