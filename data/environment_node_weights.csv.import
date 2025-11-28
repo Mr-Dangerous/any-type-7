@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bkwg1ev61tm7i"
+
+[deps]
+
+files=["res://data/environment_node_weights.node.translation", "res://data/environment_node_weights.weight.translation", "res://data/environment_node_weights.spawn.translation"]
+
+source_file="res://data/environment_node_weights.csv"
+dest_files=["res://data/environment_node_weights.node.translation", "res://data/environment_node_weights.weight.translation", "res://data/environment_node_weights.spawn.translation"]
+
+[params]
+
+compress=true
+delimiter=0

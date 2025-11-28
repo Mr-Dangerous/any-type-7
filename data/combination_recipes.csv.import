@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bjthuie4iq3kl"
+
+[deps]
+
+files=["res://data/combination_recipes.component.translation", "res://data/combination_recipes.result.translation"]
+
+source_file="res://data/combination_recipes.csv"
+dest_files=["res://data/combination_recipes.component.translation", "res://data/combination_recipes.result.translation"]
+
+[params]
+
+compress=true
+delimiter=0

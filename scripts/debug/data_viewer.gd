@@ -41,7 +41,8 @@ func _initialize_database_map() -> void:
 	database_map = {
 		"Ships": DataManager.ships,
 		"Abilities": DataManager.abilities,
-		"Upgrades": DataManager.upgrades,
+		"Relics T1": DataManager.relics_t1,
+		"Relics T2": DataManager.relics_t2,
 		"Status Effects": DataManager.status_effects,
 		"Elemental Combos": DataManager.combos,
 		"Weapons": DataManager.weapons,
@@ -52,6 +53,9 @@ func _initialize_database_map() -> void:
 		"Drone Visuals": DataManager.drone_visuals,
 		"Combat Scenarios": DataManager.combat_scenarios,
 		"Personnel": DataManager.personnel,
+		"Sector Nodes": DataManager.sector_nodes,
+		"Environment Bands": DataManager.environment_bands,
+		"Sector Progression": DataManager.sector_progression,
 	}
 
 # ============================================================

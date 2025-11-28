@@ -13,7 +13,8 @@ extends Node
 
 var ships: Dictionary = {}              # ship_ID → ship data
 var abilities: Dictionary = {}          # ability_ID → ability data
-var upgrades: Dictionary = {}           # upgrade_ID → upgrade data
+var relics_t1: Dictionary = {}          # item_id → tier 1 relic data
+var relics_t2: Dictionary = {}          # item_id → tier 2 relic data
 var status_effects: Dictionary = {}     # effect_ID → effect data
 var combos: Dictionary = {}             # combo_ID → combo data
 var weapons: Dictionary = {}            # weapon_ID → weapon data
@@ -28,6 +29,12 @@ var combat_scenarios: Dictionary = {}  # scenario_ID → scenario data
 
 # Personnel (currently empty CSV)
 var personnel: Dictionary = {}          # personnel_ID → personnel data
+
+# Sector exploration data
+var sector_nodes: Dictionary = {}       # node_type → node config
+var environment_bands: Dictionary = {}  # band_id → band config
+var environment_node_weights: Dictionary = {}  # band_id|node_type → weight modifier
+var sector_progression: Dictionary = {}  # sector_number → progression data
 
 # ============================================================
 # LOAD STATUS
@@ -49,7 +56,8 @@ func load_all_databases() -> void:
 
 	_load_database("res://data/ship_stat_database.csv", ships, "ship_ID")
 	_load_database("res://data/ability_database.csv", abilities, "ability_id")
-	_load_database("res://data/ship_upgrade_database.csv", upgrades, "upgrade_id")
+	_load_database("res://data/item_relics_t1.csv", relics_t1, "item_id")
+	_load_database("res://data/item_relics_t2.csv", relics_t2, "item_id")
 	_load_database("res://data/status_effects.csv", status_effects, "effect_id")
 	_load_database("res://data/elemental_combos.csv", combos, "element")
 	_load_database("res://data/weapon_database.csv", weapons, "ship_system_id")
@@ -62,6 +70,14 @@ func load_all_databases() -> void:
 	# Empty CSVs (will have headers but no data rows)
 	_load_database("res://data/combat_scenarios.csv", combat_scenarios, "scenario_id")
 	_load_database("res://data/personnel_database.csv", personnel, "personnel_id")
+
+	# Sector exploration data
+	_load_database("res://data/sector_nodes.csv", sector_nodes, "node_type")
+	_load_database("res://data/environment_bands.csv", environment_bands, "band_id")
+	_load_database("res://data/sector_progression.csv", sector_progression, "sector_number")
+
+	# Load environment_node_weights with composite key (band_id|node_type)
+	_load_environment_node_weights()
 
 	is_loaded = true
 	EventBus.all_data_loaded.emit()
@@ -127,8 +143,9 @@ func _load_database(csv_path: String, target_dict: Dictionary, id_column: String
 			var value := row[i].strip_edges()
 			record[key] = _convert_type(value)
 
-		# Cache by ID
-		var record_id: String = record.get(id_column, "")
+		# Cache by ID (convert to string to handle both string and int IDs)
+		var record_id_raw = record.get(id_column, "")
+		var record_id: String = str(record_id_raw)
 		if not record_id.is_empty():
 			target_dict[record_id] = record
 			record_count += 1
@@ -174,7 +191,12 @@ func get_ability(ability_id: String) -> Dictionary:
 	return abilities.get(ability_id, {})
 
 func get_upgrade(upgrade_id: String) -> Dictionary:
-	return upgrades.get(upgrade_id, {})
+	# Legacy function - now checks both tier 1 and tier 2 relics
+	if relics_t1.has(upgrade_id):
+		return relics_t1.get(upgrade_id)
+	elif relics_t2.has(upgrade_id):
+		return relics_t2.get(upgrade_id)
+	return {}
 
 func get_status_effect(effect_id: String) -> Dictionary:
 	return status_effects.get(effect_id, {})
@@ -231,6 +253,188 @@ func get_all_ship_ids() -> Array[String]:
 	return ids
 
 # ============================================================
+# SPECIAL CSV LOADERS
+# ============================================================
+
+func _load_environment_node_weights() -> void:
+	"""Load environment_node_weights.csv with composite key (band_id|node_type)"""
+	var csv_path := "res://data/environment_node_weights.csv"
+
+	if not FileAccess.file_exists(csv_path):
+		print("[DataManager] WARNING: %s not found" % csv_path)
+		return
+
+	var file := FileAccess.open(csv_path, FileAccess.READ)
+	if not file:
+		print("[DataManager] ERROR: Could not open %s" % csv_path)
+		return
+
+	# Read header
+	var header_line := file.get_csv_line()
+
+	# Read data rows
+	var row_count := 0
+	while not file.eof_reached():
+		var row := file.get_csv_line()
+		if row.size() < 4 or row[0].is_empty():
+			continue
+
+		var band_id: String = row[0].strip_edges()
+		var node_type: String = row[1].strip_edges()
+		var weight_multiplier: float = float(row[2])
+		var spawn_weight_override: int = int(row[3])
+
+		# Composite key: band_id|node_type
+		var key := band_id + "|" + node_type
+		environment_node_weights[key] = {
+			"band_id": band_id,
+			"node_type": node_type,
+			"weight_multiplier": weight_multiplier,
+			"spawn_weight_override": spawn_weight_override
+		}
+		row_count += 1
+
+	file.close()
+	print("[DataManager] Loaded %d environment node weights" % row_count)
+
+# ============================================================
+# SECTOR EXPLORATION QUERY FUNCTIONS
+# ============================================================
+
+func get_node_config(node_type: String) -> Dictionary:
+	"""Get node configuration by type
+
+	Args:
+		node_type: The node type identifier
+
+	Returns:
+		Node config dictionary (empty if not found)
+	"""
+	return sector_nodes.get(node_type, {})
+
+func get_band_config(band_id: String) -> Dictionary:
+	"""Get environmental band configuration
+
+	Args:
+		band_id: The band identifier
+
+	Returns:
+		Band config dictionary (empty if not found)
+	"""
+	return environment_bands.get(band_id, {})
+
+func get_band_node_weight_modifier(band_id: String, node_type: String) -> float:
+	"""Get spawn weight modifier for node type in specific band
+
+	Args:
+		band_id: The environmental band
+		node_type: The node type
+
+	Returns:
+		Weight multiplier (1.0 = no change)
+	"""
+	# Check specific node type first
+	var key := band_id + "|" + node_type
+	if environment_node_weights.has(key):
+		var data: Dictionary = environment_node_weights[key]
+		var override: int = data.get("spawn_weight_override", -1)
+		if override >= 0:
+			# Override takes precedence, but we need to return multiplier
+			# So we calculate it: override / base_weight
+			var base_weight: int = get_node_config(node_type).get("spawn_weight", 1)
+			if base_weight > 0:
+				return float(override) / float(base_weight)
+		return data.get("weight_multiplier", 1.0)
+
+	# Check "all" wildcard
+	var all_key := band_id + "|all"
+	if environment_node_weights.has(all_key):
+		return environment_node_weights[all_key].get("weight_multiplier", 1.0)
+
+	return 1.0  # No modifier
+
+func get_available_bands(sector_number: int) -> Array:
+	"""Get all bands available for current sector
+
+	Args:
+		sector_number: Current sector
+
+	Returns:
+		Array of band dictionaries that are unlocked
+	"""
+	var bands := []
+	for band_id in environment_bands:
+		var band: Dictionary = environment_bands[band_id]
+		var min_sector: int = band.get("min_sector", 1)
+		if min_sector <= sector_number:
+			bands.append(band)
+	return bands
+
+func get_nodes_for_band(band_id: String) -> Array[Dictionary]:
+	"""Get all nodes available for a specific band (universal + exclusive)
+
+	Args:
+		band_id: The environmental band identifier
+
+	Returns:
+		Array of node config dictionaries available in this band
+	"""
+	var available_nodes: Array[Dictionary] = []
+
+	for node_type in sector_nodes.keys():
+		var node: Dictionary = sector_nodes[node_type]
+		var is_exclusive: bool = node.get("band_exclusive", "no") == "yes"
+
+		if is_exclusive:
+			# Only include if this is the exclusive band
+			if node.get("exclusive_band_id", "") == band_id:
+				available_nodes.append(node)
+		else:
+			# Non-exclusive nodes available in all bands (unless weight is 0)
+			var weight_modifier := get_band_node_weight_modifier(band_id, node_type)
+			if weight_modifier > 0.0:
+				available_nodes.append(node)
+
+	return available_nodes
+
+func get_sector_progression(sector_number: int) -> Dictionary:
+	"""Get sector progression data
+
+	Args:
+		sector_number: The sector number
+
+	Returns:
+		Progression config dictionary (empty if not found)
+	"""
+	return sector_progression.get(str(sector_number), {})
+
+# ============================================================
+# RELIC SYSTEM QUERY FUNCTIONS
+# ============================================================
+
+func get_relic_t1(item_id: String) -> Dictionary:
+	"""Get Tier 1 relic data
+
+	Args:
+		item_id: The relic identifier
+
+	Returns:
+		Tier 1 relic config (empty if not found)
+	"""
+	return relics_t1.get(item_id, {})
+
+func get_relic_t2(item_id: String) -> Dictionary:
+	"""Get Tier 2 relic data
+
+	Args:
+		item_id: The relic identifier
+
+	Returns:
+		Tier 2 relic config (empty if not found)
+	"""
+	return relics_t2.get(item_id, {})
+
+# ============================================================
 # VALIDATION
 # ============================================================
 
@@ -256,7 +460,8 @@ func _print_load_summary() -> void:
 	print("=".repeat(60))
 	print("Ships: %d" % ships.size())
 	print("Abilities: %d" % abilities.size())
-	print("Upgrades: %d" % upgrades.size())
+	print("Relics (Tier 1): %d" % relics_t1.size())
+	print("Relics (Tier 2): %d" % relics_t2.size())
 	print("Status Effects: %d" % status_effects.size())
 	print("Combos: %d" % combos.size())
 	print("Weapons: %d" % weapons.size())
@@ -267,6 +472,11 @@ func _print_load_summary() -> void:
 	print("Drone Visuals: %d" % drone_visuals.size())
 	print("Combat Scenarios: %d" % combat_scenarios.size())
 	print("Personnel: %d" % personnel.size())
+	print("---")
+	print("Sector Nodes: %d (base + band-exclusive)" % sector_nodes.size())
+	print("Environment Bands: %d" % environment_bands.size())
+	print("Environment Node Weights: %d" % environment_node_weights.size())
+	print("Sector Progression: %d" % sector_progression.size())
 	print("=".repeat(60))
 
 	if not load_errors.is_empty():

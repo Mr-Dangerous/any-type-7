@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://b2sys1sfriuhl"
+
+[deps]
+
+files=["res://data/environment_bands.band.translation", "res://data/environment_bands.description.translation", "res://data/environment_bands.nebula.translation", "res://data/environment_bands.debris.translation", "res://data/environment_bands.combat.translation", "res://data/environment_bands.visibility.translation", "res://data/environment_bands.special.translation", "res://data/environment_bands.visual.translation", "res://data/environment_bands.haze.translation", "res://data/environment_bands.min.translation", "res://data/environment_bands.spawn.translation"]
+
+source_file="res://data/environment_bands.csv"
+dest_files=["res://data/environment_bands.band.translation", "res://data/environment_bands.description.translation", "res://data/environment_bands.nebula.translation", "res://data/environment_bands.debris.translation", "res://data/environment_bands.combat.translation", "res://data/environment_bands.visibility.translation", "res://data/environment_bands.special.translation", "res://data/environment_bands.visual.translation", "res://data/environment_bands.haze.translation", "res://data/environment_bands.min.translation", "res://data/environment_bands.spawn.translation"]
+
+[params]
+
+compress=true
+delimiter=0

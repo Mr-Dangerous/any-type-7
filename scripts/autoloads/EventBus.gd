@@ -58,6 +58,32 @@ signal node_discovered(node_id: String, node_type: String)
 signal node_activated(node_id: String)
 
 # ============================================================
+# SPEED & VISION SYSTEM SIGNALS
+# ============================================================
+
+signal speed_changed(new_speed: int)
+signal vision_changed(vision_multiplier: float)
+signal vision_upgrade_applied(bonus_multiplier: float)
+signal mining_blocked_speed_too_high(node_type: String, max_speed: int)
+signal emergency_wormhole_spawned()
+
+# ============================================================
+# ENVIRONMENTAL BAND SIGNALS
+# ============================================================
+
+signal band_entered(band_id: String, band_name: String)
+signal band_exited(band_id: String)
+signal band_overlay_changed(overlay_path: String, haze_effect: String)
+signal special_node_available(node_type: String)
+
+# ============================================================
+# RESOURCE ASSIGNMENT SIGNALS
+# ============================================================
+
+signal node_resources_assigned(node_id: String, resource_profile: String)
+signal gas_giant_rings_detected(node_id: String, has_rings: bool)
+
+# ============================================================
 # HANGAR SIGNALS (Phase 4)
 # ============================================================
 

@@ -49,44 +49,206 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 
 ---
 
-## The 8 Node Types
+## Node Types
 
-### 1. Mining Nodes
-**Description**: Uninhabited planets or asteroid fields rich in resources
+### Gravity Assist & Mining System
 
-**Spawn Weight**: 30 (most common)
+**Gravity Assist Objects**: Large celestial bodies (stars, planets, moons) that provide speed control opportunities
+- When approaching, player chooses: turn into object (speed up), turn away (slow down), or go straight (maintain speed)
+- Costs 1 fuel per use
+- 1 second of locked controls with visual animation (LEO trajectory)
+- Most gravity assist objects are also mineable
 
-**Purpose**: Deploy miners to gather resources over time
+**Mineable Objects**: Nodes that can be mined for resources (metals, crystals, fuel)
+- Replaces the old "mining node" system
+- Various celestial bodies and spatial features can be mined
+- Resource yields vary by object type
+- Mining can be instant (asteroids) or timed (planets, clusters)
 
-**Resource Types**:
-- **Metal**: Basic construction material
-- **Crystals**: Advanced technology component
-- **Fuel**: Movement and jumping
-- **Wildcard**: Tier 1 item, or rarely tier 2 item
-
-**Mechanics**:
-- Instant reward for Phase 2 prototype (30-100 resources)
-- Future: Deploy miners, wait for extraction, return to collect
-- No combat encounters
-
-**Implementation Status**: ✅ Core functionality ready (scripts/nodes/mining_node.gd)
+**Interaction Types**:
+- `mining_operation` - Deploy mining equipment, wait for extraction (timed)
+- `instant_collect` - Immediate resource collection (no wait)
+- `salvage_operation` - Salvage materials from wrecks (timed, potential combat)
+- `data_hack` - Extract digital data/blueprints (instant or puzzle)
+- `instant_reward` - Immediate resource grant (one-time)
+- `open_shop` - Opens trader UI
+- `optional_combat` - Player choice to engage or avoid
+- `puzzle_encounter` - Skill/puzzle challenge
+- `sector_exit` - Transition to next sector
 
 ---
 
-### 2. Outpost Nodes
+### Celestial Bodies (Gravity Assist + Mineable)
+
+### 1. Stars (Suns)
+**Description**: Massive stellar bodies with extreme gravity and exotic materials
+
+**Spawn Weight**: 2 (very rare - as requested)
+
+**Gravity Assist**: Yes (strongest effect)
+**Mineable**: Yes (80-200 resources, fuel-rich)
+
+**Mechanics**:
+- Extremely dangerous proximity - highest risk/reward
+- Rich in exotic materials and fuel
+- Strongest gravity assist potential
+- High energy signature visible from distance
+
+**Implementation Status**: ⚠️ Needs implementation
+
+---
+
+### 2. Gas Giants
+**Description**: Massive gas planets with fuel-rich atmospheres
+
+**Spawn Weight**: 8 (uncommon)
+
+**Gravity Assist**: Yes (strong effect)
+**Mineable**: Yes (40-120 resources, fuel-focused)
+
+**Mechanics**:
+- Fuel-rich atmosphere mining
+- Strong gravity assist potential
+- No surface to land on - atmospheric mining only
+- Visual: Large banded planet with swirling clouds
+
+**Implementation Status**: ⚠️ Needs implementation
+
+---
+
+### 3. Rocky Planets
+**Description**: Terrestrial planets with metal-rich crusts
+
+**Spawn Weight**: 15 (common)
+
+**Gravity Assist**: Yes (moderate effect)
+**Mineable**: Yes (30-100 resources, metal-focused)
+
+**Combat Chance**: 10% (surface defenses or claim disputes)
+
+**Mechanics**:
+- Metal-rich surface mining
+- Moderate gravity assist
+- Occasional hostile encounters
+- Balanced risk/reward for common node
+
+**Implementation Status**: ⚠️ Needs implementation
+
+---
+
+### 4. Ice Planets
+**Description**: Frozen worlds with crystal and fuel ice deposits
+
+**Spawn Weight**: 12 (common)
+
+**Gravity Assist**: Yes (moderate effect)
+**Mineable**: Yes (30-100 resources, crystal/fuel-focused)
+
+**Mechanics**:
+- Crystal and fuel reserves in ice
+- Moderate gravity assist
+- No combat encounters
+- Visual: Icy blue/white planet
+
+**Implementation Status**: ⚠️ Needs implementation
+
+---
+
+### 5. Moons
+**Description**: Small planetary satellites for quick resource gathering
+
+**Spawn Weight**: 18 (very common)
+
+**Gravity Assist**: Yes (weak effect)
+**Mineable**: Yes (20-60 resources)
+
+**Mechanics**:
+- Quick mining operations (smaller yields)
+- Weak gravity assist (less fuel efficiency)
+- Most common celestial mineable
+- Low risk, low reward
+
+**Implementation Status**: ⚠️ Needs implementation
+
+---
+
+### Spatial Features
+
+### 6. Nebula Clouds
+**Description**: Colorful gas clouds containing exotic particles
+
+**Spawn Weight**: 6 (uncommon)
+
+**Gravity Assist**: No
+**Mineable**: Yes (20-80 resources, rare materials)
+
+**Mechanics**:
+- Exotic particles and rare materials
+- **Special Effect**: Reduces ship speed while inside (visual obscuration)
+- No gravity well
+- Beautiful visual effect opportunity
+
+**Implementation Status**: ⚠️ Needs implementation
+
+---
+
+### 7. Asteroids
+**Description**: Mineable space rocks drifting through sector
+
+**Spawn Weight**: 20 (common)
+
+**Gravity Assist**: No
+**Mineable**: Yes (10-50 resources)
+
+**Mechanics**:
+- Instant collection (no mining time)
+- No combat encounters
+- Quick resource top-up option
+- Most common mineable object
+
+**Implementation Status**: ⚠️ Needs implementation
+
+---
+
+### 8. Asteroid Clusters
+**Description**: Dense asteroid fields with navigation hazards
+
+**Spawn Weight**: 10 (uncommon)
+
+**Gravity Assist**: No
+**Mineable**: Yes (40-120 resources)
+
+**Combat Chance**: 10% (pirates or claim disputes)
+
+**Mechanics**:
+- Higher resource yield than single asteroids
+- Navigation hazards (visual obstacle course)
+- Occasional hostile encounters
+- Requires more time to mine effectively
+
+**Implementation Status**: ⚠️ Needs implementation
+
+---
+
+### Structures & Installations
+
+### 9. Outpost Nodes
 **Description**: Abandoned resource caches or derelict stations
 
 **Spawn Weight**: 25 (very common)
 
-**Purpose**: Instant resource bonuses, sometimes with enemy encounters
+**Gravity Assist**: No
+**Mineable**: No
 
 **Reward Structure**:
 - **No Enemies (70% chance)**: 20-50 metal, 10-30 crystals
 - **With Enemies (30% chance)**: 50-150 metal, 20-60 crystals (better rewards)
 
+**Combat Chance**: 30%
+
 **Mechanics**:
 - Tap to activate
-- If enemies present, triggers combat encounter (Phase 3)
+- If enemies present, triggers combat encounter
 - If clear, instant resource grant
 - One-time use per outpost
 
@@ -94,95 +256,129 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 
 ---
 
-### 3. Asteroids
-**Description**: Mineable space rocks drifting through sector
+### 10. Derelict Stations
+**Description**: Abandoned orbital facilities containing tech and blueprints
 
-**Spawn Weight**: 20 (common)
+**Spawn Weight**: 10 (uncommon)
 
-**Purpose**: Quick metal and crystal gathering
+**Gravity Assist**: No
+**Mineable**: Yes (50-180 resources, tech-focused)
 
-**Rewards**: 10-50 metal/crystals (smaller amounts than mining nodes), tier 1 item small chance
+**Combat Chance**: 25% (automated defenses or squatters)
 
 **Mechanics**:
-- Instant collection (no mining time)
-- No combat encounters
-- Quick resource top-up option
+- Salvage tech components and blueprint fragments
+- Similar to graveyards but space station theme
+- Higher chance of rare technological finds
+- May contain unique station modules
 
-**Implementation Status**: ⚠️ Placeholder (needs asteroid_node.gd)
+**Implementation Status**: ⚠️ Needs implementation
 
 ---
 
-### 4. Ship Graveyards
+### 11. Ship Graveyards
 **Description**: Derelict fleets from previous battles
 
 **Spawn Weight**: 10 (uncommon)
 
-**Purpose**: Salvage materials, ship parts, and rare components
+**Gravity Assist**: No
+**Mineable**: Yes (50-200 resources, ship parts)
 
-**Rewards**: 50-200 metal, potential blueprint unlocks
+**Combat Chance**: 20% (scavengers or automated defenses)
 
 **Mechanics**:
-- Salvage operation takes time
-- 20% chance of enemy encounter (scavengers or automated defenses)
+- Salvage materials, ship parts, and rare components
 - Can find ship blueprints or rare upgrades
 - Potential for unique equipment
+- Salvage operation takes time
 
-**Implementation Status**: ⚠️ Placeholder (needs graveyard_node.gd)
+**Implementation Status**: ⚠️ Needs implementation
 
 ---
 
-### 5. Trader Ships
+### 12. Satellite Arrays
+**Description**: Orbital satellite networks with valuable navigation data
+
+**Spawn Weight**: 6 (uncommon)
+
+**Gravity Assist**: No
+**Mineable**: No
+
+**Combat Chance**: 15% (security defenses)
+
+**Mechanics**:
+- Hack for blueprints and navigation data
+- No physical resources, but valuable intel
+- May reveal hidden nodes or wormhole locations
+- Tech challenge rather than mining operation
+
+**Implementation Status**: ⚠️ Needs implementation
+
+---
+
+### Special Encounters
+
+### 13. Trader Ships
 **Description**: Merchant vessels offering goods and services
 
 **Spawn Weight**: 8 (uncommon)
 
-**Purpose**: Purchase upgrades, blueprints, and equipment
+**Gravity Assist**: No
+**Mineable**: No
+
+**Combat Chance**: 0% (friendly)
 
 **Shop Inventory**:
-- an assortment of Tier 1 and Tier 2 items
-- Bluepritns
+- Assortment of Tier 1 and Tier 2 items
+- Blueprints
 - Fleet upgrades
 
 **Costs**: Metal and Crystals (Fuel not sold)
 
 **Mechanics**:
-- Opens shop UI (Phase 4)
+- Opens shop UI
 - Inventory randomized per trader
 - Prices scale with sector difficulty
 - No combat
 
-**Implementation Status**: ⚠️ Placeholder (needs trader_node.gd + shop UI)
+**Implementation Status**: ⚠️ Needs implementation (trader_node.gd + shop UI)
 
 ---
 
-### 6. Alien Colonies
+### 14. Alien Colonies
 **Description**: Hostile alien installations with valuable resources
 
 **Spawn Weight**: 5 (rare)
 
-**Purpose**: High-risk encounters with great rewards
+**Gravity Assist**: No
+**Mineable**: No
+
+**Combat Chance**: 100% (guaranteed if engaged)
 
 **Encounter Behavior**:
 - **Proximity Detection**: Popup appears when ship passes within range
 - **Combat Option**: Player can choose to engage or avoid
-- **Rewards**: Large resource caches (200+ metal, 100+ crystals), rare blueprints, unique equipment
+- **Rewards**: Large resource caches (200-500 resources), rare blueprints, unique equipment
 
 **Mechanics**:
 - Can be avoided by steering around them
 - Engaging triggers combat encounter
 - One-time interaction per colony
-- No enemy spawning (that mechanic removed)
+- High-risk, high-reward
 
-**Implementation Status**: ⚠️ Placeholder (needs colony_node.gd + encounter system)
+**Implementation Status**: ⚠️ Needs implementation (colony_node.gd + encounter system)
 
 ---
 
-### 7. Artifact Vaults
+### 15. Artifact Vaults
 **Description**: Ancient alien installations containing powerful technology
 
 **Spawn Weight**: 2 (very rare)
 
-**Purpose**: Obtain powerful unique upgrades (legendary tier)
+**Gravity Assist**: No
+**Mineable**: No
+
+**Combat Chance**: 40% (ancient guardians)
 
 **Rewards**:
 - Unique upgrades (one-of-a-kind effects)
@@ -190,21 +386,24 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 - Permanent ship modifications
 
 **Mechanics**:
-- 40% chance of combat encounter (guardians)
+- Combat encounter possible (guardians)
 - Puzzle or skill challenge (future feature)
 - One-time unlock per vault
 - Rewards not available elsewhere
 
-**Implementation Status**: ⚠️ Placeholder (needs vault_node.gd + encounter system)
+**Implementation Status**: ⚠️ Needs implementation (vault_node.gd + encounter system)
 
 ---
 
-### 8. Wormholes (Exit Nodes)
+### 16. Wormholes (Exit Nodes)
 **Description**: Portals to the next sector
 
-**Spawn Weight**: Medium frequency (appears every 3000-5000 pixels of travel)
+**Spawn Weight**: 0 (special spawning rules - appears every 3000-5000 pixels of travel)
 
-**Purpose**: Sector completion and progression
+**Gravity Assist**: No
+**Mineable**: No
+
+**Combat Chance**: 0%
 
 **Discovery**:
 - Visible when within camera view
@@ -223,7 +422,36 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 - Point of no return
 - Multiple wormholes may exist, player only needs to reach one
 
-**Implementation Status**: ⚠️ Placeholder (needs wormhole_node.gd + transition logic)
+**Implementation Status**: ⚠️ Needs implementation (wormhole_node.gd + transition logic)
+
+---
+
+## Node Type Summary Table
+
+| Node Type | Spawn Weight | Gravity Assist | Mineable | Combat % | Primary Resources |
+|-----------|--------------|----------------|----------|----------|-------------------|
+| **Celestial Bodies** |
+| Star | 2 | ✅ Strong | ✅ | 0% | Fuel, Exotic Materials (80-200) |
+| Gas Giant | 8 | ✅ Strong | ✅ | 0% | Fuel-focused (40-120) |
+| Rocky Planet | 15 | ✅ Moderate | ✅ | 10% | Metal-focused (30-100) |
+| Ice Planet | 12 | ✅ Moderate | ✅ | 0% | Crystals, Fuel (30-100) |
+| Moon | 18 | ✅ Weak | ✅ | 0% | Mixed (20-60) |
+| **Spatial Features** |
+| Nebula | 6 | ❌ | ✅ | 0% | Rare Materials (20-80) |
+| Asteroid | 20 | ❌ | ✅ | 0% | Metal, Crystals (10-50) |
+| Asteroid Cluster | 10 | ❌ | ✅ | 10% | Mixed (40-120) |
+| **Structures** |
+| Outpost | 25 | ❌ | ❌ | 30% | Mixed (20-150) |
+| Derelict Station | 10 | ❌ | ✅ | 25% | Tech, Blueprints (50-180) |
+| Graveyard | 10 | ❌ | ✅ | 20% | Ship Parts (50-200) |
+| Satellite Array | 6 | ❌ | ❌ | 15% | Data, Blueprints |
+| **Special Encounters** |
+| Trader | 8 | ❌ | ❌ | 0% | Shop (Purchase Items) |
+| Alien Colony | 5 | ❌ | ❌ | 100% | High Rewards (200-500) |
+| Artifact Vault | 2 | ❌ | ❌ | 40% | Legendary Items |
+| Wormhole | 0* | ❌ | ❌ | 0% | Sector Exit |
+
+*Wormhole spawn controlled by distance traveled (3000-5000px), not random weight
 
 ---
 
@@ -308,12 +536,16 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 #### Gravity Assist
 **Cost**: 1 fuel per use
 
+
+
 **Behavior**:
 - Can **increase** speed: +20% forward speed (1.0× → 1.2× → 1.4×...)
 - Can **decrease** speed: -20% forward speed (useful for deploying miners or collecting rewards)
-- Player chooses direction (speed up or slow down) when activating
 - Speed persists until next gravity assist adjustment
-- Available near gravitationally significant objects (planets, asteroids, etc.)
+- Available near gravitationally significant objects (planets, suns etc.)
+- Given as part of the rewards screen.  When near a gravity assist object, such as a Rocky Planet, the player must choose left, right, or straight.
+- if the player turns into the object, they gain speed.  If the player turns away from the object, they lose speed.  IF the player continues straight, they maintain speed.
+- Accompanied by a visual animation and 1 second of locked controls.  If the ship is turning into the object, it will intercept the object (by turning right) and then follow the object's LEO and fly out faster, for instance.
 
 **Use Cases**:
 - **Speed Up**: Outrun mothership, cover distance quickly
@@ -480,6 +712,7 @@ Instead of patrolling enemies, aliens periodically **sweep across the map** in v
 - **Options Display**: Shows node-specific options (e.g., "Mine Resources", "Engage", "Ignore")
 - **Selection**: Tap option to activate, or tap "Continue" to dismiss
 - **Resume**: Time resumes when popup is dismissed
+- **gravity Assisst options for large objects** Instead of having a continue button, you can choose to speed up, slow down or stay the same speed. However, this locks your movement in one direction for one second when resuming. 
 
 ### Jump Button (Emergency Dash)
 - **Location**: UI overlay (bottom-right)
@@ -488,13 +721,6 @@ Instead of patrolling enemies, aliens periodically **sweep across the map** in v
 - **Visual**: Shows cooldown timer (e.g., "Jump: 8s")
 - **Cost Display**: "10 Fuel" label
 
-### Gravity Assist Button
-- **Location**: UI overlay (bottom-left)
-- **Activation**: Tap button to open speed adjustment menu
-- **Options**: "Speed Up (+20%)" or "Slow Down (-20%)"
-- **Requirement**: Must be near gravitationally significant body (visual indicator)
-- **Feedback**: Shows current speed multiplier (e.g., "Speed: 1.4×")
-- **Cost Display**: "1 Fuel" label
 
 ---
 
@@ -706,14 +932,27 @@ Area2D (base_node.gd)
 ### Node Inheritance Hierarchy
 ```
 BaseNode (base_node.gd)
-├── MiningNode (mining_node.gd)
-├── OutpostNode (outpost_node.gd)
-├── AsteroidNode (asteroid_node.gd)
-├── GraveyardNode (graveyard_node.gd)
-├── TraderNode (trader_node.gd)
-├── ColonyNode (colony_node.gd)
-├── VaultNode (vault_node.gd)
-└── ExitNode (exit_node.gd)
+├── Celestial Bodies (Gravity Assist + Mineable)
+│   ├── StarNode (star_node.gd)
+│   ├── GasGiantNode (gas_giant_node.gd)
+│   ├── RockyPlanetNode (rocky_planet_node.gd)
+│   ├── IcePlanetNode (ice_planet_node.gd)
+│   └── MoonNode (moon_node.gd)
+├── Spatial Features
+│   ├── NebulaNode (nebula_node.gd)
+│   ├── AsteroidNode (asteroid_node.gd)
+│   └── AsteroidClusterNode (asteroid_cluster_node.gd)
+├── Structures & Installations
+│   ├── OutpostNode (outpost_node.gd)
+│   ├── DerelictStationNode (derelict_station_node.gd)
+│   ├── GraveyardNode (graveyard_node.gd)
+│   └── SatelliteArrayNode (satellite_array_node.gd)
+├── Special Encounters
+│   ├── TraderNode (trader_node.gd)
+│   ├── ColonyNode (colony_node.gd)
+│   └── VaultNode (vault_node.gd)
+└── Exit Node
+    └── WormholeNode (wormhole_node.gd)
 ```
 
 ---
@@ -726,46 +965,117 @@ BaseNode (base_node.gd)
 |------|-----------------|--------|
 | SectorManager.gd | ~280 | ⚠️ Close to limit |
 | sector_map.gd | ~250 | ✅ Safe |
-| base_node.gd | ~100 | ✅ Safe |
-| mining_node.gd | ~80 | ✅ Safe |
-| outpost_node.gd | ~90 | ✅ Safe |
+| base_node.gd | ~120 | ✅ Safe (gravity assist logic added) |
+| **Celestial Bodies** | | |
+| star_node.gd | ~80 | ✅ Safe |
+| gas_giant_node.gd | ~80 | ✅ Safe |
+| rocky_planet_node.gd | ~80 | ✅ Safe |
+| ice_planet_node.gd | ~80 | ✅ Safe |
+| moon_node.gd | ~70 | ✅ Safe |
+| **Spatial Features** | | |
+| nebula_node.gd | ~90 | ✅ Safe (speed modifier) |
 | asteroid_node.gd | ~70 | ✅ Safe |
+| asteroid_cluster_node.gd | ~90 | ✅ Safe |
+| **Structures** | | |
+| outpost_node.gd | ~90 | ✅ Safe |
+| derelict_station_node.gd | ~85 | ✅ Safe |
 | graveyard_node.gd | ~80 | ✅ Safe |
+| satellite_array_node.gd | ~95 | ✅ Safe (data hack system) |
+| **Special Encounters** | | |
 | trader_node.gd | ~100 | ✅ Safe |
 | colony_node.gd | ~120 | ✅ Safe |
 | vault_node.gd | ~90 | ✅ Safe |
-| exit_node.gd | ~60 | ✅ Safe |
+| wormhole_node.gd | ~70 | ✅ Safe |
 
-**Total**: ~1,220 lines across 11 files (average 111 lines/file)
+**Total**: ~2,000 lines across 20 files (average 100 lines/file)
 
 ---
 
-## CSV-Driven Node Data (Future Enhancement)
+## CSV-Driven Sector Data ✅
 
-### Proposed: sector_nodes.csv
+### sector_nodes.csv (UPDATED)
 
-```csv
-node_type,base_spawn_weight,reveal_radius,min_resources,max_resources,combat_chance,description
-mining,30,0,30,100,0.0,"Resource extraction sites"
-outpost,25,0,20,150,0.3,"Abandoned stations with loot"
-asteroid,20,0,10,50,0.0,"Quick mineral collection"
-graveyard,10,0,50,200,0.2,"Salvage derelict ships"
-trader,8,0,0,0,0.0,"Purchase upgrades and equipment"
-colony,5,200,0,0,1.0,"Enemy spawners (dangerous)"
-vault,2,0,0,0,0.4,"Ancient alien technology"
-exit,1,0,0,0,0.0,"Portal to next sector"
-```
+Defines all node type properties for procedural generation:
+
+**Columns:**
+- `node_type` - Unique identifier (star, gas_giant, rocky_planet, ice_planet, moon, nebula, asteroid, asteroid_cluster, outpost, derelict_station, graveyard, satellite_array, trader, colony, vault, wormhole)
+- `spawn_weight` - Relative probability of spawning (higher = more common)
+- `proximity_radius` - Distance in pixels that triggers interaction popup
+- `min_resources` / `max_resources` - Resource reward range
+- `combat_chance` - Probability of combat encounter (0.0-1.0)
+- `interaction_type` - Type of interaction (mining_operation, instant_reward, open_shop, salvage_operation, data_hack, etc.)
+- `fuel_cost` - Fuel cost to interact (currently 0 for all)
+- `gravity_assist` - Whether node provides gravity assist (yes/no)
+- `mineable` - Whether node can be mined for resources (yes/no)
+- `description` - Human-readable description
+
+**Status:** ✅ Populated with 16 node types
+
+**Key Changes:**
+- Removed "mining" as a dedicated node type
+- Added gravity_assist and mineable columns
+- Added celestial bodies: star, gas_giant, rocky_planet, ice_planet, moon
+- Added spatial features: nebula, asteroid_cluster
+- Added installations: derelict_station, satellite_array
+- Most gravity assist objects are also mineable
+
+### alien_sweep_patterns.csv (CREATED)
+
+Defines alien sweep behaviors for the new avoidance/combat system:
+
+**Columns:**
+- `pattern_id` - Unique identifier for sweep pattern
+- `pattern_type` - Category: horizontal, diagonal, pincer, wave
+- `base_speed` - Movement speed in pixels/second
+- `width_px` - Width of sweep hitbox
+- `gap_px` - Gap size (for pincer/wave patterns)
+- `warning_time_sec` - Advance warning time before sweep enters screen
+- `min_sector` - First sector this pattern can appear
+- `spawn_weight` - Relative spawn probability
+- `visual_asset` - Path to formation sprite
+- `description` - Human-readable description
+
+**Status:** ✅ Populated with 10 patterns (scales from sector 1-7)
+
+### sector_progression.csv (CREATED)
+
+Defines difficulty scaling and mothership pursuit per sector:
+
+**Columns:**
+- `sector_number` - Sector index (1-20)
+- `mothership_spawn_distance` - How far behind player mothership spawns
+- `mothership_base_speed` - Initial mothership speed
+- `mothership_accel_rate` - Mothership acceleration per second
+- `wormhole_min_distance` / `wormhole_max_distance` - Distance range for wormhole spawning
+- `sweep_frequency_min` / `sweep_frequency_max` - Seconds between alien sweeps
+- `node_density_multiplier` - Multiplier for node spawn rate
+- `resource_multiplier` - Multiplier for resource rewards
+
+**Status:** ✅ Populated with progression curve for 20 sectors
 
 ### Benefits
-- Balance spawn weights without code changes
-- Tune resource yields per node type
-- Adjust combat probabilities
-- Easy difficulty scaling
+- **Balance without code changes** - Tune spawn rates, speeds, and rewards via CSV
+- **Data-driven difficulty** - Sector progression defined in spreadsheet
+- **Easy iteration** - Designers can adjust values and test immediately
+- **Clear documentation** - CSV serves as game design specification
 
 ### Implementation
-- Load via `DataManager.load_database("res://data/sector_nodes.csv", ...)`
-- Reference in `SectorManager._weighted_random()` for spawning
-- Use min/max values in node reward calculations
+```gdscript
+# In DataManager.gd
+var sector_nodes_data := {}
+var alien_sweeps_data := {}
+var sector_progression_data := {}
+
+func _ready():
+    load_csv_database("res://data/sector_nodes.csv", sector_nodes_data)
+    load_csv_database("res://data/alien_sweep_patterns.csv", alien_sweeps_data)
+    load_csv_database("res://data/sector_progression.csv", sector_progression_data)
+
+# In SectorManager.gd
+var node_config = DataManager.get_node_config("mining")
+var sweep_config = DataManager.get_sweep_pattern("sweep_h_left")
+var progression = DataManager.get_sector_progression(current_sector)
+```
 
 ---
 
@@ -858,7 +1168,8 @@ exit,1,0,0,0,0.0,"Portal to next sector"
 ### Resource Integration
 - [ ] Resource display updates on change
 - [ ] EventBus signals fire on resource gain/spend
-- [ ] Mining nodes grant 30-100 resources
+- [ ] Mineable nodes grant resources (varies by type)
+- [ ] Gravity assist objects grant mining + speed control
 - [ ] Outposts grant variable rewards
 - [ ] Fuel spending validated (cannot overspend)
 
@@ -913,14 +1224,29 @@ exit,1,0,0,0,0.0,"Portal to next sector"
 3. Alien sweep pattern generation
 4. Sweep collision detection
 
-### Phase 2d: Remaining Nodes (MEDIUM)
-1. Asteroid node
-2. Graveyard node
-3. Trader node (shop placeholder)
-4. Colony node (enemy placeholder)
-5. Vault node (encounter placeholder)
+### Phase 2d: Celestial Body Nodes (HIGH)
+1. Star node (rare, gravity assist + mineable)
+2. Gas giant node (gravity assist + fuel mining)
+3. Rocky planet node (gravity assist + metal mining)
+4. Ice planet node (gravity assist + crystal mining)
+5. Moon node (weak gravity assist + quick mining)
 
-### Phase 2e: Polish & Testing (LOW)
+### Phase 2e: Spatial Feature Nodes (MEDIUM)
+1. Nebula node (speed modifier + rare materials)
+2. Asteroid node (instant collect)
+3. Asteroid cluster node (rich mining + hazards)
+
+### Phase 2f: Structure & Installation Nodes (MEDIUM)
+1. Derelict station node (salvage tech)
+2. Graveyard node (salvage ships)
+3. Satellite array node (data hacking)
+
+### Phase 2g: Special Encounter Nodes (MEDIUM)
+1. Trader node (shop placeholder)
+2. Colony node (combat placeholder)
+3. Vault node (puzzle placeholder)
+
+### Phase 2h: Polish & Testing (LOW)
 1. Node icons and visual variety
 2. Movement animations
 3. Parallax background effects
@@ -977,10 +1303,12 @@ exit,1,0,0,0,0.0,"Portal to next sector"
 - Tap to quick-jump to location
 
 ### Node Interactions
-- Mining nodes: Deploy miners, return later to collect
+- Celestial bodies: Deploy mining equipment to planets, return later to collect
+- Gravity assist mastery: Skill-based timing mini-game for bonus speed/fuel
 - Outposts: Salvage over time (risk vs. reward)
 - Trader: Haggle mini-game for better prices
 - Vault: Puzzle or hacking mini-game
+- Nebulas: Navigation challenge mini-game (visibility reduced)
 
 ---
 

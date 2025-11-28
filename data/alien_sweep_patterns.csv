@@ -1,0 +1,11 @@
+pattern_id,pattern_type,base_speed,width_px,gap_px,warning_time_sec,min_sector,spawn_weight,visual_asset,description
+sweep_h_left,horizontal,120,300,0,4.0,1,40,res://assets/aliens/horizontal_formation.png,"Aliens sweep left to right across screen"
+sweep_h_right,horizontal,120,300,0,4.0,1,40,res://assets/aliens/horizontal_formation.png,"Aliens sweep right to left across screen"
+sweep_d_topleft,diagonal,180,400,0,3.5,2,25,res://assets/aliens/diagonal_formation.png,"Fast diagonal sweep from top-left to bottom-right"
+sweep_d_topright,diagonal,180,400,0,3.5,2,25,res://assets/aliens/diagonal_formation.png,"Fast diagonal sweep from top-right to bottom-left"
+sweep_pincer,pincer,100,250,280,5.0,3,15,res://assets/aliens/pincer_formation.png,"Simultaneous sweeps from both left and right with center gap"
+sweep_wave_3,wave,90,150,200,4.5,2,30,res://assets/aliens/wave_formation.png,"Three small alien groups in wave formation with gaps"
+sweep_wave_5,wave,95,150,180,4.0,4,20,res://assets/aliens/wave_formation.png,"Five small alien groups in complex wave pattern"
+sweep_pincer_tight,pincer,110,300,200,4.5,5,12,res://assets/aliens/pincer_formation.png,"Faster pincer with narrower center gap"
+sweep_h_double,horizontal,130,250,150,3.8,6,18,res://assets/aliens/horizontal_formation.png,"Two horizontal sweeps stacked vertically"
+sweep_wave_chaos,wave,100,180,150,3.5,7,15,res://assets/aliens/wave_formation.png,"Seven small groups in chaotic wave pattern"

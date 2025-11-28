@@ -21,6 +21,9 @@ EventBus="*res://scripts/autoloads/EventBus.gd"
 DataManager="*res://scripts/autoloads/DataManager.gd"
 GameState="*res://scripts/autoloads/GameState.gd"
 ResourceManager="*res://scripts/autoloads/ResourceManager.gd"
+SectorManager="*res://scripts/autoloads/SectorManager.gd"
+SpeedVisionManager="*res://scripts/autoloads/SpeedVisionManager.gd"
+EnvironmentManager="*res://scripts/autoloads/EnvironmentManager.gd"
 GDAIMCPRuntime="*res://addons/gdai-mcp-plugin-godot/gdai_mcp_runtime.gd"
 
 [display]

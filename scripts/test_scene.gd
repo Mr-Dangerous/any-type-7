@@ -33,13 +33,29 @@ func _on_data_loaded() -> void:
 	status_label.text = "Phase 1 Test Scene\nData Loaded Successfully!"
 
 	# Display data summary
-	var summary := "Data Summary:\n"
+	var summary := "=== CORE DATA ===\n"
 	summary += "Ships: %d\n" % DataManager.ships.size()
 	summary += "Abilities: %d\n" % DataManager.abilities.size()
-	summary += "Upgrades: %d\n" % DataManager.upgrades.size()
+	summary += "Status Effects: %d\n" % DataManager.status_effects.size()
+	summary += "Elemental Combos: %d\n" % DataManager.combos.size()
+	summary += "\n=== ITEMS & EQUIPMENT ===\n"
+	summary += "Relics T1: %d\n" % DataManager.relics_t1.size()
+	summary += "Relics T2: %d\n" % DataManager.relics_t2.size()
 	summary += "Weapons: %d\n" % DataManager.weapons.size()
 	summary += "Drones: %d\n" % DataManager.drones.size()
 	summary += "Powerups: %d\n" % DataManager.powerups.size()
+	summary += "Blueprints: %d\n" % DataManager.blueprints.size()
+	summary += "\n=== VISUALS ===\n"
+	summary += "Ship Visuals: %d\n" % DataManager.ship_visuals.size()
+	summary += "Drone Visuals: %d\n" % DataManager.drone_visuals.size()
+	summary += "\n=== SECTOR EXPLORATION ===\n"
+	summary += "Sector Nodes: %d (base + band-exclusive)\n" % DataManager.sector_nodes.size()
+	summary += "Environment Bands: %d\n" % DataManager.environment_bands.size()
+	summary += "Node Weights: %d\n" % DataManager.environment_node_weights.size()
+	summary += "Sector Progression: %d\n" % DataManager.sector_progression.size()
+	summary += "\n=== PLACEHOLDERS ===\n"
+	summary += "Combat Scenarios: %d\n" % DataManager.combat_scenarios.size()
+	summary += "Personnel: %d\n" % DataManager.personnel.size()
 
 	data_label.text = summary
 

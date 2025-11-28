@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://be2hqmvlgd6x7"
+
+[deps]
+
+files=["res://data/sector_nodes.spawn.translation", "res://data/sector_nodes.proximity.translation", "res://data/sector_nodes.min.translation", "res://data/sector_nodes.max.translation", "res://data/environment_bands.debris.translation", "res://data/sector_nodes.interaction.translation", "res://data/sector_nodes.fuel.translation", "res://data/sector_nodes.gravity.translation", "res://data/sector_nodes.gravity.translation", "res://data/sector_nodes.mineable.translation", "res://data/sector_nodes.resource.translation", "res://data/sector_nodes.speed.translation", "res://data/sector_nodes.gas.translation", "res://data/sector_nodes.band.translation", "res://data/sector_nodes.exclusive.translation", "res://data/sector_nodes.speed.translation", "res://data/sector_nodes.description.translation"]
+
+source_file="res://data/sector_nodes.csv"
+dest_files=["res://data/sector_nodes.spawn.translation", "res://data/sector_nodes.proximity.translation", "res://data/sector_nodes.min.translation", "res://data/sector_nodes.max.translation", "res://data/environment_bands.debris.translation", "res://data/sector_nodes.interaction.translation", "res://data/sector_nodes.fuel.translation", "res://data/sector_nodes.gravity.translation", "res://data/sector_nodes.gravity.translation", "res://data/sector_nodes.mineable.translation", "res://data/sector_nodes.resource.translation", "res://data/sector_nodes.speed.translation", "res://data/sector_nodes.gas.translation", "res://data/sector_nodes.band.translation", "res://data/sector_nodes.exclusive.translation", "res://data/sector_nodes.speed.translation", "res://data/sector_nodes.description.translation"]
+
+[params]
+
+compress=true
+delimiter=0

@@ -15,6 +15,7 @@ var current_sector: int = 1
 var current_screen: String = "main_menu"
 var is_paused: bool = false
 var game_started: bool = false
+var sector_active: bool = false  # True when in sector exploration mode
 
 # ============================================================
 # FLEET STATE
@@ -229,6 +230,24 @@ func toggle_pause() -> void:
 		resume_game()
 	else:
 		pause_game()
+
+# ============================================================
+# SECTOR STATE
+# ============================================================
+
+func is_sector_active() -> bool:
+	"""Check if sector exploration is currently active"""
+	return sector_active
+
+func start_sector_exploration() -> void:
+	"""Mark sector exploration as active"""
+	sector_active = true
+	print("[GameState] Sector exploration started")
+
+func end_sector_exploration() -> void:
+	"""Mark sector exploration as inactive"""
+	sector_active = false
+	print("[GameState] Sector exploration ended")
 
 # ============================================================
 # DEBUG

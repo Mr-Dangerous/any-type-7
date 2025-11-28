@@ -21,7 +21,7 @@
 
 Before writing any code, internalize these principles:
 
-1. **File Size Limit**: Every GDScript file MUST be under 300 lines
+1. **File Size Limit**: Every GDScript file MUST be under 300 lines excepting debug lines.  eliminate unessecary whitespace.
 2. **No Direct Dependencies**: Systems communicate via EventBus signals only
 3. **Data-Driven**: Game content comes from CSV files, not hardcoded values
 4. **Type Hints Required**: All functions and variables must have type hints
@@ -210,7 +210,7 @@ extends Node
 
 var ships: Dictionary = {}              # ship_ID → ship data
 var abilities: Dictionary = {}          # ability_ID → ability data
-var upgrades: Dictionary = {}           # upgrade_ID → upgrade data
+var relics: Dictionary = {}             # item_ID → relic data (upgrade items)
 var status_effects: Dictionary = {}     # effect_ID → effect data
 var combos: Dictionary = {}             # combo_ID → combo data
 var weapons: Dictionary = {}            # weapon_ID → weapon data
@@ -246,7 +246,7 @@ func load_all_databases() -> void:
 
     _load_database("res://data/ship_stat_database.csv", ships, "ship_ID")
     _load_database("res://data/ability_database.csv", abilities, "ability_ID")
-    _load_database("res://data/ship_upgrade_database.csv", upgrades, "upgrade_ID")
+    _load_database("res://data/upgrade_relics.csv", relics, "item_ID")
     _load_database("res://data/status_effects.csv", status_effects, "effect_ID")
     _load_database("res://data/elemental_combos.csv", combos, "combo_ID")
     _load_database("res://data/weapon_database.csv", weapons, "weapon_ID")
@@ -370,8 +370,8 @@ func get_ship(ship_id: String) -> Dictionary:
 func get_ability(ability_id: String) -> Dictionary:
     return abilities.get(ability_id, {})
 
-func get_upgrade(upgrade_id: String) -> Dictionary:
-    return upgrades.get(upgrade_id, {})
+func get_relic(item_id: String) -> Dictionary:
+    return relics.get(item_id, {})
 
 func get_status_effect(effect_id: String) -> Dictionary:
     return status_effects.get(effect_id, {})
@@ -432,7 +432,7 @@ func _print_load_summary() -> void:
     print("=" * 60)
     print("Ships: %d" % ships.size())
     print("Abilities: %d" % abilities.size())
-    print("Upgrades: %d" % upgrades.size())
+    print("Relics: %d" % relics.size())
     print("Status Effects: %d" % status_effects.size())
     print("Combos: %d" % combos.size())
     print("Weapons: %d" % weapons.size())
@@ -750,7 +750,7 @@ var current_database: Dictionary = {}
 var database_map: Dictionary = {
     "Ships": DataManager.ships,
     "Abilities": DataManager.abilities,
-    "Upgrades": DataManager.upgrades,
+    "Relics": DataManager.relics,
     "Weapons": DataManager.weapons,
     "Drones": DataManager.drones,
     "Powerups": DataManager.powerups,

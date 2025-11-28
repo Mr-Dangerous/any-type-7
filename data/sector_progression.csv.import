@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://luhx5k0m56qc"
+
+[deps]
+
+files=["res://data/sector_progression.mothership.translation", "res://data/sector_progression.mothership.translation", "res://data/sector_progression.mothership.translation", "res://data/sector_progression.wormhole.translation", "res://data/sector_progression.wormhole.translation", "res://data/sector_progression.sweep.translation", "res://data/sector_progression.sweep.translation", "res://data/sector_progression.node.translation", "res://data/sector_progression.resource.translation"]
+
+source_file="res://data/sector_progression.csv"
+dest_files=["res://data/sector_progression.mothership.translation", "res://data/sector_progression.mothership.translation", "res://data/sector_progression.mothership.translation", "res://data/sector_progression.wormhole.translation", "res://data/sector_progression.wormhole.translation", "res://data/sector_progression.sweep.translation", "res://data/sector_progression.sweep.translation", "res://data/sector_progression.node.translation", "res://data/sector_progression.resource.translation"]
+
+[params]
+
+compress=true
+delimiter=0

@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://caxs57yvudipu"
+
+[deps]
+
+files=["res://data/item_relics_t2.item.translation", "res://data/item_relics_t2.tier.translation", "res://data/item_relics_t2.component.translation", "res://data/item_relics_t2.component.translation", "res://data/item_relics_t2.attack.translation", "res://data/item_relics_t2.attack.translation", "res://data/item_relics_t2.shield.translation", "res://data/item_relics_t2.hull.translation", "res://data/item_relics_t2.hull.translation", "res://data/item_relics_t2.energy.translation", "res://data/item_relics_t2.amplitude.translation", "res://data/item_relics_t2.resilience.translation", "res://data/item_relics_t2.movement.translation", "res://data/item_relics_t2.precision.translation", "res://data/item_relics_t2.starting.translation", "res://data/item_relics_t2.armor.translation", "res://data/item_relics_t2.attack.translation", "res://data/item_relics_t2.max.translation", "res://data/item_relics_t2.crit.translation", "res://data/item_relics_t2.evasion.translation", "res://data/item_relics_t2.unique.translation", "res://data/item_relics_t2.unique.translation", "res://data/item_relics_t2.flavor.translation"]
+
+source_file="res://data/item_relics_t2.csv"
+dest_files=["res://data/item_relics_t2.item.translation", "res://data/item_relics_t2.tier.translation", "res://data/item_relics_t2.component.translation", "res://data/item_relics_t2.component.translation", "res://data/item_relics_t2.attack.translation", "res://data/item_relics_t2.attack.translation", "res://data/item_relics_t2.shield.translation", "res://data/item_relics_t2.hull.translation", "res://data/item_relics_t2.hull.translation", "res://data/item_relics_t2.energy.translation", "res://data/item_relics_t2.amplitude.translation", "res://data/item_relics_t2.resilience.translation", "res://data/item_relics_t2.movement.translation", "res://data/item_relics_t2.precision.translation", "res://data/item_relics_t2.starting.translation", "res://data/item_relics_t2.armor.translation", "res://data/item_relics_t2.attack.translation", "res://data/item_relics_t2.max.translation", "res://data/item_relics_t2.crit.translation", "res://data/item_relics_t2.evasion.translation", "res://data/item_relics_t2.unique.translation", "res://data/item_relics_t2.unique.translation", "res://data/item_relics_t2.flavor.translation"]
+
+[params]
+
+compress=true
+delimiter=0

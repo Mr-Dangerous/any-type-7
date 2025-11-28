@@ -2,6 +2,17 @@
 
 This document defines animation patterns, visual effects, and hardpoint systems for the game's visual presentation.
 
+## Unorganized notes
+
+This section details notes left by the user since the last time you used this file.  They can be sorted when appropriate.
+
+### Gravity Assisst
+
+When the player performs a gravity assist, it is accompanied by an animation of the gravity assist. When the actual gravity ssist occurs, there will be different animations depending on speed. 
+- First gravity assist: the ship will orbit and then slingshot around the planet in a visually pleasing camera based .  The point is 
+- further gravity assists simply place a  visuall speed effect aroudn the ship 
+
+
 ---
 
 ## Projectile Hardpoint System

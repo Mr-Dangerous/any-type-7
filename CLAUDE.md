@@ -83,6 +83,9 @@ All game content is defined in `/data/*.csv` files. When implementing systems, *
 | `powerups_database.csv` | ✅ **Populated** (10 powerups) | Combat powerup drops |
 | `ship_visuals_database.csv` | ✅ **Populated** (24 ship visuals) | Ship sprites, exhausts, hardpoints, colors |
 | `drone_visuals_database.csv` | ✅ **Populated** (11 drones) | Drone visual assets |
+| `sector_nodes.csv` | ✅ **Populated** (8 node types) | Node spawn weights, proximity, rewards, combat chances |
+| `alien_sweep_patterns.csv` | ✅ **Populated** (10 patterns) | Alien sweep behaviors, speeds, widths, sector requirements |
+| `sector_progression.csv` | ✅ **Populated** (20 sectors) | Mothership pursuit, wormhole frequency, difficulty scaling |
 | `combat_scenarios.csv` | ⚠️ **EMPTY** (placeholder) | Wave definitions and enemy spawns |
 | `personnel_database.csv` | ⚠️ **EMPTY** (placeholder) | Pilots and crew |
 

@@ -5,6 +5,8 @@ Complete reference guide for all ship statistics in Any-Type-7.
 **Related Documentation:**
 - [Combat Formulas](combat-formulas.md) - Hit/crit/damage calculations
 - [Status Effects & Combos](status-effects-and-combos.md) - Status effects and elemental combo system
+- [Upgrade Relic System](upgrade-relic-system.md) - TFT-style combinatorial item crafting for stat enhancement
+- [Weapons System](weapons-system.md) - Weapon equipment (distinct from upgrade relics)
 
 ---
 
@@ -275,8 +277,52 @@ ship_ability,upgrade_slots,weapon_slots
 | `frequency` | Integer | Ability duration % increase |
 | `resilience` | Integer | Status effect resist % |
 | `ship_ability` | String | Reference to ability_database.csv (if any) |
-| `upgrade_slots` | Integer | Number of upgrade module slots |
-| `weapon_slots` | Integer | Number of weapon slots |
+| `upgrade_slots` | Integer | Number of relic slots (typically 6 for all ships) |
+| `weapon_slots` | Integer | Number of weapon slots (varies by ship class) |
+
+---
+
+## Stat Enhancement Systems
+
+### Upgrade Relics (Combinatorial Item System)
+
+Ships can equip **upgrade relics** to enhance their base statistics through a TFT-style combinatorial crafting system. Relics are **distinct from weapons** and provide passive stat bonuses and unique effects.
+
+**System Overview:**
+- **14 Base Tier 1 Items**: 10 stat items + 4 legacy items
+- **105 Tier 2 Combinations**: Combine 2 Tier 1 items to create powerful relics
+- **6 Relic Slots**: Each ship can equip up to 6 Tier 2 relics simultaneously
+- **Infinite Scaling**: Relics can be upgraded to Tier 3, 4, 5+ for exponential power
+
+**Base Tier 1 Items (Stat Items):**
+1. **Chronometer**: +15% Attack Speed
+2. **Amplifier**: +10 Attack Damage
+3. **Aegis Plate**: +50 Shield Points
+4. **Reinforced Hull**: +75 Hull Points
+5. **Resonator**: +20% Ability Amplitude
+6. **Dampener**: +15% Resilience
+7. **Thruster Module**: +20% Movement Speed
+8. **Precision Lens**: +10% Precision (crit chance)
+9. **Capacitor**: +25 Starting Energy
+10. **Ablative Coating**: +8 Armor
+
+**Legacy Items (Tier 1):**
+11. **Human Legacy**: +50 Hull Points (resilience/endurance theme)
+12. **Alien Legacy**: +3 Hull Regen/sec (biotechnology/adaptation theme)
+13. **Machine Legacy**: +50 Shield Points (synthetic/precision theme)
+14. **Toxic Legacy**: +2 Energy Regen/sec (corruption/power theme)
+
+**Combination Examples:**
+- Chronometer + Chronometer = **Overclocked Targeting** (+30% Attack Speed, +3 Attack Range)
+- Human Legacy + Amplifier = **Reinforced Firepower** (+50 Hull, +10 Damage, 15% chance no cooldown)
+- Machine Legacy + Dampener = **Electronic Warfare** (+50 Shields, +15% Resilience, shields block status effects)
+
+**Key Differences from Weapons:**
+- **Relics**: Passive stat bonuses and unique effects (no active usage, stackable items)
+- **Weapons**: Active equipment with attack patterns, projectile types, targeting behavior
+- Ships equip both relics (6 slots) AND weapons (weapon slots vary by ship class)
+
+**See**: [upgrade-relic-system.md](upgrade-relic-system.md) for complete relic combinations and crafting details
 
 ---
 
