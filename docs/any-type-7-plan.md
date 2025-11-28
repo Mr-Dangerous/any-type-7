@@ -21,7 +21,7 @@
 
 ### What Needs Implementation
 - **Phase 1**: Core infrastructure (autoloads, CSV loading, EventBus)
-- **Phase 2**: Sector exploration module (vertical scrolling map)
+- **Phase 2**: Sector exploration module (**REDESIGNED - infinite scrolling with momentum-based navigation**)
 - **Phase 3**: Combat system (15×25 grid autobattler)
 - **Phase 4**: Hangar management (ship customization)
 - **Phases 5-6**: Integration, polish, mobile optimization
@@ -30,7 +30,7 @@
 
 ## Game Overview
 
-**Any-Type-7** is a vertical-format space-based autobattler designed for mobile devices. Players control a mothership fleeing from an alien threat, navigating through procedurally generated sectors while gathering resources, upgrading their fleet, and engaging in tactical grid-based combat.
+**Any-Type-7** is a vertical-format space-based autobattler designed for mobile devices. Players control a **Colony Ship** fleeing from an alien threat (the **Mothership**), navigating through procedurally generated sectors while gathering resources, upgrading their fleet, and engaging in tactical grid-based combat.
 
 ### Core Gameplay Loop
 
@@ -44,22 +44,24 @@
 ### Victory & Failure Conditions
 
 - **Victory**: Find and reach the sector exit node before being caught
-- **Failure**: The alien mothership catches and destroys your mothership
-- **Escalation**: The mothership gains speed each sector, arriving progressively sooner
+- **Failure**: The Alien Mothership catches and destroys your Colony Ship
+- **Escalation**: The Mothership gains speed each sector, arriving progressively sooner
 
 ---
 
 ## The Three Main Modules
 
-### 1. Sector Exploration Module
+### 1. Sector Exploration Module (**REDESIGNED - Infinite Scrolling**)
 
-The primary gameplay mode where players navigate a vertical scrolling solar system.
+The primary gameplay mode where players pilot their Colony Ship through an infinitely scrolling sector with momentum-based navigation.
 
-#### Core Mechanics
-- **Vertical scrolling map** that loops (wraps vertically)
-- **Fog of war** obscuring hidden nodes and encounters
-- **Movement system** with gravity assist mechanics
-- **Time pressure** as the alien mothership approaches
+#### Core Mechanics (NEW DESIGN)
+- **Infinite scrolling** with automatic forward movement (no manual camera control)
+- **Swipe-based lateral steering** (left/right) with speed-dependent maneuverability
+- **Procedural node generation** ahead of player, despawning behind
+- **Proximity-based interaction** - nodes trigger popups when player passes within range (time pauses)
+- **Pursuing mothership** spawning behind player, gradually accelerating to catch up
+- **Alien sweep patterns** that must be avoided or trigger combat encounters
 
 #### Node Types
 
@@ -72,19 +74,26 @@ The primary gameplay mode where players navigate a vertical scrolling solar syst
 | **Asteroids** | Mineable space rocks | Quick Metal/Crystal gathering |
 | **Ship Graveyards** | Derelict fleets | Salvage materials and ship parts |
 | **Artifact Vaults** | Ancient installations | Powerful unique upgrades |
-| **Exit Node** | Portal to next sector | Hidden; must be found to progress |
+| **Wormholes** (Exit Nodes) | Portal to next sector | Spawn periodically; reach one to progress |
 
-#### Enemy System
-- **Alien Colonies** spawn patrolling enemies that hunt the player
-- **Patrolling Enemies** respawn when killed
-- **Colony Assault** - Players can attack colonies directly (high risk/reward)
-- **Alien Mothership** - Appears after a time limit, extremely powerful boss
-  - Can be fought at any time after appearance (requires significant power)
-  - Gains speed each sector, arriving progressively sooner
+#### Enemy System (UPDATED)
+- **Alien Colonies** trigger high-reward combat encounters when engaged (no spawning)
+- **Alien Sweep Patterns** - Periodic sweeps across map that trigger combat if hit:
+  - **Horizontal Sweeps**: Move left or right across screen
+  - **Diagonal Sweeps**: Move diagonally at faster speed
+  - **Pincer Sweeps**: Simultaneous sweeps from both sides with center gap
+  - **Wave Sweeps**: Multiple small groups in formation with navigable gaps
+- **Alien Mothership** - Spawns behind player and pursues relentlessly
+  - Cannot be fought (instant game over if caught)
+  - Spawns closer and accelerates faster each sector
+  - Distance-based (not timer-based)
 
-#### Fuel Mechanics
-- **Jump** - Teleport to any map location for 10 fuel
-- **Gravity Assist** - Spend 1 fuel near gravitationally significant bodies to permanently increase speed until next jump
+#### Movement Mechanics (UPDATED)
+- **Swipe Steering** - Free lateral movement, speed affects maneuverability
+- **Jump (Horizontal Dash)** - Quick 200-300px lateral movement for 10 fuel + 10-15s cooldown
+- **Gravity Assist** - Choose to increase OR decrease speed by 20% for 1 fuel
+  - Speed up: Cover distance faster, harder to maneuver
+  - Slow down: Deploy miners, navigate complex node clusters
 
 ---
 
@@ -337,10 +346,10 @@ Following lessons learned from **any-type-5-considerations.md**, this project wi
 |----------|--------|-------|-------|
 | `ship_stat_database.csv` | ✅ Complete | 14 ships | All 17 stats populated |
 | `ability_database.csv` | ✅ Complete | 50 abilities | Triggers, combos, and effects defined |
-| `ship_upgrade_database.csv` | ✅ Complete | 40+ upgrades | 5 rarity tiers (common to legendary) |
+| `upgrade_relics.csv` | 📋 Designed | 105 combos | TFT-style combinatorial system (14 base → 105 Tier 2) |
 | `status_effects.csv` | ✅ Complete | 10 effects | Elemental (5) + Control (5) |
 | `elemental_combos.csv` | ✅ Complete | 30 combos | Same-element (5) + Cross-element (25) |
-| `weapon_database.csv` | ✅ Complete | 7 weapons | All weapon types and behaviors |
+| `weapon_database.csv` | ✅ Complete | 7 weapons | All weapon types (distinct from relics) |
 | `blueprints_database.csv` | ✅ Complete | 21 blueprints | Ship and weapon unlock progression |
 | `drone_database.csv` | ✅ Complete | 13 drones | Combat and support drone stats |
 | `powerups_database.csv` | ✅ Complete | 10 powerups | Drop rates and effects defined |
@@ -353,9 +362,9 @@ Following lessons learned from **any-type-5-considerations.md**, this project wi
 
 - `sector_node_types.csv` - Node type definitions and properties
 - `enemy_database.csv` - Enemy unit stats and behaviors
-- `resource_costs.csv` - Construction and upgrade costs
-- `trader_inventory.csv` - Shop inventory pools
+- `trader_inventory.csv` - Shop inventory pools (weapons, relics, blueprints)
 - `progression_curve.csv` - Difficulty scaling per sector
+- `combination_recipes.csv` - Relic combination lookup table for crafting UI
 
 ---
 

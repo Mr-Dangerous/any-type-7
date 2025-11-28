@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Any-Type-7** is a vertical-format space-based autobattler game for Android mobile devices built with Godot 4.5. The player controls a mothership fleeing from an alien threat, navigating sectors, gathering resources, and engaging in tactical grid-based autobattler combat.
+**Any-Type-7** is a vertical-format space-based autobattler game for Android mobile devices built with Godot 4.5. The player controls a **Colony Ship** fleeing from an alien threat (the **Mothership**), navigating sectors, gathering resources, and engaging in tactical grid-based autobattler combat.
 
 **Current Status**: **Content-rich, code-ready phase**. All CSV databases are populated, visual assets imported, and asset pipeline tools created. **No game code implemented yet** - the project has comprehensive data and assets but needs the Godot engine implementation (autoloads, scenes, systems).
 
@@ -74,10 +74,10 @@ All game content is defined in `/data/*.csv` files. When implementing systems, *
 |----------|--------|---------|
 | `ship_stat_database.csv` | ✅ **Populated** (14 ships) | Ship statistics (17 stats per ship) |
 | `ability_database.csv` | ✅ **Populated** (50 abilities) | Ship abilities, triggers, combos |
-| `ship_upgrade_database.csv` | ✅ **Populated** (40+ upgrades) | Stat upgrades across 5 rarity tiers |
+| `upgrade_relics.csv` | 📋 **Designed** (105 combos) | TFT-style combinatorial upgrade system (14 base items → 105 Tier 2 relics) |
 | `status_effects.csv` | ✅ **Populated** (10 effects) | Elemental and control status effects |
 | `elemental_combos.csv` | ✅ **Populated** (30 combos) | Elemental combo damage and effects |
-| `weapon_database.csv` | ✅ **Populated** (7 weapons) | Weapon systems |
+| `weapon_database.csv` | ✅ **Populated** (7 weapons) | Weapon systems (distinct from upgrade relics) |
 | `blueprints_database.csv` | ✅ **Populated** (21 blueprints) | Unlockable ship and weapon blueprints |
 | `drone_database.csv` | ✅ **Populated** (13 drones) | Combat and support drones |
 | `powerups_database.csv` | ✅ **Populated** (10 powerups) | Combat powerup drops |
@@ -155,16 +155,39 @@ Comprehensive game design documentation exists in `/docs/`:
   - Pickup system and strategic positioning
   - Rarity distribution (common, uncommon, rare)
 
+- **`upgrade-relic-system.md`** - TFT-style combinatorial crafting system
+  - 14 base Tier 1 items (10 stat items + 4 legacy items)
+  - 105 Tier 2 combinations with unique effects
+  - Legacy items: Human (Hull), Alien (Hull Regen), Machine (Shields), Toxic (Energy Regen)
+  - Infinite scaling through Tier 3+ upgrades
+  - **Distinct from weapons** - relics are stat/passive upgrades, weapons are active equipment
+
+- **`sector-exploration-module.md`** (870+ lines) - Complete sector exploration reference
+  - **RECENTLY UPDATED**: New infinite scrolling momentum-based design
+  - Procedural node generation and despawning
+  - Swipe lateral steering with speed-based maneuverability formula
+  - Jump mechanic (horizontal dash, fuel + cooldown)
+  - Gravity assist (speed up/down control)
+  - Proximity-based node interaction (time pause on popup)
+  - Pursuing mothership system (spawns behind, accelerates)
+  - Alien sweep patterns (horizontal, diagonal, pincer, wave)
+  - Complete EventBus signals, SectorManager singleton spec, testing checklist
+
 **Always consult these docs when implementing systems** - they contain complete specifications with formulas and examples.
 
 ## Three Main Game Modules
 
-### 1. Sector Exploration Module
-- Vertical scrolling map (loops vertically)
-- 8 node types: Mining Nodes, Outposts, Alien Colonies, Traders, Asteroids, Graveyards, Artifact Vaults, Exit Node
-- Fog of war system
-- Fuel mechanics: Jump (10 fuel), Gravity Assist (1 fuel)
-- Alien mothership chase mechanic (timer-based, gains speed each sector)
+### 1. Sector Exploration Module (**MAJOR REDESIGN - Infinite Scrolling**)
+- **Infinite scrolling** with automatic forward movement (no manual scrolling)
+- **Swipe-based lateral steering** (left/right) with speed-dependent maneuverability
+- **Procedural node generation**: Nodes spawn ahead, despawn behind
+- 8 node types: Mining Nodes, Outposts, Alien Colonies, Traders, Asteroids, Graveyards, Artifact Vaults, Wormholes (exit nodes)
+- **Proximity-based interaction**: Nodes trigger popups when player passes within range (time pauses)
+- **Jump mechanic**: Horizontal dash (200-300px), costs 10 fuel + 10-15s cooldown, does NOT affect forward speed
+- **Gravity Assist**: Can increase OR decrease speed by 20%, costs 1 fuel per use
+- **Pursuing mothership**: Spawns behind player, accelerates to catch up (distance-based, not timer-based)
+- **Alien sweep patterns**: Periodic sweeps across map that must be avoided or trigger combat (horizontal, diagonal, pincer, wave patterns)
+- No fog of war system (removed)
 
 ### 2. Combat Module
 - **15 lanes** (vertical) × **~25 files** (horizontal) grid
