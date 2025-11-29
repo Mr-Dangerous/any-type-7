@@ -40,21 +40,23 @@ This project follows a **data-driven singleton autoload pattern** to avoid the m
 4. **Component-Based Scene Composition** - Small reusable scene components that compose into larger systems
 5. **Mobile-First UI** - Portrait layout (1080x2340) with touch-optimized controls from day one
 
-### Autoload Singletons (To Be Implemented)
+### Autoload Singletons
 
-**Core Infrastructure**:
-- `EventBus.gd` - Global signal hub for decoupled communication
-- `GameState.gd` - Persistent game state and progression tracking
-- `DataManager.gd` - CSV loading, caching, and query system
+**Core Infrastructure** (✅ = Implemented):
+- ✅ `EventBus.gd` - Global signal hub for decoupled communication
+- ✅ `GameState.gd` - Persistent game state and progression tracking
+- ✅ `DataManager.gd` - CSV loading, caching, and query system
+- ✅ `ResourceManager.gd` - Metal, Crystals, Fuel tracking and spending
+- ✅ `SpeedVisionManager.gd` - Speed-based gameplay and mining restrictions
+- ✅ `IndicatorManager.gd` - **NEW**: Global visual feedback system (pulsing indicators, cooldowns, charge effects)
 - `SaveManager.gd` - Save/load system
 - `SettingsManager.gd` - Player preferences
 - `AudioManager.gd` - Music and sound effects
 
 **Gameplay Systems**:
-- `SectorManager.gd` - Sector exploration module, node management, map state
+- ✅ `SectorManager.gd` - Sector exploration module, node management, map state
 - `CombatManager.gd` - Combat orchestration, 15×25 grid, phases, units
 - `HangarManager.gd` - Ship/pilot/equipment management
-- `ResourceManager.gd` - Metal, Crystals, Fuel tracking and spending
 - `EffectResolver.gd` - Data-driven ability and status effect execution
 - `DamageCalculator.gd` - Hit chance, damage, crits, armor calculations
 
@@ -189,16 +191,24 @@ Comprehensive game design documentation exists in `/docs/`:
 
 ## Three Main Game Modules
 
-### 1. Sector Exploration Module (**MAJOR REDESIGN - Infinite Scrolling**)
-- **Infinite scrolling** with automatic forward movement (no manual scrolling)
-- **Swipe-based lateral steering** (left/right) with speed-dependent maneuverability
-- **Procedural node generation**: Nodes spawn ahead, despawn behind
-- 8 node types: Mining Nodes, Outposts, Alien Colonies, Traders, Asteroids, Graveyards, Artifact Vaults, Wormholes (exit nodes)
-- **Proximity-based interaction**: Nodes trigger popups when player passes within range (time pauses)
-- **Jump mechanic**: Horizontal dash (200-300px), costs 10 fuel + 10-15s cooldown, does NOT affect forward speed
-- **Gravity Assist**: Can increase OR decrease speed by 20%, costs 1 fuel per use
-- **Pursuing mothership**: Spawns behind player, accelerates to catch up (distance-based, not timer-based)
-- **Alien sweep patterns**: Periodic sweeps across map that must be avoided or trigger combat (horizontal, diagonal, pincer, wave patterns)
+### 1. Sector Exploration Module ✅ **IMPLEMENTED - Infinite Scrolling**
+- ✅ **Infinite scrolling** with automatic forward movement (no manual scrolling)
+- ✅ **Swipe-based lateral steering** (left/right) with speed-dependent maneuverability
+- ✅ **Procedural node generation**: Nodes spawn ahead, despawn behind
+- ✅ **Orbiting nodes**: Planets can have moons, asteroids, stations orbiting them (dynamic selection from orbit=TRUE nodes)
+- ✅ 29+ node types across all spawn cases and environmental bands
+- ✅ **Proximity-based interaction**: Nodes trigger popups when player passes within range (time pauses)
+- ✅ **Jump mechanic** (SPACE key):
+  - **Charge system**: Hold to charge (min 100px, +100px per second)
+  - **Fuel cost**: 3 fuel to start + 1 fuel/second charging
+  - **Dynamic direction**: Always jumps toward opposite side of center (540px)
+  - **Visual indicator**: Pulsing yellow/gold dot shows landing position (via IndicatorManager)
+  - **Animation**: 360° spin over 0.5s, then teleport to target
+  - **Cooldown**: 10 seconds after jump completes
+  - **Speed control**: Map speed drops to 0 during animation, resumes after
+- ✅ **Gravity Assist**: Can increase OR decrease speed, multiplier varies by node (CSV-driven)
+- **Pursuing mothership**: Spawns behind player, accelerates to catch up (distance-based, not timer-based) - NOT YET IMPLEMENTED
+- **Alien sweep patterns**: Periodic sweeps across map that must be avoided or trigger combat - NOT YET IMPLEMENTED
 - No fog of war system (removed)
 
 ### 2. Combat Module
@@ -328,6 +338,34 @@ func _ready():
     stats = DataManager.get_ship(ship_id)
     $HealthBar.max_value = stats.hull_points + stats.shield_points
 ```
+
+### Global Visual Feedback (IndicatorManager)
+
+The `IndicatorManager` singleton provides unified visual indicators across all modules:
+
+```gdscript
+# Show jump indicator (sector exploration & combat)
+IndicatorManager.show_jump_indicator(Vector2(target_x, target_y))
+IndicatorManager.hide_jump_indicator()
+
+# Query state
+var is_visible = IndicatorManager.is_jump_indicator_visible()
+var position = IndicatorManager.get_jump_indicator_position()
+
+# Cleanup
+IndicatorManager.clear_all_indicators()
+```
+
+**Visual Specifications**:
+- Pulsing yellow/gold dot (0.7x to 1.3x scale, 2 pulses/second)
+- Outer glow, bright center, white core
+- ~50px base diameter (ship-sized)
+- Renders on CanvasLayer (z-index 100, always on top)
+- Works across sector exploration, combat, hangar modules
+
+**Future Expansion**: Cooldown indicators, charge meters, damage numbers, status effect icons
+
+See `/docs/indicator-manager-system.md` for complete API reference.
 
 ## Resource System
 

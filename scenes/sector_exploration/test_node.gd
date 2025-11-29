@@ -13,9 +13,21 @@ var proximity_radius: float = 100.0
 var has_gravity_assist: bool = false
 var node_color: Color = Color(1.0, 0.5, 0.2, 0.8)
 
+# Orbit tracking (for moons and other orbiters)
+var is_orbiter: bool = false
+var parent_node_id: String = ""
+var orbit_radius: float = 0.0
+var orbit_angle: float = 0.0
+
+# Parent node tracking (for nodes that have orbiters)
+var has_orbiters: bool = false
+var orbiter_orbit_radius: float = 0.0
+
 # Visual constants
 const RING_COLOR: Color = Color(1.0, 0.8, 0.4, 0.6)  # Yellow ring
 const RING_WIDTH: float = 4.0
+const ORBIT_PATH_COLOR: Color = Color(0.5, 0.5, 0.5, 0.3)  # Gray orbit path
+const ORBIT_PATH_WIDTH: float = 2.0
 
 
 func _ready() -> void:
@@ -74,6 +86,30 @@ func setup(id: String, type: String, data: Dictionary, spawn_dist: float) -> voi
 	])
 
 
+func setup_orbit(parent_id: String, radius: float, initial_angle: float) -> void:
+	"""Configure this node as an orbiter"""
+	is_orbiter = true
+	parent_node_id = parent_id
+	orbit_radius = radius
+	orbit_angle = initial_angle
+
+	# Set z-index higher to ensure visibility above parent
+	z_index = 10
+
+	print("[SectorNode] %s configured as orbiter - Parent: %s, Radius: %.1fpx, Angle: %.1f°" % [
+		node_id, parent_id, radius, rad_to_deg(initial_angle)
+	])
+
+
+func set_has_orbiters(radius: float) -> void:
+	"""Mark this node as having orbiters and set orbit path radius"""
+	has_orbiters = true
+	orbiter_orbit_radius = radius
+	queue_redraw()
+
+	print("[SectorNode] %s marked as having orbiters - Orbit radius: %.1fpx" % [node_id, radius])
+
+
 func _on_proximity_entered(area: Area2D) -> void:
 	"""Called when player enters proximity"""
 	if area.name == "PlayerProximityArea" and not is_activated:
@@ -97,6 +133,17 @@ func activate() -> void:
 
 func _draw() -> void:
 	"""Draw the node's visual appearance"""
+	# Draw orbit path if this node has orbiters
+	if has_orbiters:
+		draw_arc(
+			Vector2.ZERO,
+			orbiter_orbit_radius,
+			0, TAU,
+			64,
+			ORBIT_PATH_COLOR,
+			ORBIT_PATH_WIDTH
+		)
+
 	# Main colored circle
 	draw_circle(Vector2.ZERO, node_radius, node_color)
 

@@ -1,12 +1,12 @@
 [gd_scene load_steps=9 format=3 uid="uid://bvh8qp3x7n4md"]
 
 [ext_resource type="Script" uid="uid://bx4bylc8q0odu" path="res://scenes/sector_exploration/sector_map.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/ships/colony_ship.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://bdctmyvyybvoi" path="res://assets/ships/colony_ship.png" id="2"]
 [ext_resource type="Script" uid="uid://dn87y0n4etbjv" path="res://scenes/sector_exploration/grid_tile.gd" id="3"]
-[ext_resource type="PackedScene" uid="uid://c8k4n5m2p9xyz" path="res://scenes/sector_exploration/node_popup.tscn" id="4"]
-[ext_resource type="Texture2D" path="res://assets/Icons/fuel_icon.png" id="5"]
-[ext_resource type="Texture2D" path="res://assets/Icons/metal_small_icon.png" id="6"]
-[ext_resource type="Texture2D" path="res://assets/Icons/crystal_small_icon.png" id="7"]
+[ext_resource type="PackedScene" uid="uid://c8k4n5m2qaxy0" path="res://scenes/sector_exploration/node_popup.tscn" id="4"]
+[ext_resource type="Texture2D" uid="uid://d2c8y0y36fjm2" path="res://assets/Icons/fuel_icon.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://cb4clnoasjcu2" path="res://assets/Icons/metal_small_icon.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://cwtkahy00fphg" path="res://assets/Icons/crystal_small_icon.png" id="7"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_proximity"]
 radius = 100.0
@@ -51,10 +51,8 @@ position = Vector2(540, 1950)
 rotation = -1.5708
 scale = Vector2(0.7, 0.7)
 texture = ExtResource("2")
-modulate = Color(1, 1, 1, 1)
 
 [node name="PlayerProximityArea" type="Area2D" parent="WorldContainer/PlayerShip"]
-collision_layer = 1
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="WorldContainer/PlayerShip/PlayerProximityArea"]

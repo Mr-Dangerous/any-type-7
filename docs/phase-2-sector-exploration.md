@@ -37,6 +37,15 @@
 8. **Gravity Assist Integration** - CSV multipliers (0.1x, 0.2x, 0.4x) with dynamic UI
 9. **Control Lockout System** - Dynamic timer (0.5s per 0.1 multiplier) + proximity unlock
 10. **Mobile-Optimized UI** - Large fonts (44-72px), PNG icons, 220x100px panels
+11. **Orbiting Node System** - Moons, asteroids, stations orbit planets (dynamic from orbit=TRUE CSV nodes)
+12. **Jump Mechanic** ✨ **NEW** - Charge-based lateral teleport with pulsing indicator:
+    - Hold SPACE to charge (3 fuel start + 1 fuel/sec)
+    - Min 100px, +100px per second charge
+    - Dynamic direction (always toward opposite side of center)
+    - Pulsing visual indicator shows landing position
+    - 360° spin animation (0.5s), then teleport
+    - 10-second cooldown
+13. **Global IndicatorManager** ✨ **NEW** - Unified visual feedback system for all modules
 
 ### 🎯 Fine-Tuned Adjustments
 - **Default Speed**: 2.0x (was 1.0x) - Better pacing for mobile
@@ -52,7 +61,6 @@
 - Wormhole sector exit functionality
 - Alien encounter patterns (Phase 2d)
 - Mothership pursuit system (Phase 2e)
-- Jump mechanic (deferred to Phase 2d)
 
 ---
 
@@ -86,8 +94,14 @@
 - **Fixed Player Position**: Player ship stays vertically centered/fixed, only moves horizontally
 - **Swipe Controls**: Lateral steering (left/right movement only)
 - **WASD controls** for testing purposes, add in WASD controls. A for left, D for right.
-- **Jump Mechanic**: Horizontal dash (200-300px instant repositioning) costing 10 fuel + cooldown
-- **Gravity Assist**: Scroll speed control (±20%) costing 1 fuel - faster = nodes move faster
+- **Jump Mechanic** ✅: Charge-based lateral teleport (SPACE key):
+  - Hold to charge: Min 100px, +100px per second
+  - Fuel cost: 3 to start + 1 per second charging
+  - Dynamic direction: Always jumps toward opposite side of center (540px)
+  - Visual indicator: Pulsing yellow/gold dot (via IndicatorManager)
+  - Animation: 360° spin (0.5s), map stops scrolling during jump
+  - Cooldown: 10 seconds after completion
+- **Gravity Assist**: Scroll speed control (CSV-driven multipliers) costing 1 fuel - faster = nodes move faster
 - **Proximity Popups**: Time-pausing node interaction when node passes near player
 - **Alien Encounter Patterns**: Projectile formations move across/down screen, player must dodge
 
