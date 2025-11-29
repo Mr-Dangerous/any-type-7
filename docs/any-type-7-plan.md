@@ -406,14 +406,14 @@ Following lessons learned from **any-type-5-considerations.md**, this project wi
 ### Phase 2: Sector Exploration Prototype ⏳ Pending
 **Goal**: Build the primary gameplay loop
 
-- Vertical scrolling map system with looping
-- Node placement and generation
-- Player movement and navigation
-- Fog of war system
-- Basic node interactions (outposts, mining nodes)
+- Infinite scrolling with automatic forward movement
+- Procedural node generation (spawns ahead, despawns behind)
+- Swipe-based lateral steering with speed-dependent maneuverability
+- Jump mechanic (horizontal dash) and gravity assist (speed control)
+- Proximity-based node interaction (time pauses on popup)
+- Basic node interactions (asteroids, planets, outposts)
 - Resource gathering mechanics
-- Fuel-based jumping and gravity assist
-- Alien mothership timer and chase mechanic
+- Alien mothership pursuit and alien sweep patterns
 
 **Deliverable**: Playable sector exploration with basic node types
 
@@ -549,10 +549,10 @@ Following lessons learned from **any-type-5-considerations.md**, this project wi
 ### Open Questions for Design
 
 - [ ] How should large ships (multi-lane) handle movement and collision?
-- [ ] Should fog of war be per-sector or persistent across sectors?
-- [ ] What happens to deployed miners when jumping to a new location?
+- [ ] What happens to deployed miners when player moves past them?
 - [ ] How does the mothership chase mechanic work visually?
 - [ ] Should there be permadeath or meta-progression between runs?
+- [ ] How should node density scale with sector difficulty?
 
 ---
 

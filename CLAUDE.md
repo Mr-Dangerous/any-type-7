@@ -165,16 +165,25 @@ Comprehensive game design documentation exists in `/docs/`:
   - Infinite scaling through Tier 3+ upgrades
   - **Distinct from weapons** - relics are stat/passive upgrades, weapons are active equipment
 
-- **`sector-exploration-module.md`** (870+ lines) - Complete sector exploration reference
-  - **RECENTLY UPDATED**: New infinite scrolling momentum-based design
+- **`sector-exploration-module.md`** (1,324 lines) - Complete sector exploration design reference
+  - **CURRENT DESIGN**: Infinite scrolling momentum-based navigation system
+  - 16 node types (celestial bodies, spatial features, structures, special encounters)
   - Procedural node generation and despawning
   - Swipe lateral steering with speed-based maneuverability formula
   - Jump mechanic (horizontal dash, fuel + cooldown)
   - Gravity assist (speed up/down control)
-  - Proximity-based node interaction (time pause on popup)
+  - Proximity-based node interaction (time pauses on popup)
   - Pursuing mothership system (spawns behind, accelerates)
   - Alien sweep patterns (horizontal, diagonal, pincer, wave)
+  - **No fog of war** - all nodes within camera view are visible
   - Complete EventBus signals, SectorManager singleton spec, testing checklist
+
+- **`phase-2-sector-exploration.md`** (495 lines) - Phase 2 implementation guide
+  - Step-by-step implementation tasks for infinite scrolling system
+  - References sector-exploration-module.md for design specifications
+  - Task breakdowns: SectorManager rewrite, swipe controls, proximity popups, mothership pursuit, alien sweeps
+  - Testing checklists and completion criteria
+  - 6-day implementation roadmap
 
 **Always consult these docs when implementing systems** - they contain complete specifications with formulas and examples.
 
@@ -252,7 +261,7 @@ Example: 3 Burn stacks → `20 × (1 + 3 × 0.5) = 50 fire damage`
 From `docs/any-type-7-plan.md`:
 
 1. **Core Infrastructure** - Autoloads, EventBus, DataManager, CSV loading
-2. **Sector Exploration Prototype** - Vertical scrolling, nodes, fog of war, movement
+2. **Sector Exploration Prototype** - Infinite scrolling, procedural nodes, swipe controls, proximity interaction
 3. **Combat System Prototype** - 15×25 grid, tactical/combat phases, CSV waves
 4. **Hangar & Fleet Management** - Situation room, ship customization, equipment
 5. **Integration & Content** - Module transitions, populate CSVs, full game loop

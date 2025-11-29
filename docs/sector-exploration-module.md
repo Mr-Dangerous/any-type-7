@@ -55,9 +55,14 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 
 **Gravity Assist Objects**: Large celestial bodies (stars, planets, moons) that provide speed control opportunities
 - When approaching, player chooses: turn into object (speed up), turn away (slow down), or go straight (maintain speed)
-- Costs 1 fuel per use
-- 1 second of locked controls with visual animation (LEO trajectory)
+- **Speed change based on CSV `gravity_assist_multiplier`**:
+  - Stars: ±0.4x (strongest - 2.0s lockout)
+  - Gas Giants: ±0.2x (moderate - 1.0s lockout)
+  - Rocky/Ice Planets: ±0.1x (weakest - 0.5s lockout)
+- **Dynamic control lockout**: 0.5 seconds per 0.1 multiplier + proximity-based unlock
+- Ship impulse pushes toward (faster) or away from (slower) the celestial body
 - Most gravity assist objects are also mineable
+- **Implementation Status**: ✅ Complete (CSV-driven, dynamic lockout)
 
 **Mineable Objects**: Nodes that can be mined for resources (metals, crystals, fuel)
 - Replaces the old "mining node" system
@@ -124,7 +129,7 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 **Gravity Assist**: Yes (moderate effect)
 **Mineable**: Yes (30-100 resources, metal-focused)
 
-**Combat Chance**: 10% (surface defenses or claim disputes)
+**Combat Chance**: 0% (resources only)
 
 **Mechanics**:
 - Metal-rich surface mining
@@ -218,7 +223,7 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 **Gravity Assist**: No
 **Mineable**: Yes (40-120 resources)
 
-**Combat Chance**: 10% (pirates or claim disputes)
+**Combat Chance**: 0% (resources only)
 
 **Mechanics**:
 - Higher resource yield than single asteroids
@@ -241,16 +246,15 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 **Mineable**: No
 
 **Reward Structure**:
-- **No Enemies (70% chance)**: 20-50 metal, 10-30 crystals
-- **With Enemies (30% chance)**: 50-150 metal, 20-60 crystals (better rewards)
+- 20-50 metal, 10-30 crystals (instant reward, no combat)
 
-**Combat Chance**: 30%
+**Combat Chance**: 0% (resources only)
 
 **Mechanics**:
-- Tap to activate
-- If enemies present, triggers combat encounter
-- If clear, instant resource grant
+- Proximity popup on approach
+- Instant resource grant (no combat)
 - One-time use per outpost
+- Fast, safe resource gathering
 
 **Implementation Status**: ✅ Core functionality ready (scripts/nodes/outpost_node.gd)
 
@@ -264,7 +268,7 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 **Gravity Assist**: No
 **Mineable**: Yes (50-180 resources, tech-focused)
 
-**Combat Chance**: 25% (automated defenses or squatters)
+**Combat Chance**: 0% (resources only)
 
 **Mechanics**:
 - Salvage tech components and blueprint fragments
@@ -284,7 +288,7 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 **Gravity Assist**: No
 **Mineable**: Yes (50-200 resources, ship parts)
 
-**Combat Chance**: 20% (scavengers or automated defenses)
+**Combat Chance**: 0% (resources only)
 
 **Mechanics**:
 - Salvage materials, ship parts, and rare components
@@ -304,7 +308,7 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 **Gravity Assist**: No
 **Mineable**: No
 
-**Combat Chance**: 15% (security defenses)
+**Combat Chance**: 0% (data only)
 
 **Mechanics**:
 - Hack for blueprints and navigation data
@@ -433,25 +437,26 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 | **Celestial Bodies** |
 | Star | 2 | ✅ Strong | ✅ | 0% | Fuel, Exotic Materials (80-200) |
 | Gas Giant | 8 | ✅ Strong | ✅ | 0% | Fuel-focused (40-120) |
-| Rocky Planet | 15 | ✅ Moderate | ✅ | 10% | Metal-focused (30-100) |
+| Rocky Planet | 15 | ✅ Moderate | ✅ | 0% | Metal-focused (30-100) |
 | Ice Planet | 12 | ✅ Moderate | ✅ | 0% | Crystals, Fuel (30-100) |
 | Moon | 18 | ✅ Weak | ✅ | 0% | Mixed (20-60) |
 | **Spatial Features** |
 | Nebula | 6 | ❌ | ✅ | 0% | Rare Materials (20-80) |
 | Asteroid | 20 | ❌ | ✅ | 0% | Metal, Crystals (10-50) |
-| Asteroid Cluster | 10 | ❌ | ✅ | 10% | Mixed (40-120) |
+| Asteroid Cluster | 10 | ❌ | ✅ | 0% | Mixed (40-120) |
 | **Structures** |
-| Outpost | 25 | ❌ | ❌ | 30% | Mixed (20-150) |
-| Derelict Station | 10 | ❌ | ✅ | 25% | Tech, Blueprints (50-180) |
-| Graveyard | 10 | ❌ | ✅ | 20% | Ship Parts (50-200) |
-| Satellite Array | 6 | ❌ | ❌ | 15% | Data, Blueprints |
+| Outpost | 25 | ❌ | ❌ | 0% | Mixed (20-50) |
+| Derelict Station | 10 | ❌ | ✅ | 0% | Tech, Blueprints (50-180) |
+| Graveyard | 10 | ❌ | ✅ | 0% | Ship Parts (50-200) |
+| Satellite Array | 6 | ❌ | ❌ | 0% | Data, Blueprints |
 | **Special Encounters** |
 | Trader | 8 | ❌ | ❌ | 0% | Shop (Purchase Items) |
-| Alien Colony | 5 | ❌ | ❌ | 100% | High Rewards (200-500) |
+| Alien Colony | 5 | ❌ | ❌ | 100%* | High Rewards (200-500) |
 | Artifact Vault | 2 | ❌ | ❌ | 40% | Legendary Items |
-| Wormhole | 0* | ❌ | ❌ | 0% | Sector Exit |
+| Wormhole | 0** | ❌ | ❌ | 0% | Sector Exit |
 
-*Wormhole spawn controlled by distance traveled (3000-5000px), not random weight
+*Alien Colony combat is optional - player chooses to engage or avoid
+**Wormhole spawn controlled by distance traveled (3000-5000px), not random weight
 
 ---
 
@@ -503,14 +508,21 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 **Cost**: 0 fuel (free)
 
 **Behavior**:
-- Swipe left or right to make ship veer in that direction
-- Acceleration lag: Higher speed = slower lateral response
-- Ship gradually moves toward swiped direction
-- Release swipe to stop lateral movement (ship centers itself)
+- Swipe left or right to make ship veer in that direction (or A/D keys for testing)
+- Heavy momentum physics with drift feel
+- Ship gradually auto-centers with weak spring force (allows full edge access)
+- Release swipe to let momentum carry ship (drifts with damping)
 
-**Maneuverability Formula**: `Lateral_Acceleration = Base_Accel / (1 + Speed_Multiplier * 0.5)`
+**Implemented Physics** (sector_map.gd):
+- `BASE_ACCELERATION: 800.0` - Lateral acceleration
+- `VELOCITY_DAMPING: 0.92` - 8% velocity loss per frame (drift feel)
+- `AUTO_CENTER_FORCE: 0.2` - **Reduced from 2.0** for edge access
+- `MAX_LATERAL_VELOCITY: 400.0` - Speed cap
+- **Movement bounds**: 30px to 1050px (allows near-edge positioning)
 
 **Use Case**: Navigate to nodes, avoid alien sweeps, position for encounters
+
+**Implementation Status**: ✅ Complete with fine-tuned physics
 
 ---
 
@@ -538,14 +550,19 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 
 
 
-**Behavior**:
-- Can **increase** speed: +20% forward speed (1.0× → 1.2× → 1.4×...)
-- Can **decrease** speed: -20% forward speed (useful for deploying miners or collecting rewards)
+**Behavior** (✅ Implemented):
+- Speed change based on **CSV `gravity_assist_multiplier`** per node type:
+  - Stars: ±0.4x (strongest effect)
+  - Gas Giants: ±0.2x (moderate effect)
+  - Rocky/Ice Planets: ±0.1x (weak effect)
 - Speed persists until next gravity assist adjustment
-- Available near gravitationally significant objects (planets, suns etc.)
-- Given as part of the rewards screen.  When near a gravity assist object, such as a Rocky Planet, the player must choose left, right, or straight.
-- if the player turns into the object, they gain speed.  If the player turns away from the object, they lose speed.  IF the player continues straight, they maintain speed.
-- Accompanied by a visual animation and 1 second of locked controls.  If the ship is turning into the object, it will intercept the object (by turning right) and then follow the object's LEO and fly out faster, for instance.
+- Available near gravitationally significant objects (CSV `gravity_assist: yes`)
+- Three choices in proximity popup: **Faster** (+multiplier), **Slower** (-multiplier), **Same** (no change)
+- **Dynamic control lockout**: 0.5 seconds per 0.1 multiplier (0.1x→0.5s, 0.2x→1.0s, 0.4x→2.0s)
+- Ship impulse: Pushed toward node (faster) or away from node (slower)
+- Lockout ends when: (1) proximity exit OR (2) timer expires (whichever first)
+- **Default speed**: 2.0x (changed from 1.0x for better pacing)
+- **Development controls**: W/S keys adjust speed in 0.1x increments
 
 **Use Cases**:
 - **Speed Up**: Outrun mothership, cover distance quickly
@@ -645,55 +662,90 @@ func is_mothership_close() -> bool:
 
 ---
 
-## Alien Sweep System
+## Alien Encounter System (Projectile Patterns)
 
 ### Core Concept
-Instead of patrolling enemies, aliens periodically **sweep across the map** in various patterns that the player must avoid or fight through.
+Aliens periodically launch **encounter patterns** - formations of ships that fly across the map like projectiles in coordinated patterns. These function as bullet-hell sequences where the player must dodge incoming alien ships. Each collision accumulates combat difficulty points, and after the pattern completes, combat is triggered with scaled difficulty.
 
-### Sweep Patterns
+### Encounter Flow
 
-#### 1. Horizontal Sweep
-- **Pattern**: Aliens move horizontally across screen from left or right
+**Phase 1: Warning (3-5 seconds)**
+- Visual indicator shows incoming pattern type and trajectory
+- Pattern name displayed (e.g., "HORIZONTAL WAVE INCOMING")
+- Countdown timer: "3... 2... 1..."
+- Audio warning siren
+
+**Phase 2: Projectile Pattern (5-15 seconds)**
+- Alien ships fly across screen as projectiles in coordinated formation
+- Player dodges using lateral steering and jump
+- Each collision adds +1 `combat_difficulty` point
+- Visual/audio feedback on each hit
+- Hit counter displays: "Hits: 3"
+
+**Phase 3: Combat Trigger (automatic after pattern ends)**
+- Combat begins when all alien ships have passed
+- Difficulty scales based on `combat_difficulty` points
+- **Cannot be avoided** - combat always triggers after encounter
+
+### Combat Difficulty Scaling
+
+| Hits Taken | Combat Modifier |
+|------------|-----------------|
+| 0 | Base difficulty (standard enemy spawns) |
+| 1-2 | +1 elite enemy |
+| 3-4 | +2 elite enemies |
+| 5-6 | +3 elite enemies |
+| 7+ | +1 boss enemy + 2 elites |
+
+### Encounter Patterns
+
+#### 1. Horizontal Wave
+- **Formation**: 3-5 rows of ships with gaps
 - **Speed**: Moderate (slightly faster than player base speed)
-- **Width**: 200-400 pixels tall
+- **Duration**: 8-10 seconds
+- **Gap Size**: 150-200 pixels (navigable with timing)
 - **Frequency**: Every 60-90 seconds
 
-#### 2. Diagonal Sweep
-- **Pattern**: Aliens move diagonally across screen
+#### 2. Diagonal Cross
+- **Formation**: Two diagonal lines crossing in center
 - **Speed**: Fast (1.5× player base speed)
-- **Width**: 300-500 pixels diagonal band
+- **Duration**: 6-8 seconds
+- **Gap Size**: 200-250 pixels at center intersection
 - **Frequency**: Every 90-120 seconds
 
-#### 3. Pincer Sweep
-- **Pattern**: Aliens sweep from both left AND right simultaneously
+#### 3. Pincer Formation
+- **Formation**: Mirror formations converging from sides
 - **Speed**: Moderate
-- **Gap**: 200-300 pixels safe zone in center
-- **Frequency**: Every 120-180 seconds (rare, difficult)
+- **Duration**: 10-12 seconds
+- **Gap Size**: 200-300 pixels safe zone (narrows over time)
+- **Frequency**: Every 120-180 seconds
 
-#### 4. Wave Sweep
-- **Pattern**: Multiple small groups in wave formation
+#### 4. Spiral Wave
+- **Formation**: Ships spiral inward from edges
 - **Speed**: Slow to moderate
-- **Gaps**: 150-200 pixels between groups (navigable)
+- **Duration**: 12-15 seconds
+- **Gap Size**: 150-200 pixels between spiral arms
 - **Frequency**: Every 90-120 seconds
 
-### Sweep Mechanics
-- **Collision Detection**: If player ship overlaps alien sweep hitbox
-- **Combat Trigger**: Collision triggers combat encounter
-- **Avoidance**: Player can steer around sweeps using lateral movement or jump
-- **Warning**: Visual indicator appears 3-5 seconds before sweep enters screen
-- **Scaling**: Frequency and complexity increase with sector number
+### Player Strategies
+- **Perfect Dodge**: Avoid all ships for base difficulty (hardest, best outcome)
+- **Accept Light Damage**: Take 1-2 hits for slight difficulty increase (manageable)
+- **Emergency Jump**: Use jump ability to reposition during pattern
+- **Speed Control**: Slow down with gravity assist for better maneuverability
 
-### Visual Design
-- **Warning Zone**: Red/yellow overlay showing sweep path before arrival
-- **Aliens**: Visual representation of alien ships/entities in formation
-- **Audio Cue**: Sound effect when sweep approaches
+### Scaling with Sector Progression
+- **Frequency**: Encounters occur more often in higher sectors
+- **Pattern Speed**: Ship speeds increase 10% per sector
+- **Formation Density**: Tighter formations, smaller gaps in later sectors
+- **Warning Time**: Decreases from 5s (sector 1) to 3s (sector 10+)
 
-### Combat Triggers
-- **Alien Sweep Contact**: Collision with sweep pattern
-- **Outpost with enemies**: 30% chance
-- **Graveyard scavengers**: 20% chance
-- **Colony assault**: Player choice
-- **Vault guardians**: 40% chance
+### Combat Triggers Summary
+**Encounter-based combat** (scaled difficulty):
+- **Alien Projectile Patterns**: Triggers after pattern completes (difficulty = hits taken)
+
+**Node-based combat** (fixed difficulty):
+- **Alien Colony**: 100% combat if player engages (player choice, high difficulty)
+- **Artifact Vault**: 40% combat chance (boss encounter)
 
 ---
 
@@ -793,11 +845,12 @@ signal mothership_warning(distance: float)  # At 3000px, 2000px, 1000px
 signal mothership_caught_player()
 ```
 
-### Alien Sweeps
+### Alien Encounter Patterns
 ```gdscript
-signal alien_sweep_approaching(sweep_type: String, arrival_time: float)
-signal alien_sweep_entered(sweep_id: String)
-signal alien_sweep_collision(sweep_id: String)
+signal encounter_pattern_warning(pattern_type: String, countdown: float)
+signal encounter_pattern_started(pattern_id: String)
+signal encounter_hit_taken(combat_difficulty: int)  # Emitted on each collision
+signal encounter_pattern_completed(final_combat_difficulty: int)  # Triggers combat
 ```
 
 ---

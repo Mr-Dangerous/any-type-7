@@ -57,6 +57,17 @@ signal sector_exited()
 signal node_discovered(node_id: String, node_type: String)
 signal node_activated(node_id: String)
 
+# Node spawning/despawning
+signal node_spawned(node_id: String, node_type: String, position: Vector2)
+signal node_despawned(node_id: String)
+
+# Node proximity detection
+signal node_proximity_entered(node_id: String, node_type: String)
+signal node_proximity_exited(node_id: String)
+
+# Gravity assist
+signal gravity_assist_applied(choice: String, node_position: Vector2, multiplier: float)
+
 # ============================================================
 # SPEED & VISION SYSTEM SIGNALS
 # ============================================================

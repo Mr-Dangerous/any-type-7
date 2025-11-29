@@ -222,6 +222,9 @@ func get_ship_visual(visual_id: String) -> Dictionary:
 func get_drone_visual(drone_visual_id: String) -> Dictionary:
 	return drone_visuals.get(drone_visual_id, {})
 
+func get_sector_node(node_type: String) -> Dictionary:
+	return sector_nodes.get(node_type, {})
+
 # ============================================================
 # BULK QUERIES
 # ============================================================
@@ -251,6 +254,19 @@ func get_all_ship_ids() -> Array[String]:
 	var ids: Array[String] = []
 	ids.assign(ships.keys())
 	return ids
+
+func get_spawnable_nodes() -> Array[Dictionary]:
+	"""Get all sector nodes that can spawn in default space (not band-exclusive)"""
+	var results: Array[Dictionary] = []
+	for node_data: Dictionary in sector_nodes.values():
+		# Skip band-exclusive nodes
+		if node_data.get("band_exclusive", "no") == "yes":
+			continue
+		# Skip nodes with 0 spawn weight (like wormhole)
+		if int(node_data.get("spawn_weight", 0)) <= 0:
+			continue
+		results.append(node_data)
+	return results
 
 # ============================================================
 # SPECIAL CSV LOADERS

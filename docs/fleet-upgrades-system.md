@@ -54,12 +54,6 @@ Enhance navigation, fuel efficiency, and map interaction.
 **Acquisition**: Traders, Milestones (common)
 **Flavor**: "Optimized jump calculations"
 
-#### **Extended Sensors**
-**Effect**: Fog of war reveal radius increased by +50px
-**Stackable**: Yes (each stack adds +50px)
-**Acquisition**: Vaults, Graveyards (uncommon)
-**Flavor**: "Long-range scanning array"
-
 #### **Swift Navigation**
 **Effect**: Base Colony Ship movement speed +20%
 **Stackable**: Yes (additive)

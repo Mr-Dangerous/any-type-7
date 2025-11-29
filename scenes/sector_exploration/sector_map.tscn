@@ -1,0 +1,179 @@
+[gd_scene load_steps=9 format=3 uid="uid://bvh8qp3x7n4md"]
+
+[ext_resource type="Script" uid="uid://bx4bylc8q0odu" path="res://scenes/sector_exploration/sector_map.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/ships/colony_ship.png" id="2"]
+[ext_resource type="Script" uid="uid://dn87y0n4etbjv" path="res://scenes/sector_exploration/grid_tile.gd" id="3"]
+[ext_resource type="PackedScene" uid="uid://c8k4n5m2p9xyz" path="res://scenes/sector_exploration/node_popup.tscn" id="4"]
+[ext_resource type="Texture2D" path="res://assets/Icons/fuel_icon.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/Icons/metal_small_icon.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/Icons/crystal_small_icon.png" id="7"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_proximity"]
+radius = 100.0
+
+[node name="SectorMap" type="Control"]
+custom_minimum_size = Vector2(1080, 2340)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1080.0
+offset_bottom = 2340.0
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+z_index = -100
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1080.0
+offset_bottom = 2340.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.1, 1)
+
+[node name="WorldContainer" type="Node2D" parent="."]
+z_as_relative = false
+
+[node name="GridTile1" type="Node2D" parent="WorldContainer"]
+script = ExtResource("3")
+
+[node name="GridTile2" type="Node2D" parent="WorldContainer"]
+position = Vector2(0, -2340)
+script = ExtResource("3")
+
+[node name="GridTile3" type="Node2D" parent="WorldContainer"]
+position = Vector2(0, -4680)
+script = ExtResource("3")
+
+[node name="PlayerShip" type="Sprite2D" parent="WorldContainer"]
+z_index = 10
+position = Vector2(540, 1950)
+rotation = -1.5708
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("2")
+modulate = Color(1, 1, 1, 1)
+
+[node name="PlayerProximityArea" type="Area2D" parent="WorldContainer/PlayerShip"]
+collision_layer = 1
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WorldContainer/PlayerShip/PlayerProximityArea"]
+shape = SubResource("CircleShape2D_proximity")
+
+[node name="UIOverlay" type="CanvasLayer" parent="."]
+
+[node name="DistanceLabel" type="Label" parent="UIOverlay"]
+offset_left = 40.0
+offset_top = 40.0
+offset_right = 600.0
+offset_bottom = 120.0
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 48
+text = "Distance: 0 px"
+
+[node name="ResourceDisplay" type="MarginContainer" parent="UIOverlay"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 140.0
+offset_bottom = 280.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_right = 32
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UIOverlay/ResourceDisplay"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="FuelPanel" type="PanelContainer" parent="UIOverlay/ResourceDisplay/HBoxContainer"]
+custom_minimum_size = Vector2(220, 100)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIOverlay/ResourceDisplay/HBoxContainer/FuelPanel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="IconTexture" type="TextureRect" parent="UIOverlay/ResourceDisplay/HBoxContainer/FuelPanel/VBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+texture = ExtResource("5")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ValueLabel" type="Label" parent="UIOverlay/ResourceDisplay/HBoxContainer/FuelPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 36
+text = "100"
+horizontal_alignment = 1
+
+[node name="MetalPanel" type="PanelContainer" parent="UIOverlay/ResourceDisplay/HBoxContainer"]
+custom_minimum_size = Vector2(220, 100)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIOverlay/ResourceDisplay/HBoxContainer/MetalPanel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="IconTexture" type="TextureRect" parent="UIOverlay/ResourceDisplay/HBoxContainer/MetalPanel/VBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+texture = ExtResource("6")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ValueLabel" type="Label" parent="UIOverlay/ResourceDisplay/HBoxContainer/MetalPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 36
+text = "0"
+horizontal_alignment = 1
+
+[node name="CrystalsPanel" type="PanelContainer" parent="UIOverlay/ResourceDisplay/HBoxContainer"]
+custom_minimum_size = Vector2(220, 100)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIOverlay/ResourceDisplay/HBoxContainer/CrystalsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="IconTexture" type="TextureRect" parent="UIOverlay/ResourceDisplay/HBoxContainer/CrystalsPanel/VBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+texture = ExtResource("7")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ValueLabel" type="Label" parent="UIOverlay/ResourceDisplay/HBoxContainer/CrystalsPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 36
+text = "0"
+horizontal_alignment = 1
+
+[node name="SpeedPanel" type="PanelContainer" parent="UIOverlay/ResourceDisplay/HBoxContainer"]
+custom_minimum_size = Vector2(220, 100)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UIOverlay/ResourceDisplay/HBoxContainer/SpeedPanel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="IconLabel" type="Label" parent="UIOverlay/ResourceDisplay/HBoxContainer/SpeedPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+text = "⚡"
+horizontal_alignment = 1
+
+[node name="ValueLabel" type="Label" parent="UIOverlay/ResourceDisplay/HBoxContainer/SpeedPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 36
+text = "1.0x"
+horizontal_alignment = 1
+
+[node name="NodePopup" parent="UIOverlay" instance=ExtResource("4")]
