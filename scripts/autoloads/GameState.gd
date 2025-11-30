@@ -42,6 +42,16 @@ var total_nodes_visited: int = 0
 var run_start_time: int = 0  # Unix timestamp
 var nodes_visited_this_sector: int = 0
 var combats_this_sector: int = 0
+var place_bois_collected: int = 0  # Node tagging collectibles
+var elapsed_time: float = 0.0  # Time elapsed in current run (seconds)
+
+# ============================================================
+# RESOURCE STREAK SYSTEM
+# ============================================================
+
+var current_streak_resource: String = ""  # metal, crystals, fuel, item (empty = no streak)
+var current_streak_count: int = 0  # Number of consecutive collections (max 10 for 100% bonus)
+var streak_time_remaining: float = 0.0  # Time until streak expires (10 seconds)
 
 # ============================================================
 # INITIALIZATION
@@ -50,6 +60,18 @@ var combats_this_sector: int = 0
 func _ready() -> void:
 	print("[GameState] Initialized")
 	_initialize_starter_fleet()
+
+func _process(delta: float) -> void:
+	# Update elapsed time (only when not paused and game is started)
+	if game_started and not is_paused:
+		elapsed_time += delta
+
+		# Update streak timer
+		if streak_time_remaining > 0.0:
+			streak_time_remaining -= delta
+			if streak_time_remaining <= 0.0:
+				_break_streak()
+				EventBus.resource_streak_broken.emit()
 
 func _initialize_starter_fleet() -> void:
 	# Give player starter ships (Phase 1 placeholder)
@@ -72,6 +94,8 @@ func start_new_game() -> void:
 	total_combats_lost = 0
 	total_enemies_destroyed = 0
 	total_nodes_visited = 0
+	place_bois_collected = 0
+	elapsed_time = 0.0
 	run_start_time = Time.get_unix_time_from_system()
 
 	_initialize_starter_fleet()
@@ -197,6 +221,18 @@ func record_node_visited() -> void:
 	total_nodes_visited += 1
 	nodes_visited_this_sector += 1
 
+func collect_place_boi(amount: int = 1) -> void:
+	place_bois_collected += amount
+	EventBus.place_boi_collected.emit(place_bois_collected)
+	print("[GameState] place_boi collected! Total: %d" % place_bois_collected)
+
+func get_elapsed_time_formatted() -> String:
+	"""Returns elapsed time formatted as MM:SS"""
+	var total_seconds = int(elapsed_time)
+	var minutes = total_seconds / 60
+	var seconds = total_seconds % 60
+	return "%02d:%02d" % [minutes, seconds]
+
 # ============================================================
 # SCREEN MANAGEMENT
 # ============================================================
@@ -273,3 +309,68 @@ func print_state() -> void:
 	print("Enemies Destroyed: %d" % total_enemies_destroyed)
 	print("Nodes Visited: %d" % total_nodes_visited)
 	print("=".repeat(60))
+
+# ============================================================
+# RESOURCE STREAK MANAGEMENT
+# ============================================================
+
+func collect_resource_node(resource_type: String) -> float:
+	"""Update streak when collecting a resource, return streak multiplier"""
+	# Items don't break streaks
+	if resource_type == "item":
+		return 1.0
+
+	# Check if this continues or breaks the streak
+	if current_streak_resource == "" or current_streak_resource == resource_type:
+		# Continue or start new streak
+		current_streak_resource = resource_type
+		current_streak_count = min(current_streak_count + 1, 10)  # Cap at 10
+		streak_time_remaining = 10.0  # Reset timer
+
+		var streak_bonus = (current_streak_count - 1) * 0.10  # 0% to 90% bonus
+		var multiplier = 1.0 + streak_bonus
+
+		EventBus.resource_streak_updated.emit(current_streak_resource, current_streak_count, multiplier)
+		print("[GameState] Streak: %s x%d (%.0f%% bonus, %.1f multiplier)" %
+			[resource_type.capitalize(), current_streak_count, streak_bonus * 100, multiplier])
+
+		return multiplier
+	else:
+		# Different resource breaks streak
+		_break_streak()
+		EventBus.resource_streak_broken.emit()
+
+		# Start new streak
+		current_streak_resource = resource_type
+		current_streak_count = 1
+		streak_time_remaining = 10.0
+
+		EventBus.resource_streak_updated.emit(current_streak_resource, current_streak_count, 1.0)
+		print("[GameState] New streak started: %s" % resource_type.capitalize())
+
+		return 1.0
+
+
+func _break_streak() -> void:
+	"""Break the current streak"""
+	if current_streak_count > 0:
+		print("[GameState] Streak broken! (%s x%d)" % [current_streak_resource.capitalize(), current_streak_count])
+
+	current_streak_resource = ""
+	current_streak_count = 0
+	streak_time_remaining = 0.0
+
+
+func get_streak_display() -> String:
+	"""Get formatted streak display string"""
+	if current_streak_count == 0:
+		return "No Streak"
+
+	var bonus_percent = (current_streak_count - 1) * 10
+	return "%s x%d (+%d%%)" % [current_streak_resource.capitalize(), current_streak_count, bonus_percent]
+
+
+func reset_streak() -> void:
+	"""Manually reset streak (for debugging or new sector)"""
+	_break_streak()
+	EventBus.resource_streak_broken.emit()

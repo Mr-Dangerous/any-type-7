@@ -85,7 +85,8 @@ All game content is defined in `/data/*.csv` files. When implementing systems, *
 | `powerups_database.csv` | ✅ **Populated** (10 powerups) | Combat powerup drops |
 | `ship_visuals_database.csv` | ✅ **Populated** (24 ship visuals) | Ship sprites, exhausts, hardpoints, colors |
 | `drone_visuals_database.csv` | ✅ **Populated** (11 drones) | Drone visual assets |
-| `sector_nodes.csv` | ✅ **Populated** (8 node types) | Node spawn weights, proximity, rewards, combat chances |
+| `sector_nodes.csv` | ✅ **Populated** (8 node types) | Node spawn weights, proximity, rewards, combat chances (needs resource columns added) |
+| `resource_quality_tiers.csv` | 📋 **Designed** (5 tiers) | Quality tier definitions for resource collection system (poor, standard, rich, abundant, jackpot) |
 | `alien_sweep_patterns.csv` | ✅ **Populated** (10 patterns) | Alien sweep behaviors, speeds, widths, sector requirements |
 | `sector_progression.csv` | ✅ **Populated** (20 sectors) | Mothership pursuit, wormhole frequency, difficulty scaling |
 | `combat_scenarios.csv` | ⚠️ **EMPTY** (placeholder) | Wave definitions and enemy spawns |
@@ -197,7 +198,7 @@ Comprehensive game design documentation exists in `/docs/`:
 - ✅ **Procedural node generation**: Nodes spawn ahead, despawn behind
 - ✅ **Orbiting nodes**: Planets can have moons, asteroids, stations orbiting them (dynamic selection from orbit=TRUE nodes)
 - ✅ 29+ node types across all spawn cases and environmental bands
-- ✅ **Proximity-based interaction**: Nodes trigger popups when player passes within range (time pauses)
+- ✅ **Proximity detection system**: Nodes detect player proximity (popups DISABLED but system functional)
 - ✅ **Jump mechanic** (SPACE key):
   - **Charge system**: Hold to charge (min 100px, +100px per second)
   - **Fuel cost**: 3 fuel to start + 1 fuel/second charging
@@ -207,6 +208,19 @@ Comprehensive game design documentation exists in `/docs/`:
   - **Cooldown**: 10 seconds after jump completes
   - **Speed control**: Map speed drops to 0 during animation, resumes after
 - ✅ **Gravity Assist**: Can increase OR decrease speed, multiplier varies by node (CSV-driven)
+- **Resource Collection System** (Design complete, awaiting implementation):
+  - **Auto-collection on proximity**: No manual tapping required (mobile-optimized)
+  - **Multi-layered multiplier system**:
+    - Speed multiplier: 1.0x at speed 1, up to 3.25x at speed 10
+    - Position multiplier: 1.0x at center (540px), 1.5x at edges (0px/1080px)
+    - Streak multiplier: +10% per streak level (max 5 stacks = +50%)
+    - Quality tier multiplier: 0.5x (poor) to 3.0x (jackpot)
+  - **Dynamic node quality**: Each node rolls a quality tier (poor, standard, rich, abundant, jackpot)
+  - **Visual feedback**: Glowing auras (gray/white/blue/purple/gold), floating text, trail animations, audio pings
+  - **Mining speed restrictions**: Speed 1-2 can mine all, 3-4 planets only, 5+ instant collection only
+  - **Strategic depth**: Risk/reward decisions (speed vs mining, center vs edge, streak maintenance)
+  - **Final formula**: `Resources = base × quality × speed × position × streak`
+  - See `/docs/sector-exploration-module.md` lines 463-952 for complete specification
 - **Pursuing mothership**: Spawns behind player, accelerates to catch up (distance-based, not timer-based) - NOT YET IMPLEMENTED
 - **Alien sweep patterns**: Periodic sweeps across map that must be avoided or trigger combat - NOT YET IMPLEMENTED
 - No fog of war system (removed)

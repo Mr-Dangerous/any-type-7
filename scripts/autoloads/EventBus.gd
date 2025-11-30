@@ -25,6 +25,10 @@ signal resource_changed(resource_type: String, old_amount: int, new_amount: int)
 signal resource_spent(resource_type: String, amount: int, reason: String)
 signal resource_gained(resource_type: String, amount: int, source: String)
 
+# Resource streak system
+signal resource_streak_updated(resource_type: String, streak_count: int, multiplier: float)
+signal resource_streak_broken()
+
 # ============================================================
 # DATA LOADING SIGNALS
 # ============================================================
@@ -67,6 +71,9 @@ signal node_proximity_exited(node_id: String)
 
 # Gravity assist
 signal gravity_assist_applied(choice: String, node_position: Vector2, multiplier: float)
+
+# Node tagging and collection
+signal place_boi_collected(total_count: int)
 
 # ============================================================
 # SPEED & VISION SYSTEM SIGNALS

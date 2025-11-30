@@ -60,13 +60,35 @@ shape = SubResource("CircleShape2D_proximity")
 
 [node name="UIOverlay" type="CanvasLayer" parent="."]
 
-[node name="DistanceLabel" type="Label" parent="UIOverlay"]
+[node name="TopStatsContainer" type="HBoxContainer" parent="UIOverlay"]
 offset_left = 40.0
 offset_top = 40.0
-offset_right = 600.0
+offset_right = 1040.0
 offset_bottom = 120.0
-theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_constants/separation = 40
+
+[node name="TimerLabel" type="Label" parent="UIOverlay/TopStatsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
 theme_override_font_sizes/font_size = 48
+text = "00:00"
+
+[node name="PlaceBoiLabel" type="Label" parent="UIOverlay/TopStatsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.4, 1, 0.6, 1)
+theme_override_font_sizes/font_size = 48
+text = "place_boi: 0"
+horizontal_alignment = 2
+
+[node name="DistanceLabel" type="Label" parent="UIOverlay"]
+offset_left = 40.0
+offset_top = 100.0
+offset_right = 600.0
+offset_bottom = 140.0
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_font_sizes/font_size = 32
 text = "Distance: 0 px"
 
 [node name="ResourceDisplay" type="MarginContainer" parent="UIOverlay"]

@@ -80,6 +80,53 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 - `optional_combat` - Player choice to engage or avoid
 - `puzzle_encounter` - Skill/puzzle challenge
 - `sector_exit` - Transition to next sector
+- `tractor_beam` - ✅ Automatic collection via tractor beam lock (debris only)
+
+---
+
+### Tractor Beam Collection System
+
+**Status**: ✅ **IMPLEMENTED** (Phase 2e Complete)
+
+The tractor beam system provides automatic collection for debris field nodes (asteroids). Unlike proximity-based collection, debris must be actively pulled in via tractor beam lock.
+
+**System Overview**:
+- **Beam Lock Range**: 100px - Debris within this range gets locked by tractor beam
+- **Pull Duration**: 2.0 seconds - Time to pull debris from lock range to player
+- **Max Simultaneous Beams**: 3 - Player can lock up to 3 debris at once
+- **Visual Feedback**: Locked debris gets cyan tint during pull
+- **Passive Attraction**: Disabled (0px range) - Reserved for potential future upgrade
+
+**Mechanics**:
+1. **Detection**: System continuously checks distance to all debris nodes
+2. **Lock**: When debris enters 100px range, beam locks if slots available
+3. **Pull**: Debris is pulled toward player over 2 seconds
+4. **Collection**: When debris reaches player, resources are awarded and debris despawns
+5. **Beam Release**: Beam slot becomes available for next debris
+
+**Node Spawner Integration**:
+- Debris nodes marked with `is_debris` metadata
+- Scrolling disabled for locked/attracting debris (prevents scroll override)
+- Debris spawns in clusters of 2-5 nodes (configurable via DebugManager)
+
+**Debug Controls** (DebugManager):
+- `debris_attraction_range` - 0px (disabled, potential upgrade)
+- `debris_attraction_speed` - 150px/sec (for future passive attraction)
+- `tractor_beam_range` - 100px (adjustable 25-300px)
+- `tractor_beam_duration` - 2.0s (adjustable 0.5-10s)
+- `tractor_beam_projectile_count` - 3 (adjustable 1-10)
+
+**Implementation Files**:
+- `scenes/sector_exploration/tractor_beam_system.gd` (167 lines)
+- `scenes/sector_exploration/node_spawner.gd` (debris scrolling skip logic)
+- `scenes/sector_exploration/sector_map.gd` (proximity detection skip for debris)
+- `scripts/autoloads/DebugManager.gd` (tractor beam config variables)
+
+**Design Notes**:
+- Debris collection is **NOT** proximity-based (unlike planets, traders, etc.)
+- Passive attraction system exists in code but disabled (0px range) for potential upgrades
+- System can be upgraded later with increased range, faster pull, or passive attraction
+- Visual polish opportunities: beam line rendering, particle effects on lock
 
 ---
 
@@ -251,8 +298,8 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 **Combat Chance**: 0% (resources only)
 
 **Mechanics**:
-- Proximity popup on approach
-- Instant resource grant (no combat)
+- Proximity detection on approach (popups disabled)
+- [FUTURE] Instant resource grant (no combat)
 - One-time use per outpost
 - Fast, safe resource gathering
 
@@ -360,8 +407,8 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 **Combat Chance**: 100% (guaranteed if engaged)
 
 **Encounter Behavior**:
-- **Proximity Detection**: Popup appears when ship passes within range
-- **Combat Option**: Player can choose to engage or avoid
+- **Proximity Detection**: System detects when ship passes within range (popups disabled)
+- **Combat Option**: [FUTURE] Player will be able to choose to engage or avoid
 - **Rewards**: Large resource caches (200-500 resources), rare blueprints, unique equipment
 
 **Mechanics**:
@@ -421,9 +468,9 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 - Spawns mothership closer in next sector
 
 **Mechanics**:
-- Time pauses when proximity popup appears
-- Confirmation prompt before leaving
-- Point of no return
+- [DISABLED] Time pauses when proximity popup appears
+- [FUTURE] Confirmation prompt before leaving
+- Point of no return (sector transition)
 - Multiple wormholes may exist, player only needs to reach one
 
 **Implementation Status**: ⚠️ Needs implementation (wormhole_node.gd + transition logic)
@@ -457,6 +504,497 @@ Three randomly selected backgrounds per sector (tiled infinitely):
 
 *Alien Colony combat is optional - player chooses to engage or avoid
 **Wormhole spawn controlled by distance traveled (3000-5000px), not random weight
+
+---
+
+## Resource Collection System
+
+### Overview
+
+The **Resource Collection System** transforms sector navigation from simple obstacle avoidance into a strategic risk-reward optimization game. Resources appear as **visible glowing auras** on nodes and are collected **automatically on proximity pass** (no manual tapping required). Resource yields are **dynamically calculated** based on speed, positioning, collection streaks, and node quality.
+
+**Core Philosophy:**
+- **"High Risk, High Reward"** - Dangerous positioning (edges, high speed) yields better resources
+- **"Momentum Mastery"** - Speed management becomes a strategic trade-off
+- **"The Line"** - Navigation is about planning an optimal path through resource opportunities
+
+---
+
+### Automatic Proximity Collection
+
+**How It Works:**
+- Resources **automatically collected when player passes within proximity radius** of a node
+- **No manual tapping required** - keeps hands free for steering and jump planning
+- Collection triggers at same distance as interaction popups (proximity_radius from CSV)
+- **Visual feedback**: Resource count floats up from node, animates to HUD resource counter
+- **Audio feedback**: Satisfying "ping" sound (pitch varies by resource type)
+
+**Benefits:**
+- Mobile-optimized (no need to tap individual nodes while steering)
+- Flow state preservation (collection happens naturally during navigation)
+- Strategic planning (players plot courses through high-value resource clusters)
+
+---
+
+### Speed-Dependent Collection Multipliers
+
+**The Core Trade-Off:**
+
+| Speed Level | Collection Multiplier | Mining Allowed? | Strategic Implication |
+|-------------|----------------------|-----------------|------------------------|
+| 1-2 | 1.0x | ✅ All nodes | Safe, can mine everything, but slow income rate |
+| 3-4 | 1.5x | ❌ Planets only | Medium risk, can't deploy miners but instant collections boosted |
+| 5-6 | 2.0x | ❌ No mining | High risk, pure instant collections, mothership catching up |
+| 7-8 | 2.5x | ❌ No mining | Extreme risk, massive rewards, alien sweeps active |
+| 9-10 | 3.0x | ❌ No mining | "Greed mode", emergency wormhole coming, maximum yields |
+
+**Formula:**
+```gdscript
+var speed_multiplier := 1.0 + (current_speed - 1) * 0.25
+# Speed 1 = 1.0x, Speed 5 = 2.0x, Speed 10 = 3.25x
+```
+
+**Design Rationale:**
+- Creates tension: Do you slow down to mine safely, or blast through for instant bonuses?
+- Rewards mastery: Advanced players can manage high-speed collection runs
+- Ties to mothership pursuit: Speed increases both mothership tension AND resource rewards
+
+---
+
+### Lateral Position Risk Multipliers
+
+**The Danger Zones:**
+
+```
+Lateral Position Map (1080px width)
+┌────────────────────────────────────┐
+│ LEFT EDGE    CENTER    RIGHT EDGE  │
+│ 0px─────────540px──────────1080px  │
+│ 1.5x         1.0x           1.5x   │
+└────────────────────────────────────┘
+```
+
+**Multiplier Calculation:**
+```gdscript
+func calculate_position_multiplier(lateral_x: float) -> float:
+    var center := 540.0
+    var distance_from_center := abs(lateral_x - center)
+    var max_distance := 540.0
+
+    # Linear scaling: 1.0x at center, 1.5x at edges
+    var edge_bonus := (distance_from_center / max_distance) * 0.5
+    return 1.0 + edge_bonus
+```
+
+**Strategic Implications:**
+- **Center lane (540px)**: Safe, 1.0x multiplier, easy navigation
+- **Edge lanes (0-200px, 880-1080px)**: Dangerous (harder to dodge sweeps), 1.3-1.5x multiplier
+- **Jump mechanic synergy**: Jump to opposite edge for big resource grabs, then jump back to safety
+
+---
+
+### Collection Streaks & Combos
+
+**Streak System:**
+- **Streak Counter**: Increments each time you collect resources without missing a collectable node in vision
+- **Streak Bonus**: +10% per streak level (max 5 stacks = +50%)
+- **Streak Break**: Missing a node in proximity range resets streak to 0
+- **Streak Persistence**: Survives between sectors (resets on combat or death)
+
+**Visual Feedback:**
+- **Streak HUD**: "x3 Streak!" appears near resource counter, glows brighter with each level
+- **Node Highlighting**: Uncollected nodes pulse red when you're about to break streak
+
+**Formula:**
+```gdscript
+var streak_multiplier := 1.0 + min(current_streak, 5) * 0.1
+# Streak 0 = 1.0x, Streak 3 = 1.3x, Streak 5+ = 1.5x
+```
+
+---
+
+### Resource Types on Nodes
+
+**Three Collection Categories:**
+
+#### A) Instant Collect Nodes (Auto-collect on proximity)
+- **Asteroids**: 5-15 Metal + 2-8 Crystals (NO fuel)
+- **Gas Pockets**: 10-20 Fuel (nebula light)
+- **Dense Gas Pockets**: 15-30 Fuel (nebula dense)
+- **Outposts**: 20-40 Metal OR 10-20 Crystals OR 15-25 Fuel (random per instance)
+
+#### B) Mining Operation Nodes (Requires speed ≤ restriction, costs fuel to deploy miners)
+- **Stars**: 30-60 Fuel (speed ≤4)
+- **Gas Giants**: 20-40 Fuel + 10-25 Crystals if rings (speed any)
+- **Rocky/Ice Planets**: 25-50 Metal OR 15-30 Crystals OR 20-35 Fuel (varied, speed ≤2)
+- **Moons**: 15-30 Metal OR 8-15 Crystals (speed ≤2)
+- **Asteroid Clusters**: 30-60 Metal + 15-30 Crystals (speed any)
+- **Comets**: 20-40 Crystals (debris field heavy only)
+
+**Mining Cost:** 5 fuel to deploy miners, 3-5 second operation time (time pauses during mining)
+
+#### C) Combat/Salvage Nodes (Rewards after interaction)
+- **Derelict Stations**: 40-80 Metal + 20-40 Crystals (salvage operation)
+- **Graveyards**: 50-100 Metal (salvage operation)
+- **Colonies**: 60-120 Crystals (after combat victory)
+- **Enemy Cities/Outposts**: 80-150 Metal + 40-80 Crystals (after combat victory)
+
+---
+
+### Node Quality Tiers (Dynamic System)
+
+Each mineable/collectable node rolls a **quality tier** when spawned:
+
+| Quality Tier | Spawn Chance | Quantity Multiplier | Visual Indicator |
+|--------------|--------------|---------------------|------------------|
+| **Poor** | 15% | 0.5x | Dim gray aura |
+| **Standard** | 50% | 1.0x | White glow |
+| **Rich** | 25% | 1.5x | Blue pulsing glow |
+| **Abundant** | 8% | 2.0x | Purple pulsing glow |
+| **Jackpot** | 2% | 3.0x | Gold radiant aura + sparkles |
+
+**Visual Representation:**
+- **Resource Aura**: Glowing circle around node matching tier color
+- **Intensity**: Brighter = better quality
+- **Particle Effects**: Jackpot nodes have floating sparkles
+
+**Formula:**
+```gdscript
+func roll_node_quality() -> Dictionary:
+    var roll := randf()
+    if roll < 0.02:
+        return {"tier": "jackpot", "multiplier": 3.0, "color": Color.GOLD}
+    elif roll < 0.10:
+        return {"tier": "abundant", "multiplier": 2.0, "color": Color.PURPLE}
+    elif roll < 0.35:
+        return {"tier": "rich", "multiplier": 1.5, "color": Color.DEEP_SKY_BLUE}
+    elif roll < 0.85:
+        return {"tier": "standard", "multiplier": 1.0, "color": Color.WHITE}
+    else:
+        return {"tier": "poor", "multiplier": 0.5, "color": Color.DIM_GRAY}
+```
+
+---
+
+### Final Resource Calculation Formula
+
+**The Master Formula:**
+
+```gdscript
+func calculate_resource_reward(node_data: Dictionary, player_speed: int, lateral_x: float, streak: int) -> Dictionary:
+    # 1. Base amount from CSV (min-max range)
+    var base_metal := randf_range(node_data.metal_min, node_data.metal_max)
+    var base_crystals := randf_range(node_data.crystals_min, node_data.crystals_max)
+    var base_fuel := randf_range(node_data.fuel_min, node_data.fuel_max)
+
+    # 2. Quality tier multiplier (rolled at spawn)
+    var quality_mult := node_data.quality_multiplier  # 0.5x to 3.0x
+
+    # 3. Speed multiplier (1.0x at speed 1, 3.25x at speed 10)
+    var speed_mult := 1.0 + (player_speed - 1) * 0.25
+
+    # 4. Position multiplier (1.0x center, 1.5x edges)
+    var position_mult := calculate_position_multiplier(lateral_x)
+
+    # 5. Streak multiplier (1.0x to 1.5x, caps at 5 streak)
+    var streak_mult := 1.0 + min(streak, 5) * 0.1
+
+    # FINAL CALCULATION
+    var final_metal := int(base_metal * quality_mult * speed_mult * position_mult * streak_mult)
+    var final_crystals := int(base_crystals * quality_mult * speed_mult * position_mult * streak_mult)
+    var final_fuel := int(base_fuel * quality_mult * speed_mult * position_mult * streak_mult)
+
+    return {
+        "metal": final_metal,
+        "crystals": final_crystals,
+        "fuel": final_fuel
+    }
+```
+
+**Example Scenarios:**
+
+**Scenario 1: Safe Beginner Play**
+- Speed 1, Center (540px), No streak, Standard asteroid (10 metal base, 1.0x quality)
+- Result: `10 × 1.0 × 1.0 × 1.0 × 1.0 = 10 metal`
+
+**Scenario 2: Risky Edge Run**
+- Speed 5, Edge (950px), 3 streak, Rich gas giant (30 fuel base, 1.5x quality)
+- Result: `30 × 1.5 × 2.0 × 1.4 × 1.3 = 164 fuel`
+
+**Scenario 3: Jackpot Greed Mode**
+- Speed 10, Edge (1050px), 5 streak, Jackpot colony (100 crystals base, 3.0x quality)
+- Result: `100 × 3.0 × 3.25 × 1.5 × 1.5 = 2194 crystals`
+
+---
+
+### CSV Schema Additions
+
+#### Updates to sector_nodes.csv
+
+**New Columns:**
+- `metal_min` (int) - Minimum metal from this node
+- `metal_max` (int) - Maximum metal from this node
+- `crystals_min` (int) - Minimum crystals from this node
+- `crystals_max` (int) - Maximum crystals from this node
+- `fuel_min` (int) - Minimum fuel from this node
+- `fuel_max` (int) - Maximum fuel from this node
+- `collection_type` (string) - How resources are collected: "instant", "mining", "combat", "salvage", "none"
+- `mining_fuel_cost` (int) - Fuel cost to deploy miners (0 if not mining)
+- `mining_duration` (float) - Seconds to complete mining operation
+
+**Example Rows:**
+```csv
+node_type,spawn_weight,collection_type,metal_min,metal_max,crystals_min,crystals_max,fuel_min,fuel_max,mining_fuel_cost,mining_duration
+asteroid,20,instant,5,15,2,8,0,0,0,0
+gas_pocket,15,instant,0,0,0,0,10,20,0,0
+star,2,mining,0,0,0,0,30,60,10,5.0
+rocky_planet,15,mining,25,50,0,0,0,0,5,3.0
+outpost,25,instant,20,40,0,0,0,0,0,0
+colony,5,combat,0,0,60,120,0,0,0,0
+graveyard,10,salvage,50,100,0,0,0,0,0,0
+```
+
+#### New CSV: resource_quality_tiers.csv
+
+Defines quality tier properties for data-driven balance tuning:
+
+```csv
+tier_name,spawn_weight,multiplier,aura_color_hex,particle_effect,audio_pitch
+poor,15,0.5,#696969,none,0.8
+standard,50,1.0,#FFFFFF,none,1.0
+rich,25,1.5,#00BFFF,pulse,1.2
+abundant,8,2.0,#9370DB,pulse_fast,1.4
+jackpot,2,3.0,#FFD700,sparkles,1.6
+```
+
+---
+
+### Balancing Guidelines
+
+#### Resource Income Targets (Per Sector)
+
+**Baseline (Safe Play - Speed 1-2, Center Lane):**
+- Metal: 200-400 per sector
+- Crystals: 100-200 per sector
+- Fuel: 150-250 per sector (net gain after jump/mining costs)
+
+**Aggressive (Risky Play - Speed 5-7, Edge Lanes, Streaks):**
+- Metal: 600-1000 per sector
+- Crystals: 400-700 per sector
+- Fuel: 300-500 per sector
+
+**Expert (Greed Mode - Speed 9-10, Edge Runs, Perfect Streaks):**
+- Metal: 1500-2500 per sector
+- Crystals: 1000-1800 per sector
+- Fuel: 600-900 per sector
+
+#### Fuel Economy Balance
+
+**Critical Constraint:** Fuel must be **ABUNDANT** at high speeds, but **TIGHT** at low speeds (to encourage risk-taking).
+
+**Fuel Sources:**
+- Gas Pockets: 10-20 fuel (instant, common spawns)
+- Stars: 30-60 fuel (mining, speed ≤4)
+- Gas Giants: 20-40 fuel (instant/mining hybrid)
+
+**Fuel Sinks:**
+- Jump: 3 fuel + 1 fuel/second charging
+- Gravity Assist: 1 fuel per use
+- Mining Operations: 5-10 fuel per deployment
+
+**Net Fuel Balance:**
+- Speed 1-2: Net +50 to +100 fuel/sector (safe surplus)
+- Speed 5-7: Net +20 to +50 fuel/sector (tight but sustainable)
+- Speed 9-10: Net -10 to +20 fuel/sector (requires perfect gas pocket collection)
+
+---
+
+### UI/UX Design
+
+#### Resource Display HUD (Top-Center)
+
+```
+┌─────────────────────────────────┐
+│  ⚙️150  💎85  ⛽45  │  x3 🔥  │
+│  +25↑  +10↑  +5↑   │  1.8x   │
+└─────────────────────────────────┘
+```
+
+**Components:**
+- **Resource Counters**: Large icons + values (Metal, Crystals, Fuel)
+- **Floating Gains**: Temporary "+X" indicators that fade after 1.5s
+- **Streak Indicator**: Fire emoji + multiplier (only visible when streak > 0)
+- **Combined Multiplier**: Shows total current multiplier (speed × position × streak × quality)
+
+#### Node Visual Indicators
+
+**Resource Aura System:**
+- Glowing circle around node matching quality tier color
+- Intensity scales with quality (dim gray → gold radiant)
+- Pulsing animation for rich/abundant/jackpot tiers
+- Particle effects (sparkles) for jackpot nodes
+
+**Resource Type Icons (Floating Above Node):**
+- Small icons show which resources this node provides
+- Size indicates base amount (larger = more resources)
+- Color matches quality tier
+
+#### Collection Feedback Animation
+
+**When Resources Collected:**
+1. **Node Effect**: Aura flashes bright white, then fades
+2. **Resource Float**: "+X Metal" text floats up from node position
+3. **Trail Animation**: Resource icons fly from node to HUD counter (0.5s duration)
+4. **Counter Update**: HUD counter animates scale (1.0x → 1.3x → 1.0x) and glows
+5. **Audio**: Satisfying "ping" sound (pitch varies by quality tier)
+
+#### Streak Visualization
+
+**Streak HUD (Bottom-Right Corner):**
+```
+┌──────────────┐
+│  STREAK x5   │
+│  ⭐⭐⭐⭐⭐  │
+│  +50% Bonus  │
+└──────────────┘
+```
+
+**Streak Warning (When About to Break):**
+- Uncollected node in proximity pulses red outline
+- Warning text: "⚠️ STREAK RISK!" appears near node
+- Audio: Low warning tone every 0.5s until collected or passed
+
+---
+
+### EventBus Signals (Resource Collection)
+
+**New Signals:**
+
+```gdscript
+# ============================================================
+# RESOURCE COLLECTION SIGNALS
+# ============================================================
+
+# Basic collection events
+signal resource_node_collected(node_id: String, resources: Dictionary, multipliers: Dictionary)
+signal mining_operation_started(node_id: String, fuel_cost: int, duration: float)
+signal mining_operation_completed(node_id: String, resources: Dictionary)
+signal mining_operation_failed(node_id: String, reason: String)
+
+# Quality tier events
+signal quality_tier_rolled(node_id: String, tier_name: String, multiplier: float)
+signal jackpot_node_spawned(node_id: String, position: Vector2)
+
+# Streak system events
+signal collection_streak_started()
+signal collection_streak_increased(streak_count: int, bonus_multiplier: float)
+signal collection_streak_broken(final_streak: int)
+signal collection_streak_warning(node_id: String)  # About to break streak
+
+# Multiplier events
+signal collection_multiplier_calculated(speed_mult: float, position_mult: float, streak_mult: float, quality_mult: float, total_mult: float)
+signal high_value_collection(total_value: int, multiplier: float)  # Triggers when collection > 100 total resources
+
+# Speed-based collection restrictions
+signal instant_collection_available(node_id: String)
+signal mining_speed_restriction_active(node_id: String, max_speed: int, current_speed: int)
+```
+
+---
+
+### Integration with Existing Systems
+
+#### Jump Mechanic Integration
+
+**Strategic Jump Targeting:**
+When player holds SPACE to charge jump, highlight resource-rich nodes in jump range and show estimated resource gain preview. Landing near high-value nodes gives brief **1.2x collection bonus** for 3 seconds after landing.
+
+#### Gravity Assist Integration
+
+**Speed Choice = Resource Strategy:**
+When approaching gravity assist node, show preview of how speed change affects resource collection:
+- Speed up → Higher multipliers but mining disabled
+- Slow down → Lower multipliers but mining enabled
+
+#### Mothership Pursuit Pressure
+
+**Resource Gamble Under Pressure:**
+As mothership distance decreases, quality tier spawn weights shift toward jackpot/abundant:
+
+| Mothership Distance | Jackpot Chance | Abundant Chance | Risk Factor |
+|---------------------|----------------|-----------------|-------------|
+| > 2000px | 2% | 8% | Safe zone |
+| 1000-2000px | 4% | 12% | Warning zone |
+| 500-1000px | 6% | 16% | Danger zone |
+| < 500px | 10% | 20% | Desperation mode |
+
+**Design Intent:** "The mothership is almost here, but these jackpot nodes could save your run..."
+
+#### Alien Sweep Integration
+
+**"Dodge for Bonus" Mechanic:**
+- If player narrowly dodges an alien sweep (< 50px distance), next collected node gets **1.3x multiplier**
+- **"Risk Master" achievement**: Dodge 5 sweeps in a row and collect nodes = 2.0x multiplier for 10 seconds
+- Visual feedback: Golden glow around player ship after dodge
+
+---
+
+### Resource Collection Example Play Scenarios
+
+#### Scenario A: The Safe Farmer (Beginner Strategy)
+
+**Setup:** Speed 1-2 (slow), Center lane (540px), Mine everything, build streak slowly
+
+**Resource Income (per sector):**
+- 10 asteroids × 10 metal × 1.0x = 100 metal
+- 5 planets × 40 metal × 1.0x (mining) = 200 metal
+- 8 gas pockets × 15 fuel × 1.0x = 120 fuel
+- **Total: 300 metal, 120 fuel** (safe but slow)
+
+**Pros:** Low risk, consistent income, fuel surplus
+**Cons:** Low multipliers, mothership catches up, slow progression
+
+#### Scenario B: The Edge Runner (Intermediate Strategy)
+
+**Setup:** Speed 5-6 (fast), Edge lanes (100px or 980px), Jump to opposite edge, Maintain streak
+
+**Resource Income (per sector):**
+- 15 asteroids × 12 metal × 2.0x × 1.4x × 1.3x = 655 metal
+- 10 gas pockets × 18 fuel × 2.0x × 1.4x × 1.3x = 655 fuel
+- 3 outposts × 35 crystals × 2.0x × 1.4x × 1.3x = 382 crystals
+- **Total: 655 metal, 382 crystals, 655 fuel**
+
+**Pros:** High multipliers, exciting gameplay, great resource income
+**Cons:** High fuel burn (jumps), streak risk, mothership pressure
+
+#### Scenario C: The Greed Specialist (Expert Strategy)
+
+**Setup:** Speed 9-10 (extreme), Edge lanes, Perfect jump timing, 5-stack streak, Chase jackpot nodes
+
+**Resource Income (per sector):**
+- 1 jackpot colony × 100 crystals × 3.0x × 3.25x × 1.5x × 1.5x = 2194 crystals
+- 5 rich asteroids × 13 metal × 1.5x × 3.25x × 1.5x × 1.5x = 712 metal
+- 8 gas pockets × 18 fuel × 3.25x × 1.5x × 1.5x = 1183 fuel
+- **Total: 712 metal, 2194 crystals, 1183 fuel** (if survives)
+
+**Pros:** Massive resource gains, maximum efficiency
+**Cons:** Emergency wormhole imminent, alien sweeps frequent, streak fragile, one mistake = run over
+
+---
+
+### Implementation Status
+
+**Status:** ⚠️ Design complete, awaiting implementation
+
+**Required Components:**
+1. CSV updates (sector_nodes.csv resource columns, resource_quality_tiers.csv)
+2. Quality tier rolling system at node spawn
+3. Resource calculation function with multiplier stacking
+4. Collection animation system (aura effects, floating text, trails)
+5. Streak tracking in GameState
+6. UI components (streak HUD, multiplier display, resource counter updates)
+7. EventBus signal integration
+8. Balance tuning based on playtesting
 
 ---
 
@@ -557,10 +1095,10 @@ Three randomly selected backgrounds per sector (tiled infinitely):
   - Rocky/Ice Planets: ±0.1x (weak effect)
 - Speed persists until next gravity assist adjustment
 - Available near gravitationally significant objects (CSV `gravity_assist: yes`)
-- Three choices in proximity popup: **Faster** (+multiplier), **Slower** (-multiplier), **Same** (no change)
-- **Dynamic control lockout**: 0.5 seconds per 0.1 multiplier (0.1x→0.5s, 0.2x→1.0s, 0.4x→2.0s)
-- Ship impulse: Pushed toward node (faster) or away from node (slower)
-- Lockout ends when: (1) proximity exit OR (2) timer expires (whichever first)
+- [DISABLED] Three choices in proximity popup: **Faster** (+multiplier), **Slower** (-multiplier), **Same** (no change)
+- [DISABLED] **Dynamic control lockout**: 0.5 seconds per 0.1 multiplier (0.1x→0.5s, 0.2x→1.0s, 0.4x→2.0s)
+- [DISABLED] Ship impulse: Pushed toward node (faster) or away from node (slower)
+- [DISABLED] Lockout ends when: (1) proximity exit OR (2) timer expires (whichever first)
 - **Default speed**: 2.0x (changed from 1.0x for better pacing)
 - **Development controls**: W/S keys adjust speed in 0.1x increments
 
@@ -758,13 +1296,15 @@ Aliens periodically launch **encounter patterns** - formations of ships that fly
 - **Release**: Ship gradually returns to centered lateral position
 - **Speed Impact**: Faster speed = slower lateral response (harder to maneuver)
 
-### Proximity Node Popup
-- **Trigger**: Ship passes within interaction radius of node (150-200 pixels)
-- **Behavior**: **Time pauses completely** when popup appears
-- **Options Display**: Shows node-specific options (e.g., "Mine Resources", "Engage", "Ignore")
-- **Selection**: Tap option to activate, or tap "Continue" to dismiss
-- **Resume**: Time resumes when popup is dismissed
-- **gravity Assisst options for large objects** Instead of having a continue button, you can choose to speed up, slow down or stay the same speed. However, this locks your movement in one direction for one second when resuming. 
+### Proximity Node Popup [DISABLED]
+- **Trigger**: Ship passes within interaction radius of node (150-200 pixels) - **Detection active, popups disabled**
+- **Behavior**: Proximity detection still works, but popups no longer appear automatically
+- **System Intact**: All popup UI and functionality preserved for potential future re-enablement
+- **Current State**: Players pass through nodes without interruption
+- ~~**Options Display**: Shows node-specific options (e.g., "Mine Resources", "Engage", "Ignore")~~
+- ~~**Selection**: Tap option to activate, or tap "Continue" to dismiss~~
+- ~~**Resume**: Time resumes when popup is dismissed~~
+- ~~**gravity Assisst options for large objects** Instead of having a continue button, you can choose to speed up, slow down or stay the same speed. However, this locks your movement in one direction for one second when resuming.~~ 
 
 ### Jump Button (Emergency Dash)
 - **Location**: UI overlay (bottom-right)
@@ -801,14 +1341,14 @@ Shows current speed multiplier
 - **Jump Button** (Bottom-Right): "Jump (10 Fuel) [Cooldown: 8s]"
 - **Gravity Assist Button** (Bottom-Left): "Speed Adjust (1 Fuel)"
 
-### Proximity Node Popup (Center, automatic)
+### Proximity Node Popup (Center, automatic) [DISABLED]
 ```
 [Node Type Icon]
 Node Type Name
 ---
 [Action 1] [Action 2] [Continue]
 ```
-(Time pauses while popup is visible)
+**NOTE**: Popup system currently disabled - proximity detection works but popups don't appear
 
 ---
 
@@ -1188,12 +1728,12 @@ var progression = DataManager.get_sector_progression(current_sector)
 - [ ] Speed multiplier persists until next gravity assist
 - [ ] Only available near gravitational objects
 
-### Proximity Node Interaction
-- [ ] Popup appears when within 150-200px of node
-- [ ] **Time pauses completely** when popup visible
-- [ ] Node-specific options display correctly
-- [ ] "Continue" option dismisses popup
-- [ ] Time resumes when popup dismissed
+### Proximity Node Interaction [DISABLED]
+- [x] Proximity detection works when within 150-200px of node
+- [ ] ~~**Time pauses completely** when popup visible~~ (popups disabled)
+- [ ] ~~Node-specific options display correctly~~ (popups disabled)
+- [ ] ~~"Continue" option dismisses popup~~ (popups disabled)
+- [ ] ~~Time resumes when popup dismissed~~ (popups disabled)
 
 ### Mothership Pursuit
 - [ ] Mothership spawns behind player at calculated distance
@@ -1239,7 +1779,7 @@ var progression = DataManager.get_sector_progression(current_sector)
 ## Common Implementation Pitfalls
 
 1. **Don't forget procedural spawning** - Nodes must spawn ahead and despawn behind
-2. **Don't pause time incorrectly** - Only node proximity popups pause time, not other systems
+2. ~~**Don't pause time incorrectly** - Only node proximity popups pause time, not other systems~~ (popups disabled)
 3. **Don't skip fuel AND cooldown validation** - Jump requires both fuel and no active cooldown
 4. **Don't exceed 300 lines** - Break SectorManager into multiple autoloads if needed (e.g., AlienSweepManager)
 5. **Don't test on desktop only** - Swipe controls are fundamentally different from mouse
@@ -1266,7 +1806,7 @@ var progression = DataManager.get_sector_progression(current_sector)
 4. Gravity assist implementation (speed up/down, 1 fuel)
 
 ### Phase 2c: Procedural Node System (HIGH)
-1. BaseNode component (proximity detection, time pause on popup)
+1. BaseNode component (proximity detection, ~~time pause on popup~~ popups disabled)
 2. Node spawning ahead of player (2000-3000px)
 3. Node despawning behind player (500px)
 4. Wormhole nodes (periodic spawning)

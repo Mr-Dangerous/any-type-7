@@ -25,6 +25,7 @@ SectorManager="*res://scripts/autoloads/SectorManager.gd"
 SpeedVisionManager="*res://scripts/autoloads/SpeedVisionManager.gd"
 EnvironmentManager="*res://scripts/autoloads/EnvironmentManager.gd"
 IndicatorManager="*res://scripts/autoloads/IndicatorManager.gd"
+DebugManager="*res://scripts/autoloads/DebugManager.gd"
 GDAIMCPRuntime="*res://addons/gdai-mcp-plugin-godot/gdai_mcp_runtime.gd"
 
 [display]

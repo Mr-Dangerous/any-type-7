@@ -6,14 +6,17 @@
 
 **Design Reference**: See `/docs/sector-exploration-module.md` for complete design specifications (1,324 lines)
 
-**Status**: 🚧 **IN PROGRESS** - Core systems implemented, testing and iteration phase
+**Status**: 🚧 **IN PROGRESS** - Core systems complete, ready for node function implementation
 
-**Current Progress** (Updated 2025-01-28):
+**Current Progress** (Updated 2025-01-30):
 - ✅ **Phase 2a Complete**: Infinite scrolling, player ship, grid background
-- ✅ **Phase 2b Complete**: Swipe controls, gravity assist, W/S speed controls
-- ✅ **Phase 2c In Progress**: Node spawning, proximity detection, popup system
-- ⏳ Phase 2d: Alien encounter patterns (not started)
-- ⏳ Phase 2e: Mothership pursuit (not started)
+- ✅ **Phase 2b Complete**: Simplified movement system (modular architecture)
+- ✅ **Phase 2c Complete**: Boost, brake, jump, gravity assist systems
+- ✅ **Phase 2d Complete**: Node spawning, orbiters, proximity detection
+- ✅ **Phase 2e Complete**: Tractor beam debris collection system
+- ⏳ Phase 2f: Resource collection mechanics (mining, trading)
+- ⏳ Phase 2g: Alien encounter patterns (not started)
+- ⏳ Phase 2h: Mothership pursuit (not started)
 
 **Dependencies**:
 - ✅ Phase 1 complete (EventBus, DataManager, GameState, ResourceManager)
@@ -27,25 +30,58 @@
 ## 🎮 Implemented Systems Summary
 
 ### ✅ Completed Features
-1. **Infinite Scrolling Grid System** - 3-tile looping background, smooth scrolling
-2. **Player Ship Control** - Fixed Y position (1950), lateral movement only (30-1050px)
-3. **Heavy Momentum Physics** - Smooth acceleration/deceleration with auto-centering
-4. **Swipe & Keyboard Controls** - Touch/mouse swipe + WASD testing controls
-5. **Speed Control** - W/S keys adjust speed in 0.1x increments (default 2.0x)
-6. **CSV-Driven Node Spawning** - Weighted random selection, 1-3 nodes per 800px
-7. **Proximity Detection System** - Area2D collision, time-pausing popups
-8. **Gravity Assist Integration** - CSV multipliers (0.1x, 0.2x, 0.4x) with dynamic UI
-9. **Control Lockout System** - Dynamic timer (0.5s per 0.1 multiplier) + proximity unlock
-10. **Mobile-Optimized UI** - Large fonts (44-72px), PNG icons, 220x100px panels
-11. **Orbiting Node System** - Moons, asteroids, stations orbit planets (dynamic from orbit=TRUE CSV nodes)
-12. **Jump Mechanic** ✨ **NEW** - Charge-based lateral teleport with pulsing indicator:
-    - Hold SPACE to charge (3 fuel start + 1 fuel/sec)
-    - Min 100px, +100px per second charge
-    - Dynamic direction (always toward opposite side of center)
-    - Pulsing visual indicator shows landing position
-    - 360° spin animation (0.5s), then teleport
-    - 10-second cooldown
-13. **Global IndicatorManager** ✨ **NEW** - Unified visual feedback system for all modules
+
+#### **Core Architecture (Modular Design)**
+1. **sector_map.gd** (380 lines) - Main coordinator for all systems
+2. **scrolling_system.gd** (88 lines) - Grid scrolling, speed management
+3. **player_movement.gd** (129 lines) - Simple lateral physics
+4. **boost_system.gd** (113 lines) - Speed increase with gravity multiplier
+5. **brake_system.gd** (97 lines) - Speed decrease, free in gravity zones
+6. **gravity_system.gd** (115 lines) - Gravity zone tracking, visual feedback
+7. **jump_system.gd** (246 lines) - Charge-based teleport with cooldown
+8. **node_spawner.gd** (474 lines) - Procedural generation, orbiters, tractor beam integration
+9. **tractor_beam_system.gd** (167 lines) - Debris collection via tractor beam lock
+
+#### **Movement & Controls**
+- **Infinite Scrolling** - 3-tile looping grid (2340px height each)
+- **Fixed Player Y** - Ship at Y=1950, lateral movement only (30-1050px)
+- **Simple Lateral Physics** - Clean acceleration/deceleration, no complex bow swing
+- **Swipe Controls** - Touch/mouse drag for lateral movement
+- **Keyboard Controls** - A/D for left/right, Shift/S for boost/brake, Space for jump
+
+#### **Speed Control Systems**
+- **Boost (Shift)** - +0.1x/sec, costs 1 fuel/sec, multiplied by gravity zones
+- **Brake (S)** - -0.2x/sec, costs 0.5 fuel/sec, FREE in gravity zones
+- **Jump (Space)** - Charge-based teleport, 3 fuel + 1/sec, 10s cooldown with visual indicator
+- **Speed Range** - 1.0x minimum, 10.0x maximum
+
+#### **Gravity Assist System**
+- **Green Zone Visuals** - Proximity radius outlines appear when boosting
+- **Boost Multiplier** - CSV-driven (2x, 3x, 4x) multiplies boost gain
+- **Free Braking** - No fuel cost when braking in gravity zones
+- **Zone Detection** - Real-time tracking via gravity_system
+
+#### **Node Systems**
+- **CSV-Driven Spawning** - Weighted random, 1-3 nodes per 800px
+- **Orbiting Nodes** - Moons, asteroids orbit planets (orbit=TRUE nodes)
+- **Proximity Detection** - Area2D collision (popups DISABLED but system functional)
+- **29+ Node Types** - All spawn cases and environmental bands
+
+#### **Tractor Beam Collection System**
+- **Debris Collection** - Asteroids collected via tractor beam (not proximity)
+- **Beam Lock Range** - 100px activation range
+- **Pull Duration** - 2.0 seconds to collect
+- **Simultaneous Beams** - 3 max active at once
+- **Visual Feedback** - Cyan tint on locked debris
+- **Passive Attraction** - Disabled (0px range), potential future upgrade
+- **Debug Controls** - 5 tunable parameters (range, speed, duration, count)
+
+#### **Visual Feedback**
+- **IndicatorManager** - Global singleton for all visual indicators
+- **Jump Indicator** - Yellow pulsing dot shows landing position
+- **Cooldown Indicator** - Orange circular progress over ship (10s)
+- **Gravity Zones** - Green outlines around gravity nodes when boosting
+- **Mobile-Optimized UI** - Large fonts, PNG icons, 220x100px panels
 
 ### 🎯 Fine-Tuned Adjustments
 - **Default Speed**: 2.0x (was 1.0x) - Better pacing for mobile
@@ -55,12 +91,19 @@
 - **UI Sizing**: All elements 2-3x larger for mobile visibility
 - **Resource Icons**: PNG images instead of emojis
 
-### ⏳ Remaining Work
-- Resource gathering mechanics (mining nodes, resource rewards)
-- Combat trigger nodes (alien colonies, artifact vaults)
-- Wormhole sector exit functionality
-- Alien encounter patterns (Phase 2d)
-- Mothership pursuit system (Phase 2e)
+### ⏳ Future Work: Phase 2f - Resource Collection
+- **Mining Nodes** - Long-press interaction, resource extraction
+- **Trading Nodes** - Shop interface, buy/sell mechanics
+- **Outpost Nodes** - Instant resource grants
+- **Combat Nodes** - Trigger transition to combat module
+- **Treasure Nodes** - Loot collection, blueprint drops
+- **Wormhole Nodes** - Sector transition, progression tracking
+
+### ⏳ Future Work: Phase 2g-h
+- **Phase 2g**: Alien encounter patterns (horizontal, diagonal, pincer, wave)
+- **Phase 2h**: Mothership pursuit system (distance-based spawning, acceleration)
+- **Polish**: Sound effects, particle effects, screen shake
+- **Testing**: Mobile touch controls, performance optimization
 
 ---
 
@@ -895,28 +938,800 @@ Phase 2 is complete when:
 
 ---
 
+## 🚀 Phase 2e: Node Functions Implementation
+
+### Overview
+Implement actual interactions with nodes when player passes through their proximity zones. Each node type will have specific behaviors (mining, trading, combat triggers, etc.).
+
+### Architecture Approach
+Create individual node interaction systems:
+- **interaction_manager.gd** - Coordinator for all node interactions
+- **mining_interaction.gd** - Mining node logic (long-press, resource extraction)
+- **trading_interaction.gd** - Shop interface, buy/sell
+- **combat_trigger.gd** - Transition to combat module
+- Keep each system under 300 lines
+
+### Node Types to Implement
+
+#### 1. **Mining Nodes** (asteroid, comet, debris_field)
+- **Interaction**: Long-press on node
+- **Mechanic**: Resource extraction (metal, crystals)
+- **CSV Data**: `min_resources`, `max_resources`
+- **Speed Requirement**: Must be below threshold (e.g., ≤3.0x) via SpeedVisionManager
+- **UI**: Mining progress bar, resource counter
+
+#### 2. **Outpost Nodes** (outpost, colony)
+- **Interaction**: Automatic on proximity
+- **Mechanic**: Instant resource grant
+- **One-time**: Mark as used, change visual
+- **CSV Data**: Fixed rewards
+
+#### 3. **Trading Nodes** (trader, merchant_station)
+- **Interaction**: Tap to open shop
+- **Mechanic**: Buy/sell interface
+- **UI**: Item list, prices, confirm buttons
+- **Pause**: Time pauses during shop
+
+#### 4. **Combat Trigger Nodes** (alien_colony, artifact_vault, derelict_station)
+- **Interaction**: Automatic or tap
+- **Mechanic**: Transition to combat module
+- **CSV Data**: `combat_chance` (0-100%)
+- **Signal**: `EventBus.combat_triggered.emit(scenario_id)`
+
+#### 5. **Treasure Nodes** (salvage, cache, vault)
+- **Interaction**: Tap to loot
+- **Mechanic**: Random loot table
+- **Rewards**: Blueprints, relics, resources
+- **Visual**: Sparkle effect, open animation
+
+#### 6. **Wormhole Nodes** (wormhole)
+- **Interaction**: Tap to confirm transition
+- **Mechanic**: Save game, increment sector, respawn mothership
+- **UI**: Confirmation dialog ("Leave Sector 3?")
+- **Effect**: Transition to next sector
+
+### Implementation Tasks
+
+#### Task 1: Interaction Manager Setup
+```gdscript
+# interaction_manager.gd
+- Track active interactions
+- Route node activations to appropriate handlers
+- Manage interaction UI overlays
+- Coordinate with SpeedVisionManager for speed checks
+```
+
+#### Task 2: Mining System
+- Create mining UI (progress bar, resource display)
+- Implement long-press detection (touch/mouse)
+- Extract resources based on CSV data
+- Add to ResourceManager on completion
+- Visual feedback (particle effects, node depletion)
+
+#### Task 3: Trading System
+- Create shop UI scene
+- Load trader inventory from CSV
+- Implement buy/sell logic
+- Update ResourceManager on transactions
+- Pause game during shop
+
+#### Task 4: Combat Triggers
+- Implement combat transition flow
+- Emit EventBus signals with scenario data
+- (Combat module implementation is Phase 3)
+
+#### Task 5: Loot System
+- Create loot table system
+- Random blueprint/relic drops
+- Loot collection UI
+- Add to GameState inventory
+
+#### Task 6: Wormhole Transitions
+- Confirmation dialog UI
+- Save game state
+- Increment sector in GameState
+- Respawn system (clear nodes, reset distance)
+- Update mothership spawn distance
+
+### EventBus Signals (Node Interactions)
+
+```gdscript
+# Mining
+signal mining_started(node_id: String)
+signal mining_progress(node_id: String, progress: float)
+signal mining_completed(node_id: String, resources: Dictionary)
+signal mining_cancelled(node_id: String)
+
+# Trading
+signal trading_opened(node_id: String, trader_data: Dictionary)
+signal trading_closed(node_id: String)
+signal item_purchased(item_id: String, cost: Dictionary)
+signal item_sold(item_id: String, value: Dictionary)
+
+# Combat
+signal combat_triggered(node_id: String, scenario_id: String)
+
+# Loot
+signal loot_collected(node_id: String, items: Array)
+
+# Wormhole
+signal wormhole_entered(current_sector: int, next_sector: int)
+signal sector_transition_complete(new_sector: int)
+```
+
+### Testing Checklist
+
+- [ ] Mining nodes grant correct resources
+- [ ] Speed restriction prevents fast mining
+- [ ] Long-press vs tap correctly differentiated
+- [ ] Trading UI shows correct prices
+- [ ] Purchases/sales update ResourceManager
+- [ ] Combat triggers emit correct signals
+- [ ] Loot tables generate appropriate rewards
+- [ ] Wormhole transitions save game state
+- [ ] Sector increments correctly
+- [ ] All interactions work on touch devices
+
+---
+
+## 🎁 Phase 2f: Resource Collection System Implementation
+
+### Overview
+
+Implement the **multi-layered resource collection system** that transforms sector navigation into strategic risk-reward gameplay. Resources are collected automatically on proximity pass with dynamic yields based on speed, positioning, streaks, and node quality.
+
+**Design Reference**: `/docs/sector-exploration-module.md` lines 463-952 (Resource Collection System)
+
+**Status**: ⏳ **NOT STARTED** - Design complete, awaiting implementation
+
+### Core Mechanics Summary
+
+**Auto-Collection System:**
+- Resources collected automatically when player passes within proximity radius
+- No manual tapping required (mobile-optimized)
+- Visual feedback: Floating text, trail animation to HUD, audio ping
+
+**Dynamic Multiplier System:**
+1. **Speed Multiplier** - 1.0x at speed 1, up to 3.25x at speed 10
+2. **Position Multiplier** - 1.0x at center (540px), 1.5x at edges (0px/1080px)
+3. **Streak Multiplier** - +10% per streak level (max 5 stacks = +50%)
+4. **Quality Tier Multiplier** - 0.5x (poor) to 3.0x (jackpot)
+
+**Final Formula:**
+```gdscript
+final_resources = base_amount × quality × speed × position × streak
+```
+
+---
+
+### Implementation Tasks
+
+#### Task 1: CSV Database Updates
+
+**File**: `/data/sector_nodes.csv`
+
+**Add Columns:**
+- `metal_min` / `metal_max` - Metal resource range
+- `crystals_min` / `crystals_max` - Crystal resource range
+- `fuel_min` / `fuel_max` - Fuel resource range
+- `collection_type` - "instant", "mining", "combat", "salvage", "none"
+- `mining_fuel_cost` - Fuel cost to deploy miners (0 if not mining)
+- `mining_duration` - Seconds to complete mining operation
+
+**Create New File**: `/data/resource_quality_tiers.csv`
+
+```csv
+tier_name,spawn_weight,multiplier,aura_color_hex,particle_effect,audio_pitch
+poor,15,0.5,#696969,none,0.8
+standard,50,1.0,#FFFFFF,none,1.0
+rich,25,1.5,#00BFFF,pulse,1.2
+abundant,8,2.0,#9370DB,pulse_fast,1.4
+jackpot,2,3.0,#FFD700,sparkles,1.6
+```
+
+**Success Criteria:**
+- [ ] sector_nodes.csv has resource columns populated for all 29+ node types
+- [ ] resource_quality_tiers.csv created with 5 tiers
+- [ ] DataManager.gd loads both CSV files correctly
+- [ ] Query functions: `get_node_resource_data()`, `get_quality_tier_data()`
+
+---
+
+#### Task 2: Quality Tier System
+
+**File**: New `scripts/systems/resource_quality_system.gd` (~80 lines)
+
+**Responsibilities:**
+- Roll quality tier when node spawns (weighted random from CSV)
+- Return tier data (name, multiplier, color, particle effect, audio pitch)
+- Apply quality-based visual effects to nodes
+
+**Functions:**
+```gdscript
+func roll_quality_tier() -> Dictionary
+func get_tier_color(tier_name: String) -> Color
+func get_tier_multiplier(tier_name: String) -> float
+```
+
+**Success Criteria:**
+- [ ] Quality tier rolls on node spawn
+- [ ] 2% jackpot, 8% abundant, 25% rich, 50% standard, 15% poor (CSV weights)
+- [ ] Tier data cached per node instance
+- [ ] EventBus signal: `quality_tier_rolled(node_id, tier_name, multiplier)`
+
+---
+
+#### Task 3: Resource Calculation System
+
+**File**: New `scripts/systems/resource_calculator.gd` (~120 lines)
+
+**Responsibilities:**
+- Calculate final resource amounts using master formula
+- Track player streak counter
+- Calculate speed/position/streak multipliers
+- Return final resource dictionary
+
+**Master Formula Implementation:**
+```gdscript
+func calculate_resource_reward(
+    node_data: Dictionary,
+    player_speed: float,
+    lateral_x: float,
+    streak: int,
+    quality_multiplier: float
+) -> Dictionary:
+    # 1. Base amount from CSV
+    var base_metal := randf_range(node_data.metal_min, node_data.metal_max)
+    var base_crystals := randf_range(node_data.crystals_min, node_data.crystals_max)
+    var base_fuel := randf_range(node_data.fuel_min, node_data.fuel_max)
+
+    # 2. Speed multiplier
+    var speed_mult := 1.0 + (player_speed - 1.0) * 0.25
+
+    # 3. Position multiplier
+    var center := 540.0
+    var distance_from_center := abs(lateral_x - center)
+    var position_mult := 1.0 + (distance_from_center / 540.0) * 0.5
+
+    # 4. Streak multiplier
+    var streak_mult := 1.0 + min(streak, 5) * 0.1
+
+    # 5. Final calculation
+    return {
+        "metal": int(base_metal * quality_multiplier * speed_mult * position_mult * streak_mult),
+        "crystals": int(base_crystals * quality_multiplier * speed_mult * position_mult * streak_mult),
+        "fuel": int(base_fuel * quality_multiplier * speed_mult * position_mult * streak_mult)
+    }
+```
+
+**Success Criteria:**
+- [ ] Formula matches design spec exactly
+- [ ] Speed multiplier: 1.0x at speed 1, 3.25x at speed 10
+- [ ] Position multiplier: 1.0x at center, 1.5x at edges
+- [ ] Streak multiplier: 1.0x to 1.5x (caps at 5)
+- [ ] All multipliers stack correctly
+
+---
+
+#### Task 4: Collection Streak System
+
+**File**: Add to `scripts/autoloads/GameState.gd` (~40 lines)
+
+**New Variables:**
+```gdscript
+var collection_streak: int = 0
+var streak_active: bool = false
+var last_collectable_node_passed: bool = true
+```
+
+**Functions:**
+```gdscript
+func increment_streak() -> void
+func break_streak() -> void
+func get_streak_multiplier() -> float
+func check_streak_risk(node_in_range: bool) -> void
+```
+
+**Streak Rules:**
+- Increment when collecting any collectable node
+- Break when missing a collectable node in proximity range
+- Persist between sectors
+- Reset on combat or death
+
+**Success Criteria:**
+- [ ] Streak increments on collection
+- [ ] Streak breaks when missing nodes
+- [ ] Streak persists between sectors
+- [ ] EventBus signals: `collection_streak_increased()`, `collection_streak_broken()`
+- [ ] Streak warning when about to break
+
+---
+
+#### Task 5: Visual Feedback System
+
+**File**: Enhance `scripts/autoloads/IndicatorManager.gd` (~80 lines added)
+
+**New Systems:**
+
+**A) Resource Aura System**
+- Glowing circle around node matching quality tier color
+- Pulsing animation for rich/abundant/jackpot tiers
+- Particle effects (sparkles) for jackpot nodes
+
+**B) Collection Animation**
+```gdscript
+func play_collection_animation(node_pos: Vector2, resources: Dictionary, quality_tier: Dictionary):
+    # 1. Flash node aura white
+    # 2. Spawn floating "+X Metal" text
+    # 3. Spawn trail particles from node to HUD
+    # 4. Animate HUD counter scale/glow
+    # 5. Play audio ping (pitch varies by tier)
+```
+
+**C) Node Aura Rendering**
+```gdscript
+func apply_resource_aura(node: Node2D, quality_tier: Dictionary, resources: Dictionary):
+    var aura := Sprite2D.new()
+    aura.modulate = quality_tier.color
+    aura.scale = Vector2(1.0, 1.0) * quality_tier.multiplier
+
+    # Pulsing tween
+    var tween := create_tween().set_loops()
+    tween.tween_property(aura, "scale", Vector2(1.2, 1.2), 0.5)
+    tween.tween_property(aura, "scale", Vector2(1.0, 1.0), 0.5)
+
+    node.add_child(aura)
+```
+
+**Success Criteria:**
+- [ ] Quality auras visible on all collectable nodes
+- [ ] Colors match tier (gray/white/blue/purple/gold)
+- [ ] Pulsing animation for rich+ tiers
+- [ ] Jackpot nodes have sparkle particles
+- [ ] Collection animation plays on proximity pass
+- [ ] Floating text shows resource amounts
+- [ ] Trail animation from node to HUD
+- [ ] Audio pitch varies by tier quality
+
+---
+
+#### Task 6: UI Components
+
+**File**: Update `scenes/sector_exploration/sector_map.tscn` + UI scripts
+
+**New UI Elements:**
+
+**A) Enhanced Resource Display (Top-Center)**
+```
+┌─────────────────────────────────┐
+│  ⚙️150  💎85  ⛽45  │  x3 🔥  │
+│  +25↑  +10↑  +5↑   │  1.8x   │
+└─────────────────────────────────┘
+```
+
+**Components:**
+- Resource counters with animated "+X" gains (fade after 1.5s)
+- Streak indicator (fire emoji + count, only visible when streak > 0)
+- Combined multiplier display (speed × position × streak × quality)
+
+**B) Streak HUD (Bottom-Right)**
+```
+┌──────────────┐
+│  STREAK x5   │
+│  ⭐⭐⭐⭐⭐  │
+│  +50% Bonus  │
+└──────────────┘
+```
+
+**Success Criteria:**
+- [ ] Resource counters update on collection
+- [ ] "+X" floating gains appear and fade
+- [ ] Streak HUD only visible when streak > 0
+- [ ] Multiplier display shows total multiplier
+- [ ] All text large enough for mobile (48-72px)
+- [ ] PNG icons for resources
+
+---
+
+#### Task 7: Auto-Collection System
+
+**File**: Add to `scenes/sector_exploration/sector_map.gd` (~60 lines)
+
+**Implementation:**
+- Monitor proximity detection for all collectable nodes
+- When player passes within proximity radius, trigger collection
+- Calculate resources using ResourceCalculator
+- Add resources to ResourceManager
+- Play collection animation
+- Update streak counter
+
+**Proximity Collection Logic:**
+```gdscript
+func _on_node_proximity_entered(node_id: String, node_type: String) -> void:
+    var node_data := DataManager.get_node_config(node_type)
+
+    # Check if node is collectable
+    if node_data.collection_type in ["instant", "mining"]:
+        # Calculate resources
+        var quality_tier := node.quality_tier_data
+        var resources := ResourceCalculator.calculate_resource_reward(
+            node_data,
+            current_speed_multiplier,
+            player_lateral_position,
+            GameState.collection_streak,
+            quality_tier.multiplier
+        )
+
+        # Collect resources
+        ResourceManager.add_metal(resources.metal, "node_collection")
+        ResourceManager.add_crystals(resources.crystals, "node_collection")
+        ResourceManager.add_fuel(resources.fuel, "node_collection")
+
+        # Update streak
+        GameState.increment_streak()
+
+        # Play animation
+        IndicatorManager.play_collection_animation(node.position, resources, quality_tier)
+
+        # Emit signal
+        EventBus.resource_node_collected.emit(node_id, resources, {
+            "speed": speed_multiplier,
+            "position": position_multiplier,
+            "streak": streak_multiplier,
+            "quality": quality_tier.multiplier
+        })
+```
+
+**Success Criteria:**
+- [ ] Collection triggers on proximity pass (no manual tapping)
+- [ ] Resources calculated correctly with all multipliers
+- [ ] ResourceManager updated immediately
+- [ ] Streak increments on collection
+- [ ] Collection animation plays
+- [ ] EventBus signal emitted with multiplier data
+
+---
+
+#### Task 8: Mining Speed Restrictions
+
+**File**: Integration with existing mining system
+
+**Restrictions:**
+- Speed 1-2: Can mine all nodes
+- Speed 3-4: Can only mine planets (not asteroids/clusters)
+- Speed 5+: Cannot mine (instant collection only)
+
+**Implementation:**
+```gdscript
+func can_mine_node(node_type: String, current_speed: float) -> bool:
+    var node_data := DataManager.get_node_config(node_type)
+
+    if node_data.collection_type != "mining":
+        return false
+
+    # Check speed restrictions
+    if current_speed >= 5.0:
+        return false  # Too fast for any mining
+
+    if current_speed >= 3.0:
+        # Can only mine planets at medium speed
+        return node_type in ["star", "gas_giant", "rocky_planet", "ice_planet", "moon"]
+
+    return true  # Can mine everything at low speed
+```
+
+**Success Criteria:**
+- [ ] Mining disabled at speed 5+
+- [ ] Asteroid/cluster mining disabled at speed 3-4
+- [ ] Planet mining allowed at speed 3-4
+- [ ] All mining allowed at speed 1-2
+- [ ] UI shows restriction message when too fast
+- [ ] EventBus signal: `mining_speed_restriction_active()`
+
+---
+
+#### Task 9: Integration with Existing Systems
+
+**A) Jump Mechanic Integration**
+
+**Landing Bonus:**
+- Landing near high-value nodes gives 1.2x collection bonus for 3 seconds
+- Highlight resource-rich nodes in jump range during charge
+- Show estimated resource gain preview
+
+**B) Gravity Assist Integration**
+
+**Speed Preview:**
+- Show how speed change affects resource collection multipliers
+- Display warning when speeding up will disable mining
+- Show benefit of slowing down for mining access
+
+**C) Mothership Pursuit Pressure**
+
+**Quality Tier Shift:**
+```gdscript
+func get_quality_spawn_weights(mothership_distance: float) -> Dictionary:
+    var base_weights := {
+        "poor": 15,
+        "standard": 50,
+        "rich": 25,
+        "abundant": 8,
+        "jackpot": 2
+    }
+
+    # Increase rare spawns as mothership gets closer
+    if mothership_distance < 500:
+        base_weights.jackpot = 10  # 5x normal
+        base_weights.abundant = 20  # 2.5x normal
+    elif mothership_distance < 1000:
+        base_weights.jackpot = 6
+        base_weights.abundant = 16
+    elif mothership_distance < 2000:
+        base_weights.jackpot = 4
+        base_weights.abundant = 12
+
+    return base_weights
+```
+
+**D) Alien Sweep Integration**
+
+**Dodge Bonus:**
+- Narrow dodge (< 50px) gives 1.3x multiplier on next collection
+- 5 consecutive dodges + collections = 2.0x multiplier for 10 seconds
+- Visual feedback: Golden glow around ship after dodge
+
+**Success Criteria:**
+- [ ] Jump landing bonus works
+- [ ] Jump charge shows resource preview
+- [ ] Gravity assist shows speed impact on resources
+- [ ] Mothership distance affects quality spawn rates
+- [ ] Alien dodge bonus applies correctly
+- [ ] All integrations have visual feedback
+
+---
+
+#### Task 10: Balancing & Tuning
+
+**File**: CSV updates based on playtesting
+
+**Resource Income Targets (Per Sector):**
+
+| Strategy | Speed | Position | Streak | Metal | Crystals | Fuel |
+|----------|-------|----------|--------|-------|----------|------|
+| Safe Farmer | 1-2 | Center | 0-2 | 200-400 | 100-200 | 150-250 |
+| Edge Runner | 5-6 | Edges | 3-5 | 600-1000 | 400-700 | 300-500 |
+| Greed Specialist | 9-10 | Edges | 5 | 1500-2500 | 1000-1800 | 600-900 |
+
+**Tuning Knobs (CSV):**
+- Node base resource values (metal_min/max, etc.)
+- Quality tier spawn weights
+- Speed multiplier coefficient (currently 0.25)
+- Position multiplier max (currently 0.5 = 1.5x at edges)
+- Streak cap and bonus (currently 5 max, 10% per level)
+- Mining fuel costs and durations
+
+**Analytics Tracking:**
+```gdscript
+signal resource_collection_analytics(
+    sector: int,
+    total_collected: Dictionary,
+    avg_multiplier: float,
+    streak_max: int,
+    speed_avg: float
+)
+```
+
+**Success Criteria:**
+- [ ] Safe play yields 200-400 metal per sector
+- [ ] Risky play yields 600-1000 metal per sector
+- [ ] Expert play yields 1500-2500 metal per sector
+- [ ] Fuel economy balanced (net positive at all speeds)
+- [ ] Quality tier distribution feels rewarding
+- [ ] Streak system encourages skillful play
+- [ ] Analytics data collected for balancing
+
+---
+
+### EventBus Signals (Resource Collection)
+
+**Add to EventBus.gd:**
+
+```gdscript
+# ============================================================
+# RESOURCE COLLECTION SIGNALS
+# ============================================================
+
+# Basic collection events
+signal resource_node_collected(node_id: String, resources: Dictionary, multipliers: Dictionary)
+signal mining_operation_started(node_id: String, fuel_cost: int, duration: float)
+signal mining_operation_completed(node_id: String, resources: Dictionary)
+signal mining_operation_failed(node_id: String, reason: String)
+
+# Quality tier events
+signal quality_tier_rolled(node_id: String, tier_name: String, multiplier: float)
+signal jackpot_node_spawned(node_id: String, position: Vector2)
+
+# Streak system events
+signal collection_streak_started()
+signal collection_streak_increased(streak_count: int, bonus_multiplier: float)
+signal collection_streak_broken(final_streak: int)
+signal collection_streak_warning(node_id: String)
+
+# Multiplier events
+signal collection_multiplier_calculated(speed_mult: float, position_mult: float, streak_mult: float, quality_mult: float, total_mult: float)
+signal high_value_collection(total_value: int, multiplier: float)
+
+# Speed-based collection restrictions
+signal instant_collection_available(node_id: String)
+signal mining_speed_restriction_active(node_id: String, max_speed: int, current_speed: int)
+
+# Analytics
+signal resource_collection_analytics(sector: int, total_collected: Dictionary, avg_multiplier: float, streak_max: int, speed_avg: float)
+```
+
+---
+
+### File Size Compliance
+
+All new files must stay under 300 lines:
+
+| File | Target Lines | Purpose |
+|------|--------------|---------|
+| resource_quality_system.gd | ~80 | Quality tier rolling |
+| resource_calculator.gd | ~120 | Multiplier calculations |
+| GameState.gd additions | +40 | Streak tracking |
+| IndicatorManager.gd additions | +80 | Visual feedback |
+| sector_map.gd additions | +60 | Auto-collection logic |
+
+**Total Addition**: ~380 lines across 5 files
+
+---
+
+### Testing Checklist
+
+**Quality Tier System:**
+- [ ] Tiers roll with correct spawn weights (2% jackpot, 50% standard, etc.)
+- [ ] Aura colors match tier (gray/white/blue/purple/gold)
+- [ ] Pulsing animation works for rich/abundant/jackpot
+- [ ] Jackpot nodes have sparkle particles
+- [ ] Audio pitch varies by tier
+
+**Resource Calculation:**
+- [ ] Speed multiplier: 1.0x at speed 1, 3.25x at speed 10
+- [ ] Position multiplier: 1.0x at center, 1.5x at edges
+- [ ] Streak multiplier: +10% per level (max 5 = +50%)
+- [ ] Quality multiplier: 0.5x to 3.0x
+- [ ] All multipliers stack correctly
+- [ ] Formula matches design spec exactly
+
+**Streak System:**
+- [ ] Streak increments on collection
+- [ ] Streak breaks when missing collectable nodes
+- [ ] Streak persists between sectors
+- [ ] Streak resets on combat/death
+- [ ] Streak warning appears when about to break
+- [ ] Streak HUD shows correct count and bonus
+
+**Auto-Collection:**
+- [ ] Resources collected on proximity pass (no tapping)
+- [ ] Collection triggers at correct distance
+- [ ] ResourceManager updates immediately
+- [ ] Collection animation plays
+- [ ] Floating text shows correct amounts
+- [ ] Trail animation flies to HUD
+- [ ] Audio ping plays with correct pitch
+
+**Mining Restrictions:**
+- [ ] Mining disabled at speed 5+
+- [ ] Asteroid/cluster mining disabled at speed 3-4
+- [ ] Planet mining allowed at speed 3-4
+- [ ] All mining allowed at speed 1-2
+- [ ] UI shows restriction warnings
+
+**Visual Feedback:**
+- [ ] Resource auras visible on all nodes
+- [ ] Quality colors correct
+- [ ] Collection animation smooth
+- [ ] HUD updates responsive
+- [ ] Streak HUD only visible when active
+- [ ] Multiplier display shows total
+
+**Integration:**
+- [ ] Jump landing bonus works
+- [ ] Jump charge shows resource preview
+- [ ] Gravity assist shows resource impact
+- [ ] Mothership distance affects quality spawns
+- [ ] Alien dodge bonus applies
+- [ ] All integrations have visual feedback
+
+**Balancing:**
+- [ ] Safe play yields 200-400 metal/sector
+- [ ] Risky play yields 600-1000 metal/sector
+- [ ] Expert play yields 1500-2500 metal/sector
+- [ ] Fuel economy net positive
+- [ ] Quality distribution feels rewarding
+- [ ] Streak system encourages skill
+
+---
+
+### Implementation Order
+
+**Week 1: Foundation**
+1. CSV updates (sector_nodes.csv + resource_quality_tiers.csv)
+2. Quality tier system (rolling, data access)
+3. Resource calculator (master formula)
+4. Streak tracking (GameState additions)
+
+**Week 2: Visuals**
+5. Resource aura system (IndicatorManager)
+6. Collection animation (floating text, trails, audio)
+7. UI components (enhanced resource display, streak HUD)
+8. Visual feedback polish
+
+**Week 3: Integration**
+9. Auto-collection logic (proximity triggers)
+10. Mining speed restrictions
+11. Jump/gravity/mothership/sweep integrations
+12. EventBus signal wiring
+
+**Week 4: Balance & Polish**
+13. Playtesting with analytics
+14. CSV tuning (resource values, quality weights)
+15. Bug fixes and edge cases
+16. Final polish and optimization
+
+---
+
+### Completion Criteria
+
+Phase 2f is complete when:
+
+- [ ] All CSV databases updated with resource columns
+- [ ] Quality tier system rolls and applies correctly
+- [ ] Resource calculation formula matches design spec
+- [ ] Streak system tracks and persists correctly
+- [ ] Visual feedback complete (auras, animations, UI)
+- [ ] Auto-collection triggers on proximity pass
+- [ ] Mining speed restrictions enforced
+- [ ] All system integrations working (jump, gravity, mothership, sweeps)
+- [ ] Resource income meets balance targets
+- [ ] All EventBus signals implemented
+- [ ] All scripts under 300 lines
+- [ ] No console errors
+- [ ] Mobile UI responsive and clear
+- [ ] Analytics data collected for tuning
+
+**Next Phase**: Phase 3 - Combat System (15×25 grid autobattler)
+
+**Estimated Effort**: 15-20 hours for resource collection system implementation
+
+**Reference**: `/docs/sector-exploration-module.md` lines 463-952 (Complete resource system spec)
+
+---
+
 ## 🎯 Next Immediate Priorities
 
-### Priority 1: Resource Integration
-- Connect ResourceManager to node interactions
-- Implement mining node resource rewards
-- Add fuel costs for gravity assist (currently free)
-- Display resource changes in UI
+### Priority 1: Interaction Manager Foundation (Current)
+- Create interaction_manager.gd coordinator
+- Set up EventBus signals for node interactions
+- Implement basic tap/long-press detection system
+- Create interaction UI overlay system
 
-### Priority 2: File Size Compliance
-- **Refactor sector_map.gd** (currently 465 lines → target <300)
-- Extract node spawning to separate manager
-- Extract gravity assist logic to helper
+### Priority 2: Mining System Implementation
+- Mining node long-press interaction
+- Resource extraction mechanics
+- Speed restriction integration (SpeedVisionManager)
+- Visual feedback and progress display
 
-### Priority 3: Node Variety
-- Implement resource gathering nodes (asteroid, outpost)
-- Add wormhole sector exit functionality
-- Create combat trigger nodes (alien colony, artifact vault)
+### Priority 3: Simple Node Types
+- Outpost instant rewards
+- Treasure loot collection
+- Visual feedback systems
 
-### Priority 4: Phase 2d - Alien Patterns
-- Jump mechanic implementation
-- Encounter warning system
-- Bullet pattern spawning
+### Priority 4: Complex Systems
+- Trading shop interface
+- Combat trigger transitions
+- Wormhole sector progression
 
 ---
 
