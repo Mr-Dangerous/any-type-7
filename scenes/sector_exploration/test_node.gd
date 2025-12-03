@@ -20,12 +20,13 @@ var resource_type: String = "none"  # metal, crystals, fuel, item, none
 var base_resources: int = 10  # Base amount (rarity_tier * 10)
 var upgrade_chance: int = 0  # Percent chance (0-100) to be an upgrade instead
 var is_upgrade: bool = false  # True if this node rolled as an upgrade
+var upgrade_item_id: String = ""  # Specific Tier 1 upgrade ID if is_upgrade == true
 
 # Trader system
 var is_trader: bool = false
 var trade_cost_type: String = "crystals"  # metal, crystals, fuel
 var trade_cost_amount: int = 30
-var trade_reward: String = "place_boi"  # What the trader gives
+var trade_reward_id: String = ""  # Tier 1 upgrade ID the trader sells
 
 # Orbit tracking (for moons and other orbiters)
 var is_orbiter: bool = false
@@ -58,10 +59,28 @@ const GRAVITY_ZONE_WIDTH: float = 3.0
 const ICON_METAL: String = "res://assets/Icons/metal_small_icon.png"
 const ICON_CRYSTALS: String = "res://assets/Icons/crystal_small_icon.png"
 const ICON_FUEL: String = "res://assets/Icons/fuel_icon.png"
-const ICON_ITEM: String = "res://assets/Icons/place_boi.png"
+
+# Tier 1 upgrade IDs (must match item_relics_t1.csv)
+const TIER_1_UPGRADES = [
+	"chronometer", "amplifier", "aegis_plate", "reinforced_hull",
+	"resonator", "dampener", "thruster_module", "precision_lens",
+	"capacitor", "ablative_coating", "human_legacy", "alien_legacy",
+	"machine_legacy", "toxic_legacy"
+]
+
+# Tier 1 upgrade icon paths (loaded from CSV via DataManager)
+var tier_1_icon_paths: Dictionary = {}
 
 
 func _ready() -> void:
+	# Wait for DataManager to load if not already loaded
+	if not DataManager.is_loaded:
+		EventBus.all_data_loaded.connect(_on_data_loaded, CONNECT_ONE_SHOT)
+	else:
+		_load_tier_1_icons()
+		# Now create the icon since paths are loaded
+		_create_visual_elements()
+
 	# Configure collision for proximity detection
 	collision_layer = 2  # Node layer
 	collision_mask = 1   # Detect player layer
@@ -70,7 +89,11 @@ func _ready() -> void:
 	area_entered.connect(_on_proximity_entered)
 	area_exited.connect(_on_proximity_exited)
 
-	print("[TestNode] %s ready at %s" % [node_id, position])
+
+func _on_data_loaded() -> void:
+	"""Called when DataManager finishes loading"""
+	_load_tier_1_icons()
+	_create_visual_elements()
 
 
 func setup(id: String, type: String, data: Dictionary, spawn_dist: float) -> void:
@@ -88,17 +111,14 @@ func setup(id: String, type: String, data: Dictionary, spawn_dist: float) -> voi
 	proximity_radius = size + csv_proximity  # Total activation distance (size + proximity)
 	has_gravity_assist = data.get("gravity_assist", "no") == "yes"
 
-	# Debug output for asteroid/planet sizes
-	if "asteroid" in type.to_lower() or "planet" in type.to_lower() or type == "star":
-		print("[DEBUG] %s - CSV size: %.0f, node_radius: %.0f, visual diameter: %.0f" % [type, size, node_radius, node_radius * 2.0])
 
 	# Check if this is a trader node
 	if type == "trader":
 		is_trader = true
-		# For now, all traders sell place_boi for 30 crystals
+		# Traders sell a random Tier 1 upgrade for 30 crystals
 		trade_cost_type = "crystals"
 		trade_cost_amount = 30
-		trade_reward = "place_boi"
+		trade_reward_id = TIER_1_UPGRADES.pick_random()
 		# Traders don't use the normal resource system
 		resource_type = "none"
 	else:
@@ -115,7 +135,6 @@ func setup(id: String, type: String, data: Dictionary, spawn_dist: float) -> voi
 		else:
 			# Upgrades are treated as items (don't break streaks)
 			resource_type = "item"
-			print("[SectorNode] %s rolled as UPGRADE (%d%% chance)" % [node_id, upgrade_chance])
 
 	# Parse color from CSV (hex format like "#FFEB3B")
 	var color_str = data.get("color", "#FF8C3B")
@@ -141,18 +160,10 @@ func setup(id: String, type: String, data: Dictionary, spawn_dist: float) -> voi
 	label.add_theme_color_override("font_color", Color(1, 1, 1))
 	add_child(label)
 
-	# Create resource icon or trader UI
-	if is_trader:
-		_create_trader_ui()
-	else:
-		_create_resource_icon()
+	# Note: Icons created in _ready() after tier_1_icon_paths is loaded
 
 	# Queue redraw to show visual
 	queue_redraw()
-
-	print("[SectorNode] %s (%s) - Size: %.0fpx, Proximity: %.0fpx, Gravity: %s" % [
-		node_id, node_type, node_radius * 2, proximity_radius, has_gravity_assist
-	])
 
 
 func setup_orbit(parent_id: String, radius: float, initial_angle: float,
@@ -169,10 +180,7 @@ func setup_orbit(parent_id: String, radius: float, initial_angle: float,
 	# Set z-index higher to ensure visibility above parent
 	z_index = 10
 
-	var orbit_type = "elliptical" if is_elliptical else "circular"
-	print("[SectorNode] %s configured as %s orbiter - Parent: %s, Major: %.1fpx, Minor: %.1fpx, Angle: %.1f°" % [
-		node_id, orbit_type, parent_id, orbit_semi_major, orbit_semi_minor, rad_to_deg(initial_angle)
-	])
+	# Configured as orbiter
 
 
 func set_has_orbiters(radius: float, is_elliptical: bool = false,
@@ -184,11 +192,6 @@ func set_has_orbiters(radius: float, is_elliptical: bool = false,
 	orbiter_semi_major = semi_major if semi_major > 0 else radius
 	orbiter_semi_minor = semi_minor if semi_minor > 0 else radius
 	queue_redraw()
-
-	var orbit_type = "elliptical" if is_elliptical else "circular"
-	print("[SectorNode] %s marked as having %s orbiters - Major: %.1fpx, Minor: %.1fpx" % [
-		node_id, orbit_type, orbiter_semi_major, orbiter_semi_minor
-	])
 
 
 func set_show_gravity_zone(show: bool) -> void:
@@ -203,7 +206,6 @@ func _on_proximity_entered(area: Area2D) -> void:
 	if area.name == "PlayerProximityArea" and not is_activated:
 		EventBus.node_proximity_entered.emit(node_id, node_type)
 		modulate = Color(1.2, 1.2, 1.2)  # Brighten
-		print("[TestNode] %s proximity entered" % node_id)
 
 
 func _on_proximity_exited(area: Area2D) -> void:
@@ -225,8 +227,6 @@ func activate() -> void:
 	var trade_display = get_node_or_null("TradeDisplay")
 	if trade_display:
 		trade_display.visible = false
-
-	print("[TestNode] %s activated" % node_id)
 
 
 func _draw() -> void:
@@ -318,6 +318,12 @@ func _roll_upgrade() -> void:
 	var roll = randi() % 100  # 0-99
 	is_upgrade = roll < upgrade_chance  # If roll < chance, it's an upgrade
 
+	# If upgraded, select which Tier 1 upgrade
+	if is_upgrade:
+		upgrade_item_id = TIER_1_UPGRADES.pick_random()
+		resource_type = "item"  # Display as item node
+		print("[SectorNode] ⭐ %s rolled UPGRADE: %s" % [node_type, upgrade_item_id])
+
 
 func _roll_rarity() -> void:
 	"""Roll rarity tier for this node (common through legendary)"""
@@ -346,9 +352,10 @@ func _roll_rarity() -> void:
 
 func _assign_resource_type() -> void:
 	"""Assign resource type based on CSV resource_profile column"""
+	# Non-mineable nodes that didn't roll as upgrade give nothing
 	var mineable = node_data.get("mineable", "no")
 	if mineable != "yes":
-		resource_type = "item"  # Non-mineable nodes give items
+		resource_type = "none"
 		return
 
 	var resource_profile = node_data.get("resource_profile", "none")
@@ -364,11 +371,14 @@ func _assign_resource_type() -> void:
 		"metal_only":
 			resource_type = "metal"
 		"mixed":
-			# Salvage/treasure nodes - give items
-			resource_type = "item"
-		"upgrade_only":
-			# Nodes like traders/colonies - always give upgrades/items
-			resource_type = "item"
+			# Salvage/treasure nodes - random resource type
+			var roll = randf()
+			if roll < 0.33:
+				resource_type = "metal"
+			elif roll < 0.66:
+				resource_type = "crystals"
+			else:
+				resource_type = "fuel"
 		_:
 			resource_type = "none"
 
@@ -416,13 +426,13 @@ func _create_trader_ui() -> void:
 
 	# Reward icon (what player gets)
 	var reward_icon = Sprite2D.new()
-	reward_icon.texture = load(ICON_ITEM)  # place_boi for now
+	if trade_reward_id != "" and tier_1_icon_paths.has(trade_reward_id):
+		var icon_path = tier_1_icon_paths[trade_reward_id]
+		if FileAccess.file_exists(icon_path):
+			reward_icon.texture = load(icon_path)
 	reward_icon.position = Vector2(50, 0)
 	reward_icon.scale = Vector2(0.8, 0.8)
 	trade_container.add_child(reward_icon)
-
-	print("[SectorNode] %s - Trader UI created: %d %s → %s" %
-		[node_id, trade_cost_amount, trade_cost_type, trade_reward])
 
 
 func _create_resource_icon() -> void:
@@ -439,9 +449,18 @@ func _create_resource_icon() -> void:
 		"fuel":
 			icon_path = ICON_FUEL
 		"item":
-			icon_path = ICON_ITEM
+			# For upgrades, use the specific Tier 1 upgrade icon
+			if upgrade_item_id != "" and tier_1_icon_paths.has(upgrade_item_id):
+				icon_path = tier_1_icon_paths[upgrade_item_id]
+			else:
+				return
 
 	if icon_path == "":
+		return
+
+	# Verify file exists before loading
+	if not FileAccess.file_exists(icon_path):
+		print("[ERROR] Icon file missing: %s" % icon_path)
 		return
 
 	# Create sprite for the icon
@@ -458,7 +477,27 @@ func _create_resource_icon() -> void:
 
 	add_child(icon_sprite)
 
-	print("[SectorNode] %s - Resource icon created: %s (%s)" % [node_id, resource_type, rarity])
+	if resource_type == "item" and upgrade_item_id != "":
+		print("[Icon] ✓ Upgrade icon: %s on %s" % [upgrade_item_id, node_type])
+
+
+func _load_tier_1_icons() -> void:
+	"""Load Tier 1 upgrade icon paths from DataManager"""
+	# Use DataManager instead of manually parsing CSV
+	for item_id in TIER_1_UPGRADES:
+		var relic_data = DataManager.get_relic_t1(item_id)
+		if not relic_data.is_empty():
+			var sprite_path = relic_data.get("sprite_resource", "")
+			if sprite_path != "":
+				tier_1_icon_paths[item_id] = sprite_path
+
+
+func _create_visual_elements() -> void:
+	"""Create icons/UI after tier_1_icon_paths is loaded"""
+	if is_trader:
+		_create_trader_ui()
+	else:
+		_create_resource_icon()
 
 
 func _get_rarity_color() -> Color:
