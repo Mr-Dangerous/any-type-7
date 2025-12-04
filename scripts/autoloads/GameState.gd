@@ -21,9 +21,23 @@ var sector_active: bool = false  # True when in sector exploration mode
 # FLEET STATE
 # ============================================================
 
-var owned_ships: Array[String] = []        # Ship IDs the player owns
+var owned_ships: Array[String] = []        # Ship instance IDs (e.g., "basic_fighter_001")
 var active_loadout: Array[String] = []     # Ships deployed in current combat
 var unlocked_blueprints: Array[String] = []
+
+# Ship Instance System
+var ship_instances: Dictionary = {}        # instance_id → ship instance data
+var ship_instance_counter: Dictionary = {} # blueprint_id → count (for generating unique IDs)
+
+# Ship instance data structure:
+# {
+#   "blueprint_id": "basic_fighter",
+#   "current_hp": 125,
+#   "max_hp": 125,
+#   "equipped_upgrades": ["chronometer", "autocannon_protocol"],
+#   "equipped_weapons": ["missile_launcher"],
+#   "deployment_position": {"lane": 7, "file": 2} or null
+# }
 
 # ============================================================
 # PROGRESSION
@@ -42,8 +56,13 @@ var total_nodes_visited: int = 0
 var run_start_time: int = 0  # Unix timestamp
 var nodes_visited_this_sector: int = 0
 var combats_this_sector: int = 0
-var place_bois_collected: int = 0  # Node tagging collectibles
 var elapsed_time: float = 0.0  # Time elapsed in current run (seconds)
+var enemy_triggers: int = 0  # Number of times hit by enemy sweeps
+
+# Upgrade Inventories
+var tier_1_inventory: Dictionary = {}  # item_id → count (e.g., {"chronometer": 2, "amplifier": 1})
+var tier_2_inventory: Dictionary = {}  # item_id → count (e.g., {"autocannon_protocol": 1})
+var weapon_inventory: Dictionary = {}  # weapon_id → count (e.g., {"missile_launcher": 1})
 
 # ============================================================
 # RESOURCE STREAK SYSTEM
@@ -74,13 +93,8 @@ func _process(delta: float) -> void:
 				EventBus.resource_streak_broken.emit()
 
 func _initialize_starter_fleet() -> void:
-	# Give player starter ships (Phase 1 placeholder)
-	owned_ships = [
-		"basic_fighter",
-		"basic_interceptor",
-		"shadow_fighter"
-	]
-	print("[GameState] Starter fleet initialized: %s" % str(owned_ships))
+	# Load starting fleet from CSV (default: "test_fleet" scenario)
+	load_starting_fleet("test_fleet")
 
 # ============================================================
 # GAME FLOW
@@ -94,9 +108,19 @@ func start_new_game() -> void:
 	total_combats_lost = 0
 	total_enemies_destroyed = 0
 	total_nodes_visited = 0
-	place_bois_collected = 0
+	enemy_triggers = 0
 	elapsed_time = 0.0
 	run_start_time = Time.get_unix_time_from_system()
+
+	# Clear inventories (will be repopulated by starting fleet)
+	tier_1_inventory.clear()
+	tier_2_inventory.clear()
+	weapon_inventory.clear()
+
+	# Clear fleet data (will be repopulated by starting fleet)
+	owned_ships.clear()
+	ship_instances.clear()
+	ship_instance_counter.clear()
 
 	_initialize_starter_fleet()
 	EventBus.game_started.emit()
@@ -189,6 +213,136 @@ func clear_loadout() -> void:
 	print("[GameState] Loadout cleared")
 
 # ============================================================
+# SHIP INSTANCE MANAGEMENT
+# ============================================================
+
+func load_starting_fleet(scenario_name: String) -> void:
+	"""Load starting fleet from CSV configuration"""
+	var fleet_data := DataManager.get_starting_fleet(scenario_name)
+
+	if fleet_data.is_empty():
+		push_error("[GameState] Starting fleet scenario '%s' not found!" % scenario_name)
+		return
+
+	# Clear existing fleet
+	owned_ships.clear()
+	ship_instances.clear()
+	ship_instance_counter.clear()
+	tier_1_inventory.clear()
+	tier_2_inventory.clear()
+	weapon_inventory.clear()
+
+	# Parse ships (create unique instances)
+	var ships_str: String = fleet_data.get("starting_ships", "")
+	if not ships_str.is_empty():
+		var ship_ids := ships_str.split("|")
+		for ship_id in ship_ids:
+			ship_id = ship_id.strip_edges()
+			if not ship_id.is_empty():
+				_create_ship_instance(ship_id)
+
+	# Parse Tier 1 inventory
+	var t1_str: String = fleet_data.get("tier1_inventory", "")
+	if not t1_str.is_empty():
+		for item_pair in t1_str.split("|"):
+			var parts := item_pair.split(":")
+			if parts.size() == 2:
+				var item_id: String = parts[0].strip_edges()
+				var quantity: int = parts[1].strip_edges().to_int()
+				tier_1_inventory[item_id] = quantity
+
+	# Parse Tier 2 inventory
+	var t2_str: String = fleet_data.get("tier2_inventory", "")
+	if not t2_str.is_empty():
+		for item_pair in t2_str.split("|"):
+			var parts := item_pair.split(":")
+			if parts.size() == 2:
+				var item_id: String = parts[0].strip_edges()
+				var quantity: int = parts[1].strip_edges().to_int()
+				tier_2_inventory[item_id] = quantity
+
+	# Parse weapon inventory
+	var weapon_str: String = fleet_data.get("weapon_inventory", "")
+	if not weapon_str.is_empty():
+		for item_pair in weapon_str.split("|"):
+			var parts := item_pair.split(":")
+			if parts.size() == 2:
+				var weapon_id: String = parts[0].strip_edges()
+				var quantity: int = parts[1].strip_edges().to_int()
+				weapon_inventory[weapon_id] = quantity
+
+	# Set starting resources
+	var metal: int = int(fleet_data.get("starting_metal", 500))
+	var crystals: int = int(fleet_data.get("starting_crystals", 200))
+	var fuel: int = int(fleet_data.get("starting_fuel", 150))
+
+	ResourceManager.set_resource("metal", metal)
+	ResourceManager.set_resource("crystals", crystals)
+	ResourceManager.set_resource("fuel", fuel)
+
+	print("[GameState] Starting fleet '%s' loaded: %d ships, %d T1 items, %d T2 items, %d weapons" %
+		[scenario_name, owned_ships.size(), _count_inventory(tier_1_inventory),
+		_count_inventory(tier_2_inventory), _count_inventory(weapon_inventory)])
+
+func _create_ship_instance(blueprint_id: String) -> String:
+	"""Create a new ship instance from blueprint and add to fleet"""
+	var instance_id := _generate_unique_ship_id(blueprint_id)
+
+	# Get base stats from blueprint
+	var ship_data := DataManager.get_ship(blueprint_id)
+	if ship_data.is_empty():
+		push_error("[GameState] Ship blueprint '%s' not found!" % blueprint_id)
+		return ""
+
+	# Calculate max HP (hull + shields)
+	var max_hp := int(ship_data.get("hull_points", 0)) + int(ship_data.get("shield_points", 0))
+
+	# Create instance
+	ship_instances[instance_id] = {
+		"blueprint_id": blueprint_id,
+		"current_hp": max_hp,
+		"max_hp": max_hp,
+		"equipped_upgrades": [],
+		"equipped_weapons": [],
+		"deployment_position": null
+	}
+
+	owned_ships.append(instance_id)
+	print("[GameState] Created ship instance: %s (from %s)" % [instance_id, blueprint_id])
+
+	return instance_id
+
+func _generate_unique_ship_id(blueprint_id: String) -> String:
+	"""Generate unique instance ID for a ship blueprint"""
+	if not ship_instance_counter.has(blueprint_id):
+		ship_instance_counter[blueprint_id] = 0
+
+	ship_instance_counter[blueprint_id] += 1
+	var instance_num: int = ship_instance_counter[blueprint_id]
+
+	return "%s_%03d" % [blueprint_id, instance_num]
+
+func get_ship_instance(instance_id: String) -> Dictionary:
+	"""Get ship instance data"""
+	return ship_instances.get(instance_id, {})
+
+func get_ship_blueprint_data(instance_id: String) -> Dictionary:
+	"""Get blueprint data for a ship instance"""
+	var instance := get_ship_instance(instance_id)
+	if instance.is_empty():
+		return {}
+
+	var blueprint_id: String = instance.get("blueprint_id", "")
+	return DataManager.get_ship(blueprint_id)
+
+func _count_inventory(inventory: Dictionary) -> int:
+	"""Count total items in inventory"""
+	var total := 0
+	for count in inventory.values():
+		total += count
+	return total
+
+# ============================================================
 # BLUEPRINT MANAGEMENT
 # ============================================================
 
@@ -221,10 +375,32 @@ func record_node_visited() -> void:
 	total_nodes_visited += 1
 	nodes_visited_this_sector += 1
 
-func collect_place_boi(amount: int = 1) -> void:
-	place_bois_collected += amount
-	EventBus.place_boi_collected.emit(place_bois_collected)
-	print("[GameState] place_boi collected! Total: %d" % place_bois_collected)
+func collect_tier_1_upgrade(item_id: String) -> void:
+	"""Collect a Tier 1 upgrade item"""
+	if tier_1_inventory.has(item_id):
+		tier_1_inventory[item_id] += 1
+	else:
+		tier_1_inventory[item_id] = 1
+
+	EventBus.tier_1_upgrade_collected.emit(item_id, tier_1_inventory[item_id])
+	print("[GameState] Tier 1 upgrade collected: %s (Total: %d)" % [item_id, tier_1_inventory[item_id]])
+
+
+func get_tier_1_count(item_id: String) -> int:
+	"""Get count of specific Tier 1 upgrade"""
+	return tier_1_inventory.get(item_id, 0)
+
+
+func get_total_tier_1_count() -> int:
+	"""Get total count of all Tier 1 upgrades"""
+	var total = 0
+	for count in tier_1_inventory.values():
+		total += count
+	return total
+
+func record_enemy_trigger() -> void:
+	enemy_triggers += 1
+	print("[GameState] Enemy trigger recorded! Total: %d" % enemy_triggers)
 
 func get_elapsed_time_formatted() -> String:
 	"""Returns elapsed time formatted as MM:SS"""

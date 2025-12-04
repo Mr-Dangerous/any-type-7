@@ -36,6 +36,10 @@ var environment_bands: Dictionary = {}  # band_id → band config
 var environment_node_weights: Dictionary = {}  # band_id|node_type → weight modifier
 var sector_progression: Dictionary = {}  # sector_number → progression data
 
+# Hangar/Fleet data
+var starting_fleets: Dictionary = {}    # scenario_name → starting fleet data
+var combination_recipes: Dictionary = {}  # "item1|item2" → result_item_id
+
 # ============================================================
 # LOAD STATUS
 # ============================================================
@@ -78,6 +82,10 @@ func load_all_databases() -> void:
 
 	# Load environment_node_weights with composite key (band_id|node_type)
 	_load_environment_node_weights()
+
+	# Hangar/Fleet data
+	_load_database("res://data/starting_fleets.csv", starting_fleets, "scenario_name")
+	_load_combination_recipes()
 
 	is_loaded = true
 	EventBus.all_data_loaded.emit()
@@ -139,8 +147,8 @@ func _load_database(csv_path: String, target_dict: Dictionary, id_column: String
 		# Build record dictionary
 		var record := {}
 		for i in range(min(row.size(), headers.size())):
-			var key := headers[i].strip_edges()
-			var value := row[i].strip_edges()
+			var key: String = headers[i].strip_edges()
+			var value: String = row[i].strip_edges()
 			record[key] = _convert_type(value)
 
 		# Cache by ID (convert to string to handle both string and int IDs)
@@ -301,7 +309,7 @@ func _load_environment_node_weights() -> void:
 		var spawn_weight_override: int = int(row[3])
 
 		# Composite key: band_id|node_type
-		var key := band_id + "|" + node_type
+		var key: String = band_id + "|" + node_type
 		environment_node_weights[key] = {
 			"band_id": band_id,
 			"node_type": node_type,
@@ -312,6 +320,44 @@ func _load_environment_node_weights() -> void:
 
 	file.close()
 	print("[DataManager] Loaded %d environment node weights" % row_count)
+
+func _load_combination_recipes() -> void:
+	"""Load combination_recipes.csv with composite key (component_1|component_2)"""
+	var csv_path := "res://data/combination_recipes.csv"
+
+	if not FileAccess.file_exists(csv_path):
+		print("[DataManager] WARNING: %s not found" % csv_path)
+		return
+
+	var file := FileAccess.open(csv_path, FileAccess.READ)
+	if not file:
+		print("[DataManager] ERROR: Could not open %s" % csv_path)
+		return
+
+	# Read header
+	var header_line := file.get_csv_line()
+
+	# Read data rows
+	var row_count := 0
+	while not file.eof_reached():
+		var row := file.get_csv_line()
+		if row.size() < 3 or row[0].is_empty():
+			continue
+
+		var component_1: String = row[0].strip_edges()
+		var component_2: String = row[1].strip_edges()
+		var result_item: String = row[2].strip_edges()
+
+		# Create both orderings (chronometer|amplifier and amplifier|chronometer)
+		var sorted_components := [component_1, component_2]
+		sorted_components.sort()
+		var key: String = sorted_components[0] + "|" + sorted_components[1]
+
+		combination_recipes[key] = result_item
+		row_count += 1
+
+	file.close()
+	print("[DataManager] Loaded %d combination recipes" % row_count)
 
 # ============================================================
 # SECTOR EXPLORATION QUERY FUNCTIONS
@@ -350,7 +396,7 @@ func get_band_node_weight_modifier(band_id: String, node_type: String) -> float:
 		Weight multiplier (1.0 = no change)
 	"""
 	# Check specific node type first
-	var key := band_id + "|" + node_type
+	var key: String = band_id + "|" + node_type
 	if environment_node_weights.has(key):
 		var data: Dictionary = environment_node_weights[key]
 		var override: int = data.get("spawn_weight_override", -1)
@@ -363,7 +409,7 @@ func get_band_node_weight_modifier(band_id: String, node_type: String) -> float:
 		return data.get("weight_multiplier", 1.0)
 
 	# Check "all" wildcard
-	var all_key := band_id + "|all"
+	var all_key: String = band_id + "|all"
 	if environment_node_weights.has(all_key):
 		return environment_node_weights[all_key].get("weight_multiplier", 1.0)
 
@@ -450,6 +496,32 @@ func get_relic_t2(item_id: String) -> Dictionary:
 	"""
 	return relics_t2.get(item_id, {})
 
+func get_starting_fleet(scenario_name: String) -> Dictionary:
+	"""Get starting fleet configuration
+
+	Args:
+		scenario_name: The scenario identifier
+
+	Returns:
+		Starting fleet config (empty if not found)
+	"""
+	return starting_fleets.get(scenario_name, {})
+
+func get_combination_result(item_a: String, item_b: String) -> String:
+	"""Get Tier 2 item result from combining two Tier 1 items
+
+	Args:
+		item_a: First item ID
+		item_b: Second item ID
+
+	Returns:
+		Resulting Tier 2 item ID (empty string if no recipe exists)
+	"""
+	var sorted_items := [item_a, item_b]
+	sorted_items.sort()
+	var key: String = sorted_items[0] + "|" + sorted_items[1]
+	return combination_recipes.get(key, "")
+
 # ============================================================
 # VALIDATION
 # ============================================================
@@ -493,6 +565,9 @@ func _print_load_summary() -> void:
 	print("Environment Bands: %d" % environment_bands.size())
 	print("Environment Node Weights: %d" % environment_node_weights.size())
 	print("Sector Progression: %d" % sector_progression.size())
+	print("---")
+	print("Starting Fleets: %d" % starting_fleets.size())
+	print("Combination Recipes: %d" % combination_recipes.size())
 	print("=".repeat(60))
 
 	if not load_errors.is_empty():

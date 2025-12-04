@@ -1,0 +1,2 @@
+scenario_name,starting_ships,tier1_inventory,tier2_inventory,weapon_inventory,starting_metal,starting_crystals,starting_fuel
+test_fleet,basic_fighter|basic_interceptor|basic_interceptor|shield_frigate|basic_fighter|basic_interceptor|basic_interceptor|shield_frigate,chronometer:2|amplifier:1|aegis_plate:1,,,500,200,150

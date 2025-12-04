@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dg6vfnv7tr1fs"
+
+[deps]
+
+files=["res://data/starting_fleets.starting.translation", "res://data/starting_fleets.tier1.translation", "res://data/starting_fleets.tier2.translation", "res://data/starting_fleets.weapon.translation", "res://data/starting_fleets.starting.translation", "res://data/starting_fleets.starting.translation", "res://data/starting_fleets.starting.translation"]
+
+source_file="res://data/starting_fleets.csv"
+dest_files=["res://data/starting_fleets.starting.translation", "res://data/starting_fleets.tier1.translation", "res://data/starting_fleets.tier2.translation", "res://data/starting_fleets.weapon.translation", "res://data/starting_fleets.starting.translation", "res://data/starting_fleets.starting.translation", "res://data/starting_fleets.starting.translation"]
+
+[params]
+
+compress=true
+delimiter=0

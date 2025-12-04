@@ -205,6 +205,26 @@ func reset_resources(starting_metal: int = 100, starting_crystals: int = 50, sta
 	fuel = starting_fuel
 	print("[ResourceManager] Resources reset - M:%d C:%d F:%d" % [metal, crystals, fuel])
 
+func set_resource(resource_type: String, amount: int) -> void:
+	"""Set a resource to a specific amount (for loading saves/starting scenarios)"""
+	var old_amount := get_resource(resource_type)
+
+	match resource_type.to_lower():
+		"metal":
+			metal = clamp(amount, 0, max_metal)
+			EventBus.resource_changed.emit("metal", old_amount, metal)
+		"crystals":
+			crystals = clamp(amount, 0, max_crystals)
+			EventBus.resource_changed.emit("crystals", old_amount, crystals)
+		"fuel":
+			fuel = clamp(amount, 0, max_fuel)
+			EventBus.resource_changed.emit("fuel", old_amount, fuel)
+		_:
+			push_error("[ResourceManager] Cannot set unknown resource type: " + resource_type)
+			return
+
+	print("[ResourceManager] Set %s to %d" % [resource_type, amount])
+
 # ============================================================
 # DEBUG
 # ============================================================

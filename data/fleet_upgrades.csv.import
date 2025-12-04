@@ -1,0 +1,15 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://snenfjh6xcn7"
+valid=false
+
+[deps]
+
+source_file="res://data/fleet_upgrades.csv"
+
+[params]
+
+compress=true
+delimiter=0
