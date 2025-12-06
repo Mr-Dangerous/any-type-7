@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroid Generator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            background-color: #f0f2f5;
+            gap: 30px;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-width: 250px;
+        }
+        h1, h2 {
+            text-align: center;
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-weight: 500;
+            color: #555;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #downloadBtn {
+            background-color: #28a745;
+        }
+        #downloadBtn:hover {
+            background-color: #218838;
+        }
+        .preset-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            gap: 5px;
+        }
+        .preset-group button {
+            background-color: #6c757d;
+        }
+        .preset-group button:hover {
+            background-color: #5a6268;
+        }
+        .canvas-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        canvas {
+            background-color: #000;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <h1>Controls</h1>
+        
+        <h2>Presets (Size)</h2>
+        <div class="preset-group">
+            <button id="preset20">20</button>
+            <button id="preset40">40</button>
+            <button id="preset60">60</button>
+            <button id="preset80">80</button>
+            <button id="preset100">100</button>
+        </div>
+
+        <h2>Parameters</h2>
+        <div class="control-group">
+            <label for="seed">Random Seed: <span id="seedValue">1</span></label>
+            <input type="range" id="seed" min="1" max="1000" value="1">
+        </div>
+        <div class="control-group">
+            <label for="jaggedness">Jaggedness: <span id="jaggednessValue">5.0</span></label>
+            <input type="range" id="jaggedness" min="1" max="20" step="0.1" value="5">
+        </div>
+        <div class="control-group">
+            <label for="detail">Surface Detail: <span id="detailValue">10.0</span></label>
+            <input type="range" id="detail" min="1" max="40" step="0.1" value="10">
+        </div>
+        <div class="control-group">
+            <label for="baseGray">Base Color: <span id="baseGrayValue">80</span></label>
+            <input type="range" id="baseGray" min="20" max="150" value="80">
+        </div>
+
+        <div class="button-group">
+            <button id="generateBtn">Generate</button>
+            <button id="downloadBtn">Download</button>
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <h2>Preview</h2>
+        <canvas id="asteroidCanvas" width="100" height="100"></canvas>
+    </div>
+
+    <script>
+        /*
+         * A speed-improved perlin and simplex noise algorithms for 2D.
+         *
+         * Based on example code by Stefan Gustavson (stegu@itn.liu.se).
+         * Optimisations by Peter Eastman (peastman@drizzle.stanford.edu).
+         * Better rank ordering method by Stefan Gustavson in 2012.
+         *
+         * This software is distributed under the MIT license. See LICENSE file.
+         *
+         * https://github.com/josephg/noisejs
+         */
+        (function(global) {
+            var module = global.noise = {};
+
+            function Grad(x, y, z) {
+                this.x = x; this.y = y; this.z = z;
+            }
+
+            Grad.prototype.dot2 = function(x, y) {
+                return this.x*x + this.y*y;
+            };
+
+            Grad.prototype.dot3 = function(x, y, z) {
+                return this.x*x + this.y*y + this.z*z;
+            };
+
+            var grad3 = [new Grad(1,1,0),new Grad(-1,1,0),new Grad(1,-1,0),new Grad(-1,-1,0),
+                        new Grad(1,0,1),new Grad(-1,0,1),new Grad(1,0,-1),new Grad(-1,0,-1),
+                        new Grad(0,1,1),new Grad(0,-1,1),new Grad(0,1,-1),new Grad(0,-1,-1)];
+
+            var p = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,102,143,54, 65,25,63,161, 1,216,80,73,209,76,132,187,208, 89,18,169,200,196,135,130,116,188,159,86,164,100,109,198,173,186, 3,64,52,217,226,250,124,123,5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,223,183,170,213,119,248,152, 2,44,154,163, 70,221,153,101,155,167, 43,172,9,129,22,39,253, 19,98,108,110,79,113,224,232,178,185, 112,104,218,246,97,228,251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180];
+            var perm = new Array(512);
+            var gradP = new Array(512);
+
+            module.seed = function(seed) {
+                if (seed > 0 && seed < 1) { seed *= 65536; }
+                seed = Math.floor(seed);
+                if (seed < 256) { seed |= seed << 8; }
+                for (var i = 0; i < 256; i++) {
+                    var v = (i & 1) ? p[i] ^ (seed & 255) : p[i] ^ ((seed >> 8) & 255);
+                    perm[i] = perm[i + 256] = v;
+                    gradP[i] = gradP[i + 256] = grad3[v % 12];
+                }
+            };
+
+            module.seed(0);
+
+            var F2 = 0.5 * (Math.sqrt(3) - 1);
+            var G2 = (3 - Math.sqrt(3)) / 6;
+
+            module.perlin2 = function(x, y) {
+                var X = Math.floor(x) & 255, Y = Math.floor(y) & 255;
+                x -= Math.floor(x); y -= Math.floor(y);
+                var u = x*x*x*(x*(x*6-15)+10), v = y*y*y*(y*(y*6-15)+10);
+                var n00 = gradP[X + perm[Y]].dot2(x, y);
+                var n01 = gradP[X + perm[Y + 1]].dot2(x, y - 1);
+                var n10 = gradP[X + 1 + perm[Y]].dot2(x - 1, y);
+                var n11 = gradP[X + 1 + perm[Y + 1]].dot2(x - 1, y - 1);
+                return 0.5 * (1 + (lerp(lerp(n00, n10, u), lerp(n01, n11, u), v)));
+            };
+
+            function lerp(a, b, x) { return a + x * (b - a); }
+        }(this));
+
+        // DOM Elements
+        const canvas = document.getElementById('asteroidCanvas');
+        const ctx = canvas.getContext('2d');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        const seedInput = document.getElementById('seed');
+        const jaggednessInput = document.getElementById('jaggedness');
+        const detailInput = document.getElementById('detail');
+        const baseGrayInput = document.getElementById('baseGray');
+
+        const seedValue = document.getElementById('seedValue');
+        const jaggednessValue = document.getElementById('jaggednessValue');
+        const detailValue = document.getElementById('detailValue');
+        const baseGrayValue = document.getElementById('baseGrayValue');
+
+        const presetButtons = {
+            '20': document.getElementById('preset20'), '40': document.getElementById('preset40'),
+            '60': document.getElementById('preset60'), '80': document.getElementById('preset80'),
+            '100': document.getElementById('preset100'),
+        };
+
+        seedInput.oninput = () => seedValue.textContent = seedInput.value;
+        jaggednessInput.oninput = () => jaggednessValue.textContent = parseFloat(jaggednessInput.value).toFixed(1);
+        detailInput.oninput = () => detailValue.textContent = parseFloat(detailInput.value).toFixed(1);
+        baseGrayInput.oninput = () => baseGrayValue.textContent = baseGrayInput.value;
+
+        // Point-in-polygon check
+        const isInside = (point, vs) => {
+            var x = point.x, y = point.y;
+            var inside = false;
+            for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+                var xi = vs[i].x, yi = vs[i].y;
+                var xj = vs[j].x, yj = vs[j].y;
+                var intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            return inside;
+        };
+
+        function generateAsteroid() {
+            const size = canvas.width;
+            const seed = parseInt(seedInput.value);
+            const jaggedness = parseFloat(jaggednessInput.value);
+            const detail = parseFloat(detailInput.value);
+            const baseGray = parseInt(baseGrayInput.value);
+
+            noise.seed(seed);
+
+            ctx.clearRect(0, 0, size, size);
+            
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const baseRadius = size * 0.4;
+            const points = [];
+            const segments = 120;
+
+            // 1. Generate path and fill base shape
+            ctx.beginPath();
+            for (let i = 0; i < segments; i++) {
+                const angle = (i / segments) * Math.PI * 2;
+                const xOff = Math.cos(angle) + 1;
+                const yOff = Math.sin(angle) + 1;
+                const radiusNoise = noise.perlin2(xOff * jaggedness, yOff * jaggedness);
+                const radius = baseRadius + (radiusNoise * baseRadius * 0.4) - (baseRadius * 0.2);
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                points.push({x, y});
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.fillStyle = `rgb(${baseGray}, ${baseGray}, ${baseGray})`;
+            ctx.fill();
+
+            // 2. Apply texture
+            const imageData = ctx.getImageData(0, 0, size, size);
+            const data = imageData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i + 3] > 0) { // Only texture visible pixels
+                    const x = (i / 4) % size;
+                    const y = Math.floor((i / 4) / size);
+                    const surfaceNoise = noise.perlin2(x / detail, y / detail);
+                    const colorVariation = Math.floor((surfaceNoise - 0.5) * 100);
+                    data[i] = Math.max(0, Math.min(255, data[i] + colorVariation));
+                    data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + colorVariation));
+                    data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + colorVariation));
+                }
+            }
+            ctx.putImageData(imageData, 0, 0);
+
+            // 3. Add craters
+            const numCraters = Math.floor(size / 4);
+            for (let i = 0; i < numCraters; i++) {
+                const craterX = centerX + (Math.random() - 0.5) * baseRadius * 1.8;
+                const craterY = centerY + (Math.random() - 0.5) * baseRadius * 1.8;
+                const craterRadius = (Math.random() * size / 10) + size / 25;
+                if (isInside({x: craterX, y: craterY}, points)) {
+                    ctx.beginPath();
+                    ctx.arc(craterX, craterY, craterRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(craterX - craterRadius * 0.2, craterY - craterRadius * 0.2, craterRadius * 0.9, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+                    ctx.fill();
+                }
+            }
+
+            // 4. Draw outline
+            ctx.strokeStyle = `rgba(${baseGray - 20}, ${baseGray - 20}, ${baseGray - 20}, 0.8)`;
+            ctx.lineWidth = 1;
+            ctx.stroke(new Path2D(points.reduce((path, p) => (path.lineTo(p.x, p.y), path), new Path2D())));
+        }
+
+        function setPreset(size) {
+            canvas.width = size;
+            canvas.height = size;
+            generateAsteroid();
+        }
+
+        generateBtn.addEventListener('click', generateAsteroid);
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = `asteroid_${seedInput.value}_${canvas.width}px.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+
+        for (const size in presetButtons) {
+            presetButtons[size].addEventListener('click', () => setPreset(parseInt(size)));
+        }
+
+        window.addEventListener('load', () => setPreset(60));
+    </script>
+</body>
+</html>

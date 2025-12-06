@@ -12,6 +12,15 @@ var last_planetary_distance: float = -500.0
 var last_debris_distance: float = -50.0
 var last_node_distance: float = -300.0
 
+# Spawn intervals (pixels between spawns)
+var planetary_spawn_interval: float = 10000.0
+var debris_spawn_interval: float = 600.0
+var node_spawn_interval: float = 3000.0
+
+# Debris cluster size
+var debris_min_per_cluster: int = 1
+var debris_max_per_cluster: int = 3
+
 # Spawnable node caches by type (loaded from CSV)
 var planetary_bodies: Array[Dictionary] = []
 var debris_field_nodes: Array[Dictionary] = []
@@ -126,20 +135,17 @@ func _check_node_spawn() -> void:
 	var current_distance = scrolling_system.get_distance()
 
 	# Check planetary body spawning
-	var planetary_interval = DebugManager.get_planetary_interval()
-	if current_distance >= last_planetary_distance + planetary_interval:
+	if current_distance >= last_planetary_distance + planetary_spawn_interval:
 		_spawn_planetary_body()
 		last_planetary_distance = current_distance
 
 	# Check debris field spawning
-	var debris_interval = DebugManager.get_debris_interval()
-	if current_distance >= last_debris_distance + debris_interval:
+	if current_distance >= last_debris_distance + debris_spawn_interval:
 		_spawn_debris_cluster()
 		last_debris_distance = current_distance
 
 	# Check regular node spawning
-	var node_interval = DebugManager.get_node_interval()
-	if current_distance >= last_node_distance + node_interval:
+	if current_distance >= last_node_distance + node_spawn_interval:
 		_spawn_regular_node()
 		last_node_distance = current_distance
 
@@ -175,13 +181,13 @@ func _spawn_planetary_body() -> void:
 
 
 func _spawn_debris_cluster() -> void:
-	"""Spawn debris nodes clustered together, not on edges"""
+	"""Spawn debris nodes clustered together across full screen width"""
 	if debris_field_nodes.is_empty():
 		return
 
-	var cluster_range = DebugManager.get_debris_cluster_range()
-	var cluster_size = randi_range(cluster_range.x, cluster_range.y)
-	var base_x = SPAWN_CENTER_MIN + randf() * (SPAWN_CENTER_MAX - SPAWN_CENTER_MIN)
+	var cluster_size = randi_range(debris_min_per_cluster, debris_max_per_cluster)
+	# Spawn anywhere across full width (0-1080)
+	var base_x = randf() * 1080.0
 	var base_y = SPAWN_Y_OFFSET + randf_range(-Y_STAGGER_RANGE, Y_STAGGER_RANGE)
 
 	for i in range(cluster_size):
@@ -194,8 +200,8 @@ func _spawn_debris_cluster() -> void:
 		var offset_y = randf_range(-150, 150)
 		var spawn_pos = Vector2(base_x + offset_x, base_y + offset_y)
 
-		# Clamp to non-edge area
-		spawn_pos.x = clamp(spawn_pos.x, SPAWN_CENTER_MIN, SPAWN_CENTER_MAX)
+		# Clamp to screen bounds
+		spawn_pos.x = clamp(spawn_pos.x, 0.0, 1080.0)
 
 		var node_id = "debris_%d" % next_node_id
 		next_node_id += 1
@@ -204,6 +210,10 @@ func _spawn_debris_cluster() -> void:
 		if node_instance:
 			# Mark as debris for despawn behavior
 			node_instance.set_meta("is_debris", true)
+
+			# Give each asteroid a slight speed variance (1.0x to 1.3x - only faster, never slower)
+			var speed_variance = randf_range(1.0, 1.3)
+			node_instance.set_meta("speed_variance", speed_variance)
 
 	print("[NodeSpawner] Spawned debris cluster: %d nodes at (%.0f, %.0f)" % [cluster_size, base_x, base_y])
 
@@ -391,13 +401,18 @@ func _update_node_positions(delta: float) -> void:
 			node_data.position = node.position
 			continue
 
+		# Apply speed variance for debris nodes
+		var speed_modifier = 1.0
+		if node.has_meta("speed_variance"):
+			speed_modifier = node.get_meta("speed_variance")
+
 		if node_data.get("is_orbiter", false):
 			# Orbiting node
 			var parent_id = node_data.get("parent_id", "")
 			var parent_data = _find_node_data(parent_id)
 
 			if parent_data.is_empty():
-				node.position.y += scroll_speed * delta
+				node.position.y += scroll_speed * speed_modifier * delta
 			else:
 				var base_orbit_speed = node_data.get("orbit_speed", 0.3)
 				var is_elliptical = node_data.get("is_elliptical", false)
@@ -427,7 +442,7 @@ func _update_node_positions(delta: float) -> void:
 					node.position = parent_node.position + offset
 		else:
 			# Regular node
-			node.position.y += scroll_speed * delta
+			node.position.y += scroll_speed * speed_modifier * delta
 
 		node_data.position = node.position
 
@@ -483,3 +498,57 @@ func remove_node(node_id: String) -> void:
 func get_active_nodes() -> Array[Dictionary]:
 	"""Get array of active nodes"""
 	return active_nodes
+
+
+# ============================================================
+# SPAWN RATE CONTROLS (for debug UI)
+# ============================================================
+
+# Planetary body controls
+func increase_planetary_rate() -> void:
+	planetary_spawn_interval = max(planetary_spawn_interval - 50.0, 100.0)
+	print("[NodeSpawner] Planetary rate increased - Interval: %.0f px" % planetary_spawn_interval)
+
+func decrease_planetary_rate() -> void:
+	planetary_spawn_interval += 50.0
+	print("[NodeSpawner] Planetary rate decreased - Interval: %.0f px" % planetary_spawn_interval)
+
+func get_planetary_interval() -> float:
+	return planetary_spawn_interval
+
+# Debris field controls
+func increase_debris_rate() -> void:
+	debris_spawn_interval = max(debris_spawn_interval - 10.0, 10.0)
+	print("[NodeSpawner] Debris rate increased - Interval: %.0f px" % debris_spawn_interval)
+
+func decrease_debris_rate() -> void:
+	debris_spawn_interval += 10.0
+	print("[NodeSpawner] Debris rate decreased - Interval: %.0f px" % debris_spawn_interval)
+
+func get_debris_interval() -> float:
+	return debris_spawn_interval
+
+func increase_debris_cluster_size() -> void:
+	debris_max_per_cluster = min(debris_max_per_cluster + 1, 20)
+	debris_min_per_cluster = min(debris_min_per_cluster, debris_max_per_cluster)
+	print("[NodeSpawner] Debris cluster size increased - Range: %d-%d" % [debris_min_per_cluster, debris_max_per_cluster])
+
+func decrease_debris_cluster_size() -> void:
+	debris_max_per_cluster = max(debris_max_per_cluster - 1, 1)
+	debris_min_per_cluster = min(debris_min_per_cluster, debris_max_per_cluster)
+	print("[NodeSpawner] Debris cluster size decreased - Range: %d-%d" % [debris_min_per_cluster, debris_max_per_cluster])
+
+func get_debris_cluster_range() -> Vector2i:
+	return Vector2i(debris_min_per_cluster, debris_max_per_cluster)
+
+# Regular node controls
+func increase_node_rate() -> void:
+	node_spawn_interval = max(node_spawn_interval - 25.0, 50.0)
+	print("[NodeSpawner] Node rate increased - Interval: %.0f px" % node_spawn_interval)
+
+func decrease_node_rate() -> void:
+	node_spawn_interval += 25.0
+	print("[NodeSpawner] Node rate decreased - Interval: %.0f px" % node_spawn_interval)
+
+func get_node_interval() -> float:
+	return node_spawn_interval

@@ -1,15 +1,15 @@
-item_id,item_name,tier,attack_speed_percent,attack_damage,shield_points,hull_points,hull_regen_per_sec,energy_regen_per_sec,amplitude_percent,resilience_percent,movement_speed_percent,precision_percent,starting_energy,armor,description
-chronometer,Chronometer,1,15,0,0,0,0,0,0,0,0,0,0,0,Time flows faster for those who seize it
-amplifier,Amplifier,1,0,10,0,0,0,0,0,0,0,0,0,0,Raw destructive potential
-aegis_plate,Aegis Plate,1,0,0,50,0,0,0,0,0,0,0,0,0,A barrier between you and oblivion
-reinforced_hull,Reinforced Hull,1,0,0,0,75,0,0,0,0,0,0,0,0,Solid armor that refuses to break
-resonator,Resonator,1,0,0,0,0,0,0,20,0,0,0,0,0,Amplifies the potential within
-dampener,Dampener,1,0,0,0,0,0,0,0,15,0,0,0,0,Absorbs and nullifies hostile energies
-thruster_module,Thruster Module,1,0,0,0,0,0,0,0,0,20,0,0,0,Speed is survival
-precision_lens,Precision Lens,1,0,0,0,0,0,0,0,0,0,10,0,0,Strike where it hurts most
-capacitor,Capacitor,1,0,0,0,0,0,0,0,0,0,0,25,0,Begin the battle charged and ready
-ablative_coating,Ablative Coating,1,0,0,0,0,0,0,0,0,0,0,0,8,Deflects the blow before it lands
-human_legacy,Human Legacy,1,0,0,0,50,0,0,0,0,0,0,0,0,Resilience of humanity
-alien_legacy,Alien Legacy,1,0,0,0,0,3,0,0,0,0,0,0,0,Advanced alien biotechnology
-machine_legacy,Machine Legacy,1,0,0,50,0,0,0,0,0,0,0,0,0,Synthetic perfection
-toxic_legacy,Toxic Legacy,1,0,0,0,0,0,2,0,0,0,0,0,0,Corrupted power source
+item_id,item_name,stat,enabled,sprite_resource,tier,attack_speed_percent,attack_damage,shield_points,hull_points,hull_regen_per_sec,energy_regen_per_sec,amplitude_percent,resilience_percent,movement_speed_percent,precision_percent,starting_energy,armor,description
+chronometer,Chronometer,attack speed,yes,res://assets/Icons/tier-1-upgrades/chronometer_upgrade.png,1,15,0,0,0,0,0,0,0,0,0,0,0,Time flows faster for those who seize it
+amplifier,Amplifier,attack damage,yes,res://assets/Icons/tier-1-upgrades/amplifier_upgrade.png,1,0,10,0,0,0,0,0,0,0,0,0,0,Raw destructive potential
+aegis_plate,Aegis Plate,hull points,yes,res://assets/Icons/tier-1-upgrades/aegis_plate_upgrade.png,1,0,0,50,0,0,0,0,0,0,0,0,0,A barrier between you and oblivion
+reinforced_hull,Reinforced Hull,armor,yes,res://assets/Icons/tier-1-upgrades/reinforced_hull_upgrade.png,1,0,0,0,75,0,0,0,0,0,0,0,0,Solid armor that refuses to break
+resonator,Resonator,spell damage,yes,res://assets/Icons/tier-1-upgrades/resonator_upgrade.png,1,0,0,0,0,0,0,20,0,0,0,0,0,Amplifies the potential within
+dampener,Dampener,spell resisitance,yes,res://assets/Icons/tier-1-upgrades/dampener_upgrade.png,1,0,0,0,0,0,0,0,15,0,0,0,0,Absorbs and nullifies hostile energies
+thruster_module,Thruster Module,movement,yes,res://assets/Icons/tier-1-upgrades/thurster_module_upgrade.png,1,0,0,0,0,0,0,0,0,20,0,0,0,Speed is survival
+precision_lens,Precision Lens,critical hit,yes,res://assets/Icons/tier-1-upgrades/precision_lens_upgrade.png,1,0,0,0,0,0,0,0,0,0,10,0,0,Strike where it hurts most
+capacitor,Capacitor,energy,yes,res://assets/Icons/tier-1-upgrades/capacitor_upgade.png,1,0,0,0,0,0,0,0,0,0,0,25,0,Begin the battle charged and ready
+ablative_coating,Ablative Coating,crit resistance,yes,res://assets/Icons/tier-1-upgrades/ablative_coating_upgrade.png,1,0,0,0,0,0,0,0,0,0,0,0,8,Deflects the blow before it lands
+human_legacy,Human Legacy,,yes,res://assets/Icons/tier-1-upgrades/human_legacy_upgrade.png,1,0,0,0,50,0,0,0,0,0,0,0,0,Resilience of humanity
+alien_legacy,Alien Legacy,,no,res://assets/Icons/tier-1-upgrades/alien_legacy_upgrade.png,1,0,0,0,0,3,0,0,0,0,0,0,0,Advanced alien biotechnology
+machine_legacy,Machine Legacy,,no,res://assets/Icons/tier-1-upgrades/machine_legacy_upgrade.png,1,0,0,50,0,0,0,0,0,0,0,0,0,Synthetic perfection
+toxic_legacy,Toxic Legacy,,yes,res://assets/Icons/tier-1-upgrades/toxic_legacy_upgrade.png,1,0,0,0,0,0,2,0,0,0,0,0,0,Corrupted power source

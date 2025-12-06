@@ -72,8 +72,13 @@ signal node_proximity_exited(node_id: String)
 # Gravity assist
 signal gravity_assist_applied(choice: String, node_position: Vector2, multiplier: float)
 
-# Node tagging and collection
-signal place_boi_collected(total_count: int)
+# Tier 1 Upgrade Collection
+signal tier_1_upgrade_collected(item_id: String, total_count: int)
+
+# Enemy sweep attacks
+signal enemy_sweep_hit_player()
+signal enemy_sweep_spawned(pattern_id: String)
+signal screen_shake_requested(duration: float, intensity: float)
 
 # ============================================================
 # SPEED & VISION SYSTEM SIGNALS

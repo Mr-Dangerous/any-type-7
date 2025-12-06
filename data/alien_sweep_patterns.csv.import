@@ -6,10 +6,10 @@ uid="uid://bmfdpikv44x6t"
 
 [deps]
 
-files=["res://data/alien_sweep_patterns.pattern.translation", "res://data/alien_sweep_patterns.base.translation", "res://data/alien_sweep_patterns.width.translation", "res://data/alien_sweep_patterns.gap.translation", "res://data/alien_sweep_patterns.warning.translation", "res://data/alien_sweep_patterns.min.translation", "res://data/alien_sweep_patterns.spawn.translation", "res://data/alien_sweep_patterns.visual.translation", "res://data/alien_sweep_patterns.description.translation"]
+files=["res://data/alien_sweep_patterns.pattern.translation", "res://data/alien_sweep_patterns.enabled.translation", "res://data/alien_sweep_patterns.base.translation", "res://data/alien_sweep_patterns.width.translation", "res://data/alien_sweep_patterns.gap.translation", "res://data/alien_sweep_patterns.min.translation", "res://data/alien_sweep_patterns.spawn.translation", "res://data/alien_sweep_patterns.description.translation"]
 
 source_file="res://data/alien_sweep_patterns.csv"
-dest_files=["res://data/alien_sweep_patterns.pattern.translation", "res://data/alien_sweep_patterns.base.translation", "res://data/alien_sweep_patterns.width.translation", "res://data/alien_sweep_patterns.gap.translation", "res://data/alien_sweep_patterns.warning.translation", "res://data/alien_sweep_patterns.min.translation", "res://data/alien_sweep_patterns.spawn.translation", "res://data/alien_sweep_patterns.visual.translation", "res://data/alien_sweep_patterns.description.translation"]
+dest_files=["res://data/alien_sweep_patterns.pattern.translation", "res://data/alien_sweep_patterns.enabled.translation", "res://data/alien_sweep_patterns.base.translation", "res://data/alien_sweep_patterns.width.translation", "res://data/alien_sweep_patterns.gap.translation", "res://data/alien_sweep_patterns.min.translation", "res://data/alien_sweep_patterns.spawn.translation", "res://data/alien_sweep_patterns.description.translation"]
 
 [params]
 

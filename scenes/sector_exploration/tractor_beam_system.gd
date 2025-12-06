@@ -103,11 +103,21 @@ func _update_active_beams(delta: float, player_pos: Vector2) -> void:
 	for i in range(active_beams.size()):
 		var beam = active_beams[i]
 		var node = beam.node_ref as Area2D
+		var beam_line = beam.beam_line as Line2D
 
 		# Validate node
 		if not node or not is_instance_valid(node):
 			beams_to_remove.append(i)
+			# Clean up beam line
+			if beam_line and is_instance_valid(beam_line):
+				beam_line.queue_free()
 			continue
+
+		# Update beam visual line
+		if beam_line and is_instance_valid(beam_line):
+			beam_line.clear_points()
+			beam_line.add_point(player_pos)
+			beam_line.add_point(node.position)
 
 		# Update beam pull timer
 		beam.pull_timer += delta
@@ -117,6 +127,9 @@ func _update_active_beams(delta: float, player_pos: Vector2) -> void:
 			# Beam complete - collect node
 			_collect_debris(node, beam.node_id)
 			beams_to_remove.append(i)
+			# Clean up beam line
+			if beam_line and is_instance_valid(beam_line):
+				beam_line.queue_free()
 		else:
 			# Pull node toward player
 			var pull_speed = player_pos.distance_to(node.position) / (DebugManager.get_beam_duration() - beam.pull_timer)
@@ -140,17 +153,25 @@ func _lock_tractor_beam(node: Area2D, node_id: String) -> void:
 	# Mark node as locked
 	node.set_meta("tractor_locked", true)
 
+	# Create visual beam line
+	var beam_line = Line2D.new()
+	beam_line.width = 3.0
+	beam_line.default_color = Color(0.5, 1.0, 1.0, 0.7)  # Cyan with transparency
+	beam_line.z_index = -1  # Behind nodes
+	add_child(beam_line)
+
 	# Add to active beams
 	active_beams.append({
 		"node_ref": node,
 		"node_id": node_id,
-		"pull_timer": 0.0
+		"pull_timer": 0.0,
+		"beam_line": beam_line
 	})
 
 	print("[TractorBeamSystem] Locked beam on %s (%d/%d active)" %
 		[node_id, active_beams.size(), DebugManager.get_beam_count()])
 
-	# Visual feedback (can add beam line here later)
+	# Visual feedback
 	node.modulate = Color(0.5, 1.0, 1.0)  # Cyan tint for locked
 
 

@@ -1,0 +1,15 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://byc5ba71454jo"
+valid=false
+
+[deps]
+
+source_file="res://data/pilot_abilities.csv"
+
+[params]
+
+compress=true
+delimiter=0

@@ -79,7 +79,7 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/MiddleSection"]
+[node name="PagedContent" type="VBoxContainer" parent="VBoxContainer/MiddleSection"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -87,21 +87,27 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/MiddleSection/ScrollContainer"]
+[node name="ShipPageContainer" type="Control" parent="VBoxContainer/MiddleSection/PagedContent"]
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 40
 
-[node name="ShipGrid" type="GridContainer" parent="VBoxContainer/MiddleSection/ScrollContainer/MarginContainer"]
+[node name="PageNavigation" type="HBoxContainer" parent="VBoxContainer/MiddleSection/PagedContent"]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/h_separation = 40
-theme_override_constants/v_separation = 40
-columns = 2
+alignment = 1
+
+[node name="PrevButton" type="Button" parent="VBoxContainer/MiddleSection/PagedContent/PageNavigation"]
+custom_minimum_size = Vector2(150, 60)
+layout_mode = 2
+
+[node name="PageLabel" type="Label" parent="VBoxContainer/MiddleSection/PagedContent/PageNavigation"]
+custom_minimum_size = Vector2(200, 60)
+layout_mode = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NextButton" type="Button" parent="VBoxContainer/MiddleSection/PagedContent/PageNavigation"]
+custom_minimum_size = Vector2(150, 60)
+layout_mode = 2
 
 [node name="BottomSection" type="PanelContainer" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 780)
@@ -141,7 +147,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/h_separation = 15
 theme_override_constants/v_separation = 15
-columns = 5
+columns = 4
 
 [node name="WEAPONS" type="ScrollContainer" parent="VBoxContainer/BottomSection/MarginContainer/HBoxContainer/TabContainer"]
 visible = false
@@ -157,11 +163,12 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="Label" type="Label" parent="VBoxContainer/BottomSection/MarginContainer/HBoxContainer/TabContainer/WEAPONS/MarginContainer"]
+[node name="WeaponsGrid" type="GridContainer" parent="VBoxContainer/BottomSection/MarginContainer/HBoxContainer/TabContainer/WEAPONS/MarginContainer"]
 layout_mode = 2
-text = "Weapons inventory will go here"
-horizontal_alignment = 1
-vertical_alignment = 1
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
+columns = 4
 
 [node name="FLEET UPGRADES" type="ScrollContainer" parent="VBoxContainer/BottomSection/MarginContainer/HBoxContainer/TabContainer"]
 visible = false
@@ -177,11 +184,12 @@ theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
-[node name="Label" type="Label" parent="VBoxContainer/BottomSection/MarginContainer/HBoxContainer/TabContainer/FLEET UPGRADES/MarginContainer"]
+[node name="FleetUpgradesGrid" type="GridContainer" parent="VBoxContainer/BottomSection/MarginContainer/HBoxContainer/TabContainer/FLEET UPGRADES/MarginContainer"]
 layout_mode = 2
-text = "Fleet upgrades (Tier 2 relics) will go here"
-horizontal_alignment = 1
-vertical_alignment = 1
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
+columns = 3
 
 [node name="FOUNDRY" type="ScrollContainer" parent="VBoxContainer/BottomSection/MarginContainer/HBoxContainer/TabContainer"]
 visible = false

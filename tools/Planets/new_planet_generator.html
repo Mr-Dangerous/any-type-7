@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procedural Planet Generator</title>
+    <style id="custom-styles">
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 2rem;
+        }
+        #main-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+        #controls {
+            background-color: #2a2a2a;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            width: 320px;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            color: #00aaff;
+        }
+        .control-group {
+            margin-bottom: 1.25rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        input[type="number"], select, input[type="range"] {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #f0f0f0;
+            box-sizing: border-box;
+        }
+        input[type="range"] {
+            padding: 0;
+        }
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        button {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            background-color: #0077cc;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #005fa3;
+        }
+        #randomize {
+            background-color: #5a3e8d;
+        }
+        #randomize:hover {
+            background-color: #483270;
+        }
+        #export-spritesheet, #export-single {
+            background-color: #2a8d3c;
+        }
+        #export-spritesheet:hover, #export-single:hover {
+            background-color: #217030;
+        }
+        #canvas-container {
+            background-color: #2a2a2a;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        canvas {
+            background-color: #000;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-container">
+        <div id="controls">
+            <h1>Planet Generator</h1>
+            
+            <div class="control-group">
+                <label for="planetType">Preset</label>
+                <select id="planetType">
+                    <option value="rocky_water">Rocky (Water)</option>
+                    <option value="rocky_no_water">Rocky (No Water)</option>
+                    <option value="dark_rocky">Dark Rocky</option>
+                    <option value="dark_rocky_water">Dark Rocky (Water)</option>
+                    <option value="gas_giant_bands">Gas Giant (Bands)</option>
+                    <option value="gas_giant_swirls">Gas Giant (Swirls)</option>
+                    <option value="gas_giant_smooth">Gas Giant (Smooth)</option>
+                    <option value="star_red">Red Star</option>
+                    <option value="star_yellow_white">Yellow-White Star</option>
+                    <option value="black_hole">Black Hole</option>
+                    <option value="asteroid">Asteroid</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="seed">Seed</label>
+                <input type="number" id="seed" value="12345">
+            </div>
+    
+            <div class="control-group">
+                <label for="resolution">Resolution: <span id="resolution-val">256</span>px</label>
+                <input type="range" id="resolution" min="20" max="500" step="4" value="256">
+            </div>
+    
+            <div class="control-group">
+                <label for="noiseScale">Noise Scale: <span id="noiseScale-val">1.5</span></label>
+                <input type="range" id="noiseScale" min="1" max="400" value="150">
+            </div>
+    
+            <div class="control-group">
+                <label for="octaves">Octaves: <span id="octaves-val">4</span></label>
+                <input type="range" id="octaves" min="1" max="8" value="4">
+            </div>
+
+            <div class="control-group">
+                <label for="tiltDirection">Tilt Direction</label>
+                <select id="tiltDirection">
+                    <option value="none">None</option>
+                    <option value="vertical" selected>Vertical</option>
+                    <option value="horizontal">Horizontal</option>
+                </select>
+            </div>
+    
+            <div class="button-group">
+                <button id="generate">Generate</button>
+                <button id="randomize-seed">Randomize Seed</button>
+                <button id="randomize">Randomize All</button>
+                <button id="export-single">Export PNG</button>
+                <button id="export-spritesheet">Export Spritesheet</button>
+            </div>
+        </div>
+    
+        <div id="canvas-container">
+            <canvas id="planetCanvas" width="256" height="256"></canvas>
+        </div>
+    </div>
+
+    <script id="perlin-noise-script">
+        // --- 3D Perlin Noise Implementation ---
+        const Perlin = {
+            rand_vect_3d: function(){
+                let theta = Math.random() * 2 * Math.PI;
+                let phi = Math.acos(2 * Math.random() - 1);
+                let sinPhi = Math.sin(phi);
+                return {x: Math.cos(theta) * sinPhi, y: Math.sin(theta) * sinPhi, z: Math.cos(phi)};
+            },
+            dot_prod_grid_3d: function(x, y, z, vx, vy, vz){
+                let g_vect;
+                let d_vect = {x: x - vx, y: y - vy, z: z - vz};
+                const key = `${vx},${vy},${vz}`;
+                if (this.gradients[key]){
+                    g_vect = this.gradients[key];
+                } else {
+                    g_vect = this.rand_vect_3d();
+                    this.gradients[key] = g_vect;
+                }
+                return d_vect.x * g_vect.x + d_vect.y * g_vect.y + d_vect.z * g_vect.z;
+            },
+            smootherstep: function(x){
+                return 6*x**5 - 15*x**4 + 10*x**3;
+            },
+            interp: function(x, a, b){
+                return a + this.smootherstep(x) * (b-a);
+            },
+            seed: function(s) {
+                let seededRandom = function() {
+                    let x = Math.sin(s++) * 10000;
+                    return x - Math.floor(x);
+                };
+                this.gradients = {};
+                this.memory = {};
+                this.rand_vect_3d = function(){
+                    let theta = seededRandom() * 2 * Math.PI;
+                    let phi = Math.acos(2 * seededRandom() - 1);
+                    let sinPhi = Math.sin(phi);
+                    return {x: Math.cos(theta) * sinPhi, y: Math.sin(theta) * sinPhi, z: Math.cos(phi)};
+                };
+            },
+            get3D: function(x, y, z) {
+                const key = `${x.toFixed(3)},${y.toFixed(3)},${z.toFixed(3)}`;
+                if (this.memory[key]) return this.memory[key];
+
+                let xf = Math.floor(x);
+                let yf = Math.floor(y);
+                let zf = Math.floor(z);
+
+                let c000 = this.dot_prod_grid_3d(x, y, z, xf,   yf,   zf);
+                let c100 = this.dot_prod_grid_3d(x, y, z, xf+1, yf,   zf);
+                let c010 = this.dot_prod_grid_3d(x, y, z, xf,   yf+1, zf);
+                let c110 = this.dot_prod_grid_3d(x, y, z, xf+1, yf+1, zf);
+                let c001 = this.dot_prod_grid_3d(x, y, z, xf,   yf,   zf+1);
+                let c101 = this.dot_prod_grid_3d(x, y, z, xf+1, yf,   zf+1);
+                let c011 = this.dot_prod_grid_3d(x, y, z, xf,   yf+1, zf+1);
+                let c111 = this.dot_prod_grid_3d(x, y, z, xf+1, yf+1, zf+1);
+
+                let c00 = this.interp(x - xf, c000, c100);
+                let c01 = this.interp(x - xf, c001, c101);
+                let c10 = this.interp(x - xf, c010, c110);
+                let c11 = this.interp(x - xf, c011, c111);
+
+                let c0 = this.interp(y - yf, c00, c10);
+                let c1 = this.interp(y - yf, c01, c11);
+
+                let val = this.interp(z - zf, c0, c1);
+                this.memory[key] = val;
+                return val;
+            }
+        };
+    </script>
+    <script id="main-script">
+        const ui = {
+            planetType: document.getElementById('planetType'),
+            seed: document.getElementById('seed'),
+            resolution: document.getElementById('resolution'),
+            resolutionVal: document.getElementById('resolution-val'),
+            noiseScale: document.getElementById('noiseScale'),
+            noiseScaleVal: document.getElementById('noiseScale-val'),
+            octaves: document.getElementById('octaves'),
+            octavesVal: document.getElementById('octaves-val'),
+            tiltDirection: document.getElementById('tiltDirection'),
+            generateBtn: document.getElementById('generate'),
+            randomizeSeedBtn: document.getElementById('randomize-seed'),
+            randomizeBtn: document.getElementById('randomize'),
+            exportSingleBtn: document.getElementById('export-single'),
+            exportSpritesheetBtn: document.getElementById('export-spritesheet'),
+            canvas: document.getElementById('planetCanvas'),
+            ctx: document.getElementById('planetCanvas').getContext('2d'),
+        };
+
+        const palettes = {
+            rocky_water: [
+                { limit: -0.3, color: '#223B75' }, { limit: 0.0, color: '#3A5E95' }, { limit: 0.3, color: '#4D7D4B' },
+                { limit: 0.6, color: '#7BAB79' }, { limit: 0.8, color: '#947761' }, { limit: 1.1, color: '#FFFFFF' },
+            ],
+            rocky_no_water: [
+                { limit: 0.3, color: '#634b3a' }, { limit: 0.6, color: '#8d705a' },
+                { limit: 0.8, color: '#a68a73' }, { limit: 1.1, color: '#c7b09c' },
+            ],
+            dark_rocky: [
+                { limit: 0.3, color: '#2c2c2c' }, { limit: 0.6, color: '#4a4a4a' },
+                { limit: 0.8, color: '#636363' }, { limit: 1.1, color: '#7a7a7a' },
+            ],
+            dark_rocky_water: [
+                { limit: -0.2, color: '#1a2a52' }, { limit: 0.0, color: '#2a3a6b' }, { limit: 0.3, color: '#3c3c3c' },
+                { limit: 0.6, color: '#5a5a5a' }, { limit: 0.8, color: '#737373' }, { limit: 1.1, color: '#8c8c8c' },
+            ],
+            gas_giant_bands: [
+                [ { limit: -0.5, color: '#5A3010' }, { limit: -0.2, color: '#8A4A22' },{ limit: 0.1, color: '#B35E2D' }, { limit: 0.4, color: '#D87D43' }, { limit: 1.1, color: '#F0A96B' } ],
+                [ { limit: -0.6, color: '#1B2C5A' }, { limit: -0.3, color: '#2C4A8A' }, { limit: 0.0, color: '#5B7ABD' }, { limit: 0.3, color: '#A2B8E0' }, { limit: 1.1, color: '#DDEEFF' } ],
+                [ { limit: -0.5, color: '#8C7B5A' }, { limit: -0.2, color: '#A08F6E' }, { limit: 0.1, color: '#C4B598' }, { limit: 0.4, color: '#DCD0B5' }, { limit: 1.1, color: '#F0EAD6' } ],
+            ],
+            gas_giant_swirls: [
+                [ { limit: -0.5, color: '#1E4D2B' }, { limit: -0.2, color: '#2A6A3D' }, { limit: 0.1, color: '#4F9D69' }, { limit: 0.4, color: '#86C198' }, { limit: 1.1, color: '#C5E2CF' } ],
+                [ { limit: -0.6, color: '#4A0000' }, { limit: -0.3, color: '#7B0000' }, { limit: 0.0, color: '#A82A2A' }, { limit: 0.3, color: '#D45C5C' }, { limit: 1.1, color: '#F09B9B' } ],
+                [ { limit: -0.5, color: '#3B1E4D' }, { limit: -0.2, color: '#5C2A6A' }, { limit: 0.1, color: '#864F9D' }, { limit: 0.4, color: '#B486C1' }, { limit: 1.1, color: '#DDC5E2' } ],
+            ],
+            gas_giant_smooth: [
+                [ { limit: -0.5, color: '#664200' }, { limit: -0.2, color: '#996300' }, { limit: 0.1, color: '#CC8500' }, { limit: 0.4, color: '#FFB733' }, { limit: 1.1, color: '#FFD788' } ],
+                [ { limit: -0.5, color: '#3D2B1F' }, { limit: -0.2, color: '#5A3F2F' }, { limit: 0.1, color: '#90B098' }, { limit: 0.4, color: '#B8D8C0' }, { limit: 1.1, color: '#E0F0E8' } ],
+                [ { limit: -0.5, color: '#3A5FCD' }, { limit: -0.2, color: '#6495ED' }, { limit: 0.1, color: '#87CEEB' }, { limit: 0.4, color: '#B0E0E6' }, { limit: 1.1, color: '#F0FFFF' } ],
+            ],
+            star_red: [
+                { limit: 0.5, color: '#FF4500' }, { limit: 0.8, color: '#FF6347' }, { limit: 1.1, color: '#FFD700' }
+            ],
+            star_yellow_white: [
+                { limit: 0.5, color: '#FFFFE0' }, { limit: 0.8, color: '#FFFFFF' }, { limit: 1.1, color: '#F0E68C' }
+            ],
+            asteroid: [
+                { limit: 0.3, color: '#5a5a5a' }, { limit: 0.6, color: '#828282' },
+                { limit: 0.8, color: '#a0a0a0' }, { limit: 1.1, color: '#c8c8c8' },
+            ]
+        };
+
+        // --- Event Listeners ---
+        ui.resolution.addEventListener('input', () => { 
+            ui.resolutionVal.textContent = ui.resolution.value;
+        });
+        ui.noiseScale.addEventListener('input', () => { 
+            ui.noiseScaleVal.textContent = (parseFloat(ui.noiseScale.value) / 100).toFixed(2);
+        });
+        ui.octaves.addEventListener('input', () => { 
+            ui.octavesVal.textContent = ui.octaves.value;
+        });
+        
+        ui.generateBtn.addEventListener('click', generate);
+
+        ui.randomizeSeedBtn.addEventListener('click', () => {
+            ui.seed.value = Math.floor(Math.random() * 100000);
+        });
+
+        ui.randomizeBtn.addEventListener('click', () => {
+            ui.seed.value = Math.floor(Math.random() * 100000);
+            const resMin = parseInt(ui.resolution.min), resMax = parseInt(ui.resolution.max), resStep = parseInt(ui.resolution.step);
+            const randomRes = Math.floor(Math.random() * (resMax - resMin + 1) / resStep) * resStep + resMin;
+            ui.resolution.value = randomRes;
+            ui.resolutionVal.textContent = randomRes;
+            ui.noiseScale.value = Math.floor(Math.random() * (parseInt(ui.noiseScale.max) - parseInt(ui.noiseScale.min) + 1)) + parseInt(ui.noiseScale.min);
+            ui.noiseScaleVal.textContent = (parseFloat(ui.noiseScale.value) / 100).toFixed(2);
+            ui.octaves.value = Math.floor(Math.random() * (parseInt(ui.octaves.max) - parseInt(ui.octaves.min) + 1)) + parseInt(ui.octaves.min);
+            ui.octavesVal.textContent = ui.octaves.value;
+            ui.planetType.selectedIndex = Math.floor(Math.random() * ui.planetType.options.length);
+            ui.tiltDirection.selectedIndex = Math.floor(Math.random() * ui.tiltDirection.options.length);
+        });
+
+        ui.exportSingleBtn.addEventListener('click', () => exportImage(false));
+        ui.exportSpritesheetBtn.addEventListener('click', () => exportImage(true));
+
+        function generate(isSpriteSheet = false) {
+            const resolution = parseInt(ui.resolution.value);
+            const planetType = ui.planetType.value;
+            const seed = parseInt(ui.seed.value);
+            const noiseScale = parseFloat(ui.noiseScale.value) / 100;
+            const octaves = parseInt(ui.octaves.value);
+            const tiltDirection = ui.tiltDirection.value;
+
+            Perlin.seed(seed);
+
+            const frameCount = isSpriteSheet ? 16 : 1;
+            ui.canvas.width = resolution * frameCount;
+            ui.canvas.height = resolution;
+            ui.ctx.clearRect(0, 0, ui.canvas.width, ui.canvas.height);
+
+            let palette;
+            if (planetType.startsWith('gas_giant')) {
+                const gasPalettes = palettes[planetType];
+                palette = gasPalettes[seed % gasPalettes.length];
+            } else {
+                palette = palettes[planetType];
+            }
+
+            let tiltRad = 0;
+            if (tiltDirection !== 'none') {
+                const tiltDegrees = (seed % 51) - 25; // Tilt between -25 and 25 degrees
+                tiltRad = tiltDegrees * (Math.PI / 180);
+            }
+            
+            const sinTilt = Math.sin(tiltRad);
+            const cosTilt = Math.cos(tiltRad);
+
+            for (let frame = 0; frame < frameCount; frame++) {
+                const imageData = ui.ctx.createImageData(resolution, resolution);
+                const data = imageData.data;
+                const spinRad = (frame / frameCount) * 2 * Math.PI;
+                const sinSpin = Math.sin(sinSpin);
+                const cosSpin = Math.cos(spinRad);
+
+                if (planetType === 'black_hole') {
+                    drawBlackHole(data, resolution, seed);
+                    ui.ctx.putImageData(imageData, resolution * frame, 0);
+                    continue;
+                }
+
+                if (planetType === 'asteroid') {
+                    drawAsteroid(data, resolution, seed);
+                    ui.ctx.putImageData(imageData, resolution * frame, 0);
+                    continue;
+                }
+
+                for (let y = 0; y < resolution; y++) {
+                    for (let x = 0; x < resolution; x++) {
+                        const u = (x - resolution/2) / (resolution/2);
+                        const v = (y - resolution/2) / (resolution/2);
+                        const distSq = u*u + v*v;
+
+                        if (distSq > 1) continue;
+
+                        const w = Math.sqrt(1 - distSq);
+                        
+                        let px = u, py = v, pz = w;
+
+                        let px_tilted = px, py_tilted = py, pz_tilted = pz;
+
+                        if (tiltDirection === 'vertical') {
+                            py_tilted = py * cosTilt - pz * sinTilt;
+                            pz_tilted = py * sinTilt + pz * cosTilt;
+                        } else if (tiltDirection === 'horizontal') {
+                            px_tilted = px * cosTilt - pz * sinTilt;
+                            pz_tilted = px * sinTilt + pz * cosTilt;
+                        }
+
+                        // Apply spin
+                        let px_spun = px_tilted * cosSpin - pz_tilted * sinSpin;
+                        let py_spun = py_tilted;
+                        let pz_spun = px_tilted * sinSpin + pz_tilted * cosSpin;
+                        
+                        let noiseVal = 0;
+                        let frequency = 1;
+                        let amplitude = 1;
+                        let maxAmplitude = 0;
+
+                        for (let i = 0; i < octaves; i++) {
+                            noiseVal += Perlin.get3D(
+                                px_spun * frequency / noiseScale, 
+                                py_spun * frequency / noiseScale, 
+                                pz_spun * frequency / noiseScale
+                            ) * amplitude;
+                            maxAmplitude += amplitude;
+                            amplitude *= 0.5;
+                            frequency *= 2;
+                        }
+                        noiseVal /= maxAmplitude;
+
+                        if (planetType === 'gas_giant_bands') {
+                            const bandSignal = Math.sin(py_spun * 15.0);
+                            noiseVal = (noiseVal * 0.7) + (bandSignal * 0.3);
+                        } else if (planetType === 'gas_giant_swirls') {
+                            const swirlX = Perlin.get3D(py_spun / noiseScale, pz_spun / noiseScale, px_spun / noiseScale);
+                            const swirlY = Perlin.get3D(px_spun / noiseScale, py_spun / noiseScale, pz_spun / noiseScale);
+                            noiseVal += Math.sin( (swirlX + swirlY) * 10.0) * 0.2;
+                        } else if (planetType.startsWith('star')) {
+                            const edge = 1.0 - (u*u + v*v);
+                            noiseVal = (noiseVal + edge) / 2.0;
+                        }
+
+
+                        const colorHex = getColor(noiseVal, palette);
+                        let finalColor = hexToRgb(colorHex);
+                        
+                        if (finalColor) {
+                            const index = (y * resolution + x) * 4;
+                            data[index] = finalColor.r;
+                            data[index+1] = finalColor.g;
+                            data[index+2] = finalColor.b;
+                            data[index+3] = 255;
+                        }
+                    }
+                }
+                ui.ctx.putImageData(imageData, resolution * frame, 0);
+            }
+        }
+        function drawBlackHole(data, resolution, seed) {
+            const centerX = resolution / 2;
+            const centerY = resolution / 2;
+            const radius = resolution / 4;
+
+            for (let y = 0; y < resolution; y++) {
+                for (let x = 0; x < resolution; x++) {
+                    const dx = x - centerX;
+                    const dy = y - centerY;
+                    const dist = Math.hypot(dx, dy);
+                    const angle = Math.atan2(dy, dx);
+
+                    const index = (y * resolution + x) * 4;
+                    if (dist < radius) {
+                        data[index] = 0;
+                        data[index+1] = 0;
+                        data[index+2] = 0;
+                        data[index+3] = 255;
+                    } else if (dist < radius * 2) {
+                        const noise = Perlin.get3D(Math.cos(angle) * 2, Math.sin(angle) * 2, seed/1000);
+                        const intensity = 1 - (dist - radius) / radius;
+                        const r = intensity * 255 + noise * 50;
+                        const g = intensity * 200 + noise * 50;
+                        const b = intensity * 100 + noise * 20;
+                        data[index] = r > 255 ? 255 : r < 0 ? 0 : r;
+                        data[index+1] = g > 255 ? 255 : g < 0 ? 0 : g;
+                        data[index+2] = b > 255 ? 255 : b < 0 ? 0 : b;
+                        data[index+3] = 255;
+                    }
+                }
+            }
+        }
+        
+        function drawAsteroid(data, resolution, seed) {
+            const centerX = resolution / 2;
+            const centerY = resolution / 2;
+            
+            Perlin.seed(seed);
+            const palette = palettes.asteroid;
+
+            for (let y = 0; y < resolution; y++) {
+                for (let x = 0; x < resolution; x++) {
+                    const u = (x - resolution/2) / (resolution/2);
+                    const v = (y - resolution/2) / (resolution/2);
+                    
+                    let angle = Math.atan2(v, u);
+                    let radius = Math.hypot(u,v);
+                    
+                    let noiseVal = 0;
+                    let frequency = 1;
+                    let amplitude = 1;
+                    for (let i = 0; i < 4; i++) {
+                        noiseVal += Perlin.get3D(Math.cos(angle) * frequency, Math.sin(angle) * frequency, 0) * amplitude;
+                        frequency *= 2;
+                        amplitude *= 0.5;
+                    }
+                    
+                    let distortedRadius = 0.5 + noiseVal * 0.2;
+
+                    if (radius < distortedRadius) {
+                        let surfaceNoise = Perlin.get3D(u * 5, v * 5, 0.5);
+                        surfaceNoise = (surfaceNoise + 1) / 2;
+                        
+                        const colorHex = getColor(surfaceNoise, palette);
+                        let finalColor = hexToRgb(colorHex);
+
+                        const index = (y * resolution + x) * 4;
+                        data[index] = finalColor.r;
+                        data[index+1] = finalColor.g;
+                        data[index+2] = finalColor.b;
+                        data[index+3] = 255;
+                    }
+                }
+            }
+        }
+
+
+        function exportImage(isSpriteSheet) {
+            const link = document.createElement('a');
+            const filename = `planet_${ui.planetType.value}_${ui.seed.value}${isSpriteSheet ? '_spritesheet' : ''}.png`;
+            link.download = filename;
+            
+            if (isSpriteSheet) {
+                generate(true); // Regenerate with spritesheet flag
+                link.href = ui.canvas.toDataURL('image/png');
+                link.click();
+                generate(false); // Regenerate single frame for display
+            } else {
+                link.href = ui.canvas.toDataURL('image/png');
+                link.click();
+            }
+        }
+
+        function getColor(value, palette) {
+            if (!palette) return '#000000';
+            for (const entry of palette) {
+                if (value < entry.limit) return entry.color;
+            }
+            return palette[palette.length - 1].color;
+        }
+
+        function hexToRgb(hex) {
+            if (!hex) return null;
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
+        }
+
+        // Initial generation
+        ui.noiseScaleVal.textContent = (parseFloat(ui.noiseScale.value) / 100).toFixed(2);
+        ui.resolutionVal.textContent = ui.resolution.value;
+        ui.octavesVal.textContent = ui.octaves.value;
+        //generate();
+
+    </script>

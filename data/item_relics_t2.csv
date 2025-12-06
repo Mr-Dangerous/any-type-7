@@ -1,108 +1,108 @@
 item_id,item_name,tier,component_1,component_2,attack_speed_percent,attack_damage,shield_points,hull_points,hull_regen_per_sec,energy_regen_per_sec,amplitude_percent,resilience_percent,movement_speed_percent,precision_percent,starting_energy,armor,attack_range_bonus,max_energy_bonus,crit_damage_bonus,evasion_percent,unique_effect_code,unique_effect_description,flavor_text
-overclocked_targeting,Overclocked Targeting,2,chronometer,chronometer,30,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,range_extension,"Attacks hit enemies 3 grid squares further","Time dilation extends your reach"
-devastator_core,Devastator Core,2,amplifier,amplifier,0,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,pierce_1,"Projectiles pierce and hit additional enemy behind target","Overwhelming firepower tears through defenses"
-regenerative_shielding,Regenerative Shielding,2,aegis_plate,aegis_plate,0,0,120,0,0,0,0,0,0,0,0,0,0,0,0,0,shield_regen_combat,"Shields regenerate 5% per second during combat","An ever-renewing barrier"
-adamantium_frame,Adamantium Frame,2,reinforced_hull,reinforced_hull,0,0,0,175,0,0,0,0,0,0,0,5,0,0,0,0,damage_resist_low_hp,"25% damage reduction when below 30% hull","Refuses to die when it matters most"
-harmonic_amplifier,Harmonic Amplifier,2,resonator,resonator,0,0,0,0,0,0,50,0,0,0,0,0,0,0,0,0,energy_cost_reduction,"Abilities cost 10% less energy","Efficiency through resonance"
-null_field_generator,Null Field Generator,2,dampener,dampener,0,0,0,0,0,0,0,35,0,0,0,0,0,0,0,0,status_immunity_first,"First status effect each combat is negated","What cannot touch you cannot harm you"
-afterburner_array,Afterburner Array,2,thruster_module,thruster_module,0,0,0,0,0,0,0,0,45,0,0,0,0,0,0,15,speed_evasion,"High speed grants bonus evasion","Too fast to be caught"
-quantum_sight,Quantum Sight,2,precision_lens,precision_lens,0,0,0,0,0,0,0,0,0,25,0,0,0,0,50,0,crit_damage_200,"Critical hits deal 200% damage instead of 150%","Perfect strikes shatter reality"
-overcharge_matrix,Overcharge Matrix,2,capacitor,capacitor,0,0,0,0,0,0,0,0,0,0,60,0,0,20,0,0,full_energy_start,"Start combat with full energy","Strike first, strike hardest"
-reactive_plating,Reactive Plating,2,ablative_coating,ablative_coating,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,reflect_10,"Reflect 10% of damage back to attacker","Your aggression is your undoing"
-fortress_hull,Fortress Hull,2,human_legacy,human_legacy,0,0,0,120,0,0,0,0,0,0,0,5,0,0,0,0,armor_per_100hull,"Gain +1 Armor per 100 Hull Points (max +10)","Unyielding human engineering"
-regenerative_core,Regenerative Core,2,alien_legacy,alien_legacy,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,regen_double_low_hp,"Hull regen doubled when below 50% health","Adaptive alien biology"
-adaptive_shielding,Adaptive Shielding,2,machine_legacy,machine_legacy,0,0,120,0,0,0,0,0,0,0,0,0,0,0,0,0,shield_regen_combat,"Shields regenerate 3% per second during combat","Synthetic self-repair protocols"
-overcharged_reactor,Overcharged Reactor,2,toxic_legacy,toxic_legacy,0,0,0,0,0,5,0,0,0,0,0,0,0,30,0,0,energy_ramp,"Energy regen increases by 1/sec every 10s (max +5/sec)","Unstable power escalation"
-autocannon_protocol,Autocannon Protocol,2,chronometer,amplifier,15,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,burst_5th_attack,"Every 5th attack deals double damage","Rhythm becomes devastation"
-surgical_strikes,Surgical Strikes,2,chronometer,precision_lens,15,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,crit_ramp,"Gain +3% Crit Chance per attack (max 5 stacks, resets on crit)","Patience rewarded with perfection"
-execution_protocol,Execution Protocol,2,amplifier,precision_lens,0,10,0,0,0,0,0,0,0,10,0,0,0,0,0,0,execute_crit,"Crits deal +50% damage to enemies below 30% health","Finish what you started"
-hit_and_run,Hit and Run,2,chronometer,thruster_module,15,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,speed_on_attack,"Gain +30% movement speed for 2s after attacking","Strike and vanish"
-armor_piercing_rounds,Armor Piercing Rounds,2,amplifier,ablative_coating,0,10,0,0,0,0,0,0,0,0,0,8,0,0,0,0,armor_ignore_30,"Attacks ignore 30% of enemy armor","No defense is absolute"
+overclocked_targeting,Overclocked Targeting,2,chronometer,chronometer,30,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,range_extension,Attacks hit enemies 3 grid squares further,Time dilation extends your reach
+devastator_core,Devastator Core,2,amplifier,amplifier,0,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,pierce_1,Projectiles pierce and hit additional enemy behind target,Overwhelming firepower tears through defenses
+regenerative_shielding,Regenerative Shielding,2,aegis_plate,aegis_plate,0,0,120,0,0,0,0,0,0,0,0,0,0,0,0,0,shield_regen_combat,Shields regenerate 5% per second during combat,An ever-renewing barrier
+adamantium_frame,Adamantium Frame,2,reinforced_hull,reinforced_hull,0,0,0,175,0,0,0,0,0,0,0,5,0,0,0,0,damage_resist_low_hp,25% damage reduction when below 30% hull,Refuses to die when it matters most
+harmonic_amplifier,Harmonic Amplifier,2,resonator,resonator,0,0,0,0,0,0,50,0,0,0,0,0,0,0,0,0,energy_cost_reduction,Abilities cost 10% less energy,Efficiency through resonance
+null_field_generator,Null Field Generator,2,dampener,dampener,0,0,0,0,0,0,0,35,0,0,0,0,0,0,0,0,status_immunity_first,First status effect each combat is negated,What cannot touch you cannot harm you
+afterburner_array,Afterburner Array,2,thruster_module,thruster_module,0,0,0,0,0,0,0,0,45,0,0,0,0,0,0,15,speed_evasion,High speed grants bonus evasion,Too fast to be caught
+quantum_sight,Quantum Sight,2,precision_lens,precision_lens,0,0,0,0,0,0,0,0,0,25,0,0,0,0,50,0,crit_damage_200,Critical hits deal 200% damage instead of 150%,Perfect strikes shatter reality
+overcharge_matrix,Overcharge Matrix,2,capacitor,capacitor,0,0,0,0,0,0,0,0,0,0,60,0,0,20,0,0,full_energy_start,Start combat with full energy,"Strike first, strike hardest"
+reactive_plating,Reactive Plating,2,ablative_coating,ablative_coating,0,0,0,0,0,0,0,0,0,0,0,20,0,0,0,0,reflect_10,Reflect 10% of damage back to attacker,Your aggression is your undoing
+fortress_hull,Fortress Hull,2,human_legacy,human_legacy,0,0,0,120,0,0,0,0,0,0,0,5,0,0,0,0,armor_per_100hull,Gain +1 Armor per 100 Hull Points (max +10),Unyielding human engineering
+regenerative_core,Regenerative Core,2,alien_legacy,alien_legacy,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,regen_double_low_hp,Hull regen doubled when below 50% health,Adaptive alien biology
+adaptive_shielding,Adaptive Shielding,2,machine_legacy,machine_legacy,0,0,120,0,0,0,0,0,0,0,0,0,0,0,0,0,shield_regen_combat,Shields regenerate 3% per second during combat,Synthetic self-repair protocols
+overcharged_reactor,Overcharged Reactor,2,toxic_legacy,toxic_legacy,0,0,0,0,0,5,0,0,0,0,0,0,0,30,0,0,energy_ramp,Energy regen increases by 1/sec every 10s (max +5/sec),Unstable power escalation
+autocannon_protocol,Autocannon Protocol,2,chronometer,amplifier,15,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,burst_5th_attack,Every 5th attack deals double damage,Rhythm becomes devastation
+surgical_strikes,Surgical Strikes,2,chronometer,precision_lens,15,0,0,0,0,0,0,0,0,10,0,0,0,0,0,0,crit_ramp,"Gain +3% Crit Chance per attack (max 5 stacks, resets on crit)",Patience rewarded with perfection
+execution_protocol,Execution Protocol,2,amplifier,precision_lens,0,10,0,0,0,0,0,0,0,10,0,0,0,0,0,0,execute_crit,Crits deal +50% damage to enemies below 30% health,Finish what you started
+hit_and_run,Hit and Run,2,chronometer,thruster_module,15,0,0,0,0,0,0,0,20,0,0,0,0,0,0,0,speed_on_attack,Gain +30% movement speed for 2s after attacking,Strike and vanish
+armor_piercing_rounds,Armor Piercing Rounds,2,amplifier,ablative_coating,0,10,0,0,0,0,0,0,0,0,0,8,0,0,0,0,armor_ignore_30,Attacks ignore 30% of enemy armor,No defense is absolute
 bulwark_configuration,Bulwark Configuration,2,aegis_plate,reinforced_hull,0,0,50,75,0,0,0,0,0,0,0,0,0,0,0,0,armor_on_shield_break,"When shields break, gain +15 Armor for 5s","One layer falls, another hardens"
-harmonic_barrier,Harmonic Barrier,2,aegis_plate,dampener,0,0,50,0,0,0,0,15,0,0,0,0,0,0,0,0,shield_blocks_status,"Status effects only applied when shields depleted","Purity shielded from corruption"
-fortress_protocol,Fortress Protocol,2,reinforced_hull,ablative_coating,0,0,0,75,0,0,0,0,0,0,0,8,0,0,0,0,armor_per_100hull,"Gain +1 Armor per 100 Hull Points (max +10)","Mass is power"
-evasive_maneuvers,Evasive Maneuvers,2,thruster_module,dampener,0,0,0,0,0,0,0,15,20,0,0,0,0,0,0,10,movement_cleanse,"Movement purges one status effect per second","Outrun your problems"
-kinetic_shielding,Kinetic Shielding,2,chronometer,aegis_plate,15,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,shields_on_attack,"Gain 5 shields per attack landed (max 100 bonus)","Momentum becomes protection"
-amplified_reserves,Amplified Reserves,2,resonator,capacitor,0,0,0,0,0,0,20,0,0,0,25,0,0,0,0,0,ability_scale_energy,"Abilities gain +10% effectiveness per 50 energy remaining","Potential stored is potential multiplied"
-stabilized_resonance,Stabilized Resonance,2,resonator,dampener,0,0,0,0,0,0,20,15,0,0,0,0,0,0,0,0,uninterruptible_abilities,"Abilities cannot be interrupted by status effects","Focus cannot be broken"
-critical_charge,Critical Charge,2,capacitor,precision_lens,0,0,0,0,0,0,0,0,0,10,25,0,0,0,0,0,energy_on_crit,"Critical hits restore 5 energy","Violence begets power"
-momentum_drive,Momentum Drive,2,capacitor,thruster_module,0,0,0,0,0,0,0,0,20,0,25,0,0,0,0,0,energy_on_movement,"Movement generates 1 energy per second","Motion is energy"
-reinforced_firepower,Reinforced Firepower,2,human_legacy,amplifier,0,10,0,50,0,0,0,0,0,0,0,0,0,0,0,0,free_attacks,"15% chance attacks don't consume cooldown","Endurance fuels relentless assault"
-endurance_protocol,Endurance Protocol,2,human_legacy,chronometer,15,0,0,50,0,0,0,0,0,0,0,0,0,0,0,0,heal_on_kill,"Regenerate 5 hull on kill","Victory sustains the warrior"
-survivors_aim,Survivor's Aim,2,human_legacy,precision_lens,0,0,0,50,0,0,0,0,0,10,0,0,0,0,0,0,crit_low_hp,"Gain +5% Crit Chance when below 30% hull","Desperation sharpens focus"
-bulwark_frame,Bulwark Frame,2,human_legacy,aegis_plate,0,0,50,50,0,0,0,0,0,0,0,0,0,0,0,0,armor_on_shield_break,"When shields break, gain +15 Armor for 5s","Layered defenses"
-fortress_doctrine,Fortress Doctrine,2,human_legacy,ablative_coating,0,0,0,50,0,0,0,0,0,0,0,8,0,0,0,0,armor_per_100hull,"Gain +1 Armor per 100 Hull Points (max +10)","Mass becomes armor"
-titans_strength,Titan's Strength,2,human_legacy,resonator,0,0,0,50,0,0,20,0,0,0,0,0,0,0,0,0,ability_scale_hull,"Abilities scale with max Hull (+1% per 100 Hull)","Size amplifies power"
-unyielding_resolve,Unyielding Resolve,2,human_legacy,dampener,0,0,0,50,0,0,0,15,0,0,0,0,0,0,0,0,status_immunity_first,"Immune to first status effect each combat","Humanity refuses to falter"
-heavy_mobility,Heavy Mobility,2,human_legacy,thruster_module,0,0,0,50,0,0,0,0,20,0,0,0,0,0,0,0,no_speed_penalty,"Movement speed not reduced by armor/hull","Strength without sluggishness"
-endurance_core,Endurance Core,2,human_legacy,capacitor,0,0,0,50,0,0,0,0,0,0,25,0,0,0,0,0,energy_on_damage,"Gain 1 energy per 20 hull damage taken","Pain fuels determination"
-bio_weapon,Bio-Weapon,2,alien_legacy,amplifier,0,10,0,0,3,0,0,0,0,0,0,0,0,0,0,0,lifesteal_20,"20% chance attacks heal for 10% damage dealt","Life feeds on destruction"
-adaptive_metabolism,Adaptive Metabolism,2,alien_legacy,chronometer,15,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,attack_speed_regen,"Attack speed increases hull regen by 0.5/sec","Activity accelerates healing"
-evolutionary_strike,Evolutionary Strike,2,alien_legacy,precision_lens,0,0,0,0,3,0,0,0,0,10,0,0,0,0,0,0,crit_heal,"Critical hits heal for 15 hull","Perfect strikes sustain"
-symbiotic_shield,Symbiotic Shield,2,alien_legacy,aegis_plate,0,0,50,0,3,0,0,0,0,0,0,0,0,0,0,0,regen_to_shields,"Hull regen applies to shields at 50% rate","Unified regeneration"
-living_armor,Living Armor,2,alien_legacy,ablative_coating,0,0,0,0,3,0,0,0,0,0,0,8,0,0,0,0,armor_regen,"Armor regenerates 1 point per 5s (if depleted)","Organic plate restoration"
-biotic_amplifier,Biotic Amplifier,2,alien_legacy,resonator,0,0,0,0,3,0,20,0,0,0,0,0,0,0,0,0,spell_vamp,"Abilities heal for 5% of damage dealt","Power channels vitality"
-adaptive_biology,Adaptive Biology,2,alien_legacy,dampener,0,0,0,0,3,0,0,15,0,0,0,0,0,0,0,0,regen_on_damage,"Taking damage increases hull regen by 1/sec for 3s","Adversity breeds growth"
-metabolic_overdrive,Metabolic Overdrive,2,alien_legacy,thruster_module,0,0,0,0,3,0,0,0,20,0,0,0,0,0,0,0,movement_regen,"Movement speed increases hull regen (0.5/sec per 10% speed)","Motion heals"
-bioenergy_converter,Bioenergy Converter,2,alien_legacy,capacitor,0,0,0,0,3,0,0,0,0,0,25,0,0,0,0,0,regen_to_energy,"Convert excess hull regen to energy when at full HP (2 regen = 1 energy/sec)","Vitality becomes power"
-targeting_algorithm,Targeting Algorithm,2,machine_legacy,amplifier,0,10,50,0,0,0,0,0,0,0,0,0,0,0,0,0,perfect_accuracy_shields,"100% accuracy while shields active","Precision through computation"
-overclocked_core,Overclocked Core,2,machine_legacy,chronometer,15,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,attack_speed_per_shield,"Gain +5% Attack Speed per 50 shields remaining","Power drives tempo"
-synthetic_precision,Synthetic Precision,2,machine_legacy,precision_lens,0,0,50,0,0,0,0,0,0,10,0,0,0,0,0,0,guaranteed_crit_10th,"Guaranteed crit every 10th shot while shields active","Calculated perfection"
-composite_frame,Composite Frame,2,machine_legacy,reinforced_hull,0,0,50,75,0,0,0,0,0,0,0,0,0,0,0,0,shared_damage_reduction,"Shields and hull share damage reduction","Unified defenses"
-reactive_systems,Reactive Systems,2,machine_legacy,ablative_coating,0,0,50,0,0,0,0,0,0,0,0,8,0,0,0,0,armor_on_shield_break,"When shields break, gain +10 Armor for 5s","Automated countermeasures"
-power_conduit,Power Conduit,2,machine_legacy,resonator,0,0,50,0,0,0,20,0,0,0,0,0,0,0,0,0,shields_as_energy,"Abilities cost shields instead of energy at 2:1 ratio","Redirect power reserves"
-electronic_warfare,Electronic Warfare,2,machine_legacy,dampener,0,0,50,0,0,0,0,15,0,0,0,0,0,0,0,0,shield_blocks_status,"Status effects only applied when shields depleted","Digital immunity"
-thruster_matrix,Thruster Matrix,2,machine_legacy,thruster_module,0,0,50,0,0,0,0,0,20,0,0,0,0,0,0,10,evasion_while_shields,"Gain +10% Evasion while shields active","Speed through power"
-energy_lattice,Energy Lattice,2,machine_legacy,capacitor,0,0,50,0,0,0,0,0,0,0,25,0,0,0,0,0,energy_on_shield_damage,"Gain 1 energy per 10 shield damage absorbed","Absorption feeds the core"
-corrosive_rounds,Corrosive Rounds,2,toxic_legacy,amplifier,0,10,0,0,0,2,0,0,0,0,0,0,0,0,0,0,acid_20percent,"20% chance to apply 1 Acid stack on hit","Corruption through firepower"
-radioactive_barrage,Radioactive Barrage,2,toxic_legacy,chronometer,15,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,attack_speed_energy_regen,"Fast attacks increase energy regen by 0.3/sec","Speed generates power"
-toxic_injection,Toxic Injection,2,toxic_legacy,precision_lens,0,0,0,0,0,2,0,0,0,10,0,0,0,0,0,0,crit_acid,"Critical hits apply 2 Acid stacks","Precision delivers payload"
-contaminated_barrier,Contaminated Barrier,2,toxic_legacy,aegis_plate,0,0,50,0,0,2,0,0,0,0,0,0,0,0,0,0,toxic_cloud_on_break,"Shield break releases toxic cloud (1 Acid/sec nearby for 3s)","Breach triggers contamination"
-irradiated_plating,Irradiated Plating,2,toxic_legacy,reinforced_hull,0,0,0,75,0,2,0,0,0,0,0,0,0,0,0,0,acid_reflect,"Enemies that attack you have 20% chance to gain 1 Acid stack","Contact corrodes"
-reactive_venom,Reactive Venom,2,toxic_legacy,ablative_coating,0,0,0,0,0,2,0,0,0,0,0,8,0,0,0,0,acid_thorn,"Reflect 10% damage as Acid damage","Defense becomes offense"
-toxic_amplification,Toxic Amplification,2,toxic_legacy,resonator,0,0,0,0,0,2,20,0,0,0,0,0,0,0,0,0,acid_aoe_abilities,"Abilities apply 1 Acid stack to all hit enemies","Power spreads corruption"
-toxin_filter,Toxin Filter,2,toxic_legacy,dampener,0,0,0,0,0,2,0,15,0,0,0,0,0,0,0,0,acid_immunity_energy,"Immune to Acid, convert stacks to energy (1 stack = 5 energy)","Corruption becomes fuel"
-contamination_wake,Contamination Wake,2,toxic_legacy,thruster_module,0,0,0,0,0,2,0,0,20,0,0,0,0,0,0,0,toxic_trail,"Leave toxic trail (1 Acid/sec to enemies in path)","Movement spreads decay"
-biofuel_matrix,Biofuel Matrix,2,toxic_legacy,capacitor,0,0,0,0,0,2,0,0,0,0,25,0,0,0,0,0,double_regen_high_energy,"Double energy regen when above 75% energy","Overflow accelerates"
-hybrid_vitality,Hybrid Vitality,2,human_legacy,alien_legacy,0,0,0,50,3,0,0,0,0,0,0,0,0,0,0,0,regen_scale_hull,"Hull regen scales with max hull (+0.5 regen per 100 hull)","Evolution meets endurance"
-augmented_chassis,Augmented Chassis,2,human_legacy,machine_legacy,0,0,50,50,0,0,0,0,0,0,0,0,0,0,0,0,shared_damage_reduction,"Hull and shields share damage reduction bonuses","Flesh and steel unified"
-hazmat_configuration,Hazmat Configuration,2,human_legacy,toxic_legacy,0,0,0,50,0,2,0,0,0,0,0,0,0,0,0,0,environmental_immunity,"Immune to environmental damage and Acid","Hardened against corruption"
-cybernetic_symbiosis,Cybernetic Symbiosis,2,alien_legacy,machine_legacy,0,0,50,0,3,0,0,0,0,0,0,0,0,0,0,0,shield_regen_combat,"Shields regenerate during combat at 50% normal rate","Biology meets technology"
-mutagenic_evolution,Mutagenic Evolution,2,alien_legacy,toxic_legacy,0,0,0,0,3,2,0,0,0,0,0,0,0,0,0,0,debuff_regen_scaling,"Status effects increase both regens by 1/sec each","Corruption breeds adaptation"
-reactor_core,Reactor Core,2,machine_legacy,toxic_legacy,0,0,50,0,0,2,0,0,0,0,0,0,0,0,0,0,explosion_on_shield_break,"Shield break releases energy explosion (50 damage, 3 grid AOE)","Overload becomes weapon"
-flanking_tactics,Flanking Tactics,2,thruster_module,precision_lens,0,0,0,0,0,0,0,0,20,10,0,0,0,0,0,0,backstab,"Attacks from behind deal +25% damage and always crit","Speed positions for the killing blow"
-titans_presence,Titan's Presence,2,reinforced_hull,resonator,0,0,0,75,0,0,20,0,0,0,0,0,0,0,0,0,ability_scale_hull,"Abilities scale with max Hull (+1% per 100 Hull)","Mass becomes might"
-hardened_focus,Hardened Focus,2,ablative_coating,resonator,0,0,0,0,0,0,20,0,0,0,0,8,0,0,0,0,armor_scale_ability,"Armor increases ability damage (+1% per 5 Armor)","Resilience sharpens the mind"
-unflinching_aim,Unflinching Aim,2,dampener,precision_lens,0,0,0,0,0,0,0,15,0,10,0,0,0,0,0,0,status_immune_accuracy,"Status effects don't reduce accuracy or crit chance","Nothing shakes your focus"
-charged_barrier,Charged Barrier,2,aegis_plate,capacitor,0,0,50,0,0,0,0,0,0,0,25,0,0,0,0,0,energy_on_shield_damage,"Gain 1 energy per 10 shield damage absorbed","Turn defense into offense"
-endurance_matrix,Endurance Matrix,2,reinforced_hull,capacitor,0,0,0,75,0,0,0,0,0,0,25,0,0,0,0,0,energy_on_damage,"Gain 1 energy per 20 hull damage taken","Pain fuels power"
-overloaded_output,Overloaded Output,2,amplifier,resonator,0,10,0,0,0,0,20,0,0,0,0,0,0,0,0,0,hybrid_damage_amp,"Attacks and Abilities both gain +15% damage","Everything hits harder"
-chronometer_aegis,Chronometer + Aegis Plate,2,chronometer,aegis_plate,15,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,shields_on_attack,"Gain 5 shields per attack landed (max 100 bonus)","Momentum becomes protection"
-chronometer_hull,Chronometer + Hull,2,chronometer,reinforced_hull,15,0,0,75,0,0,0,0,0,0,0,0,0,0,0,0,heal_on_kill,"Regenerate 5 hull per kill","Speed breeds victory"
-chronometer_resonator,Chronometer + Resonator,2,chronometer,resonator,15,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,ability_cooldown_attack,"Attacking reduces ability cooldowns by 5%","Tempo synergy"
-chronometer_dampener,Chronometer + Dampener,2,chronometer,dampener,15,0,0,0,0,0,0,15,0,0,0,0,0,0,0,0,purge_on_attack,"Every 3rd attack purges one status effect","Swift cleansing"
-chronometer_capacitor,Chronometer + Capacitor,2,chronometer,capacitor,15,0,0,0,0,0,0,0,0,0,25,0,0,0,0,0,energy_on_attack,"Every 5th attack restores 5 energy","Sustained rhythm"
-chronometer_coating,Chronometer + Coating,2,chronometer,ablative_coating,15,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,armor_on_attack_speed,"Attack speed grants armor (1 armor per 10% attack speed)","Speed hardens"
-amplifier_aegis,Amplifier + Aegis,2,amplifier,aegis_plate,0,10,50,0,0,0,0,0,0,0,0,0,0,0,0,0,damage_per_shield,"Gain +1% damage per 25 shields remaining","Power through defense"
-amplifier_hull,Amplifier + Hull,2,amplifier,reinforced_hull,0,10,0,75,0,0,0,0,0,0,0,0,0,0,0,0,damage_per_hull,"Gain +1% damage per 50 hull remaining","Mighty endurance"
-amplifier_resonator,Amplifier + Resonator,2,amplifier,resonator,0,10,0,0,0,0,20,0,0,0,0,0,0,0,0,0,hybrid_damage_amp,"Attacks and abilities both gain +15% damage","Everything hits harder"
-amplifier_dampener,Amplifier + Dampener,2,amplifier,dampener,0,10,0,0,0,0,0,15,0,0,0,0,0,0,0,0,damage_per_resist,"Gain +1% damage per 5% resilience","Stubborn offense"
-amplifier_thruster,Amplifier + Thruster,2,amplifier,thruster_module,0,10,0,0,0,0,0,0,20,0,0,0,0,0,0,0,damage_while_moving,"Gain +20% damage while moving","Mobile firepower"
-amplifier_capacitor,Amplifier + Capacitor,2,amplifier,capacitor,0,10,0,0,0,0,0,0,0,0,25,0,0,0,0,0,damage_per_energy,"Gain +1% damage per 25 energy","Charged strikes"
+harmonic_barrier,Harmonic Barrier,2,aegis_plate,dampener,0,0,50,0,0,0,0,15,0,0,0,0,0,0,0,0,shield_blocks_status,Status effects only applied when shields depleted,Purity shielded from corruption
+fortress_protocol,Fortress Protocol,2,reinforced_hull,ablative_coating,0,0,0,75,0,0,0,0,0,0,0,8,0,0,0,0,armor_per_100hull,Gain +1 Armor per 100 Hull Points (max +10),Mass is power
+evasive_maneuvers,Evasive Maneuvers,2,thruster_module,dampener,0,0,0,0,0,0,0,15,20,0,0,0,0,0,0,10,movement_cleanse,Movement purges one status effect per second,Outrun your problems
+kinetic_shielding,Kinetic Shielding,2,chronometer,aegis_plate,15,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,shields_on_attack,Gain 5 shields per attack landed (max 100 bonus),Momentum becomes protection
+amplified_reserves,Amplified Reserves,2,resonator,capacitor,0,0,0,0,0,0,20,0,0,0,25,0,0,0,0,0,ability_scale_energy,Abilities gain +10% effectiveness per 50 energy remaining,Potential stored is potential multiplied
+stabilized_resonance,Stabilized Resonance,2,resonator,dampener,0,0,0,0,0,0,20,15,0,0,0,0,0,0,0,0,uninterruptible_abilities,Abilities cannot be interrupted by status effects,Focus cannot be broken
+critical_charge,Critical Charge,2,capacitor,precision_lens,0,0,0,0,0,0,0,0,0,10,25,0,0,0,0,0,energy_on_crit,Critical hits restore 5 energy,Violence begets power
+momentum_drive,Momentum Drive,2,capacitor,thruster_module,0,0,0,0,0,0,0,0,20,0,25,0,0,0,0,0,energy_on_movement,Movement generates 1 energy per second,Motion is energy
+reinforced_firepower,Reinforced Firepower,2,human_legacy,amplifier,0,10,0,50,0,0,0,0,0,0,0,0,0,0,0,0,free_attacks,15% chance attacks don't consume cooldown,Endurance fuels relentless assault
+endurance_protocol,Endurance Protocol,2,human_legacy,chronometer,15,0,0,50,0,0,0,0,0,0,0,0,0,0,0,0,heal_on_kill,Regenerate 5 hull on kill,Victory sustains the warrior
+survivors_aim,Survivor's Aim,2,human_legacy,precision_lens,0,0,0,50,0,0,0,0,0,10,0,0,0,0,0,0,crit_low_hp,Gain +5% Crit Chance when below 30% hull,Desperation sharpens focus
+bulwark_frame,Bulwark Frame,2,human_legacy,aegis_plate,0,0,50,50,0,0,0,0,0,0,0,0,0,0,0,0,armor_on_shield_break,"When shields break, gain +15 Armor for 5s",Layered defenses
+fortress_doctrine,Fortress Doctrine,2,human_legacy,ablative_coating,0,0,0,50,0,0,0,0,0,0,0,8,0,0,0,0,armor_per_100hull,Gain +1 Armor per 100 Hull Points (max +10),Mass becomes armor
+titans_strength,Titan's Strength,2,human_legacy,resonator,0,0,0,50,0,0,20,0,0,0,0,0,0,0,0,0,ability_scale_hull,Abilities scale with max Hull (+1% per 100 Hull),Size amplifies power
+unyielding_resolve,Unyielding Resolve,2,human_legacy,dampener,0,0,0,50,0,0,0,15,0,0,0,0,0,0,0,0,status_immunity_first,Immune to first status effect each combat,Humanity refuses to falter
+heavy_mobility,Heavy Mobility,2,human_legacy,thruster_module,0,0,0,50,0,0,0,0,20,0,0,0,0,0,0,0,no_speed_penalty,Movement speed not reduced by armor/hull,Strength without sluggishness
+endurance_core,Endurance Core,2,human_legacy,capacitor,0,0,0,50,0,0,0,0,0,0,25,0,0,0,0,0,energy_on_damage,Gain 1 energy per 20 hull damage taken,Pain fuels determination
+bio_weapon,Bio-Weapon,2,alien_legacy,amplifier,0,10,0,0,3,0,0,0,0,0,0,0,0,0,0,0,lifesteal_20,20% chance attacks heal for 10% damage dealt,Life feeds on destruction
+adaptive_metabolism,Adaptive Metabolism,2,alien_legacy,chronometer,15,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,attack_speed_regen,Attack speed increases hull regen by 0.5/sec,Activity accelerates healing
+evolutionary_strike,Evolutionary Strike,2,alien_legacy,precision_lens,0,0,0,0,3,0,0,0,0,10,0,0,0,0,0,0,crit_heal,Critical hits heal for 15 hull,Perfect strikes sustain
+symbiotic_shield,Symbiotic Shield,2,alien_legacy,aegis_plate,0,0,50,0,3,0,0,0,0,0,0,0,0,0,0,0,regen_to_shields,Hull regen applies to shields at 50% rate,Unified regeneration
+living_armor,Living Armor,2,alien_legacy,ablative_coating,0,0,0,0,3,0,0,0,0,0,0,8,0,0,0,0,armor_regen,Armor regenerates 1 point per 5s (if depleted),Organic plate restoration
+biotic_amplifier,Biotic Amplifier,2,alien_legacy,resonator,0,0,0,0,3,0,20,0,0,0,0,0,0,0,0,0,spell_vamp,Abilities heal for 5% of damage dealt,Power channels vitality
+adaptive_biology,Adaptive Biology,2,alien_legacy,dampener,0,0,0,0,3,0,0,15,0,0,0,0,0,0,0,0,regen_on_damage,Taking damage increases hull regen by 1/sec for 3s,Adversity breeds growth
+metabolic_overdrive,Metabolic Overdrive,2,alien_legacy,thruster_module,0,0,0,0,3,0,0,0,20,0,0,0,0,0,0,0,movement_regen,Movement speed increases hull regen (0.5/sec per 10% speed),Motion heals
+bioenergy_converter,Bioenergy Converter,2,alien_legacy,capacitor,0,0,0,0,3,0,0,0,0,0,25,0,0,0,0,0,regen_to_energy,Convert excess hull regen to energy when at full HP (2 regen = 1 energy/sec),Vitality becomes power
+targeting_algorithm,Targeting Algorithm,2,machine_legacy,amplifier,0,10,50,0,0,0,0,0,0,0,0,0,0,0,0,0,perfect_accuracy_shields,100% accuracy while shields active,Precision through computation
+overclocked_core,Overclocked Core,2,machine_legacy,chronometer,15,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,attack_speed_per_shield,Gain +5% Attack Speed per 50 shields remaining,Power drives tempo
+synthetic_precision,Synthetic Precision,2,machine_legacy,precision_lens,0,0,50,0,0,0,0,0,0,10,0,0,0,0,0,0,guaranteed_crit_10th,Guaranteed crit every 10th shot while shields active,Calculated perfection
+composite_frame,Composite Frame,2,machine_legacy,reinforced_hull,0,0,50,75,0,0,0,0,0,0,0,0,0,0,0,0,shared_damage_reduction,Shields and hull share damage reduction,Unified defenses
+reactive_systems,Reactive Systems,2,machine_legacy,ablative_coating,0,0,50,0,0,0,0,0,0,0,0,8,0,0,0,0,armor_on_shield_break,"When shields break, gain +10 Armor for 5s",Automated countermeasures
+power_conduit,Power Conduit,2,machine_legacy,resonator,0,0,50,0,0,0,20,0,0,0,0,0,0,0,0,0,shields_as_energy,Abilities cost shields instead of energy at 2:1 ratio,Redirect power reserves
+electronic_warfare,Electronic Warfare,2,machine_legacy,dampener,0,0,50,0,0,0,0,15,0,0,0,0,0,0,0,0,shield_blocks_status,Status effects only applied when shields depleted,Digital immunity
+thruster_matrix,Thruster Matrix,2,machine_legacy,thruster_module,0,0,50,0,0,0,0,0,20,0,0,0,0,0,0,10,evasion_while_shields,Gain +10% Evasion while shields active,Speed through power
+energy_lattice,Energy Lattice,2,machine_legacy,capacitor,0,0,50,0,0,0,0,0,0,0,25,0,0,0,0,0,energy_on_shield_damage,Gain 1 energy per 10 shield damage absorbed,Absorption feeds the core
+corrosive_rounds,Corrosive Rounds,2,toxic_legacy,amplifier,0,10,0,0,0,2,0,0,0,0,0,0,0,0,0,0,acid_20percent,20% chance to apply 1 Acid stack on hit,Corruption through firepower
+radioactive_barrage,Radioactive Barrage,2,toxic_legacy,chronometer,15,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,attack_speed_energy_regen,Fast attacks increase energy regen by 0.3/sec,Speed generates power
+toxic_injection,Toxic Injection,2,toxic_legacy,precision_lens,0,0,0,0,0,2,0,0,0,10,0,0,0,0,0,0,crit_acid,Critical hits apply 2 Acid stacks,Precision delivers payload
+contaminated_barrier,Contaminated Barrier,2,toxic_legacy,aegis_plate,0,0,50,0,0,2,0,0,0,0,0,0,0,0,0,0,toxic_cloud_on_break,Shield break releases toxic cloud (1 Acid/sec nearby for 3s),Breach triggers contamination
+irradiated_plating,Irradiated Plating,2,toxic_legacy,reinforced_hull,0,0,0,75,0,2,0,0,0,0,0,0,0,0,0,0,acid_reflect,Enemies that attack you have 20% chance to gain 1 Acid stack,Contact corrodes
+reactive_venom,Reactive Venom,2,toxic_legacy,ablative_coating,0,0,0,0,0,2,0,0,0,0,0,8,0,0,0,0,acid_thorn,Reflect 10% damage as Acid damage,Defense becomes offense
+toxic_amplification,Toxic Amplification,2,toxic_legacy,resonator,0,0,0,0,0,2,20,0,0,0,0,0,0,0,0,0,acid_aoe_abilities,Abilities apply 1 Acid stack to all hit enemies,Power spreads corruption
+toxin_filter,Toxin Filter,2,toxic_legacy,dampener,0,0,0,0,0,2,0,15,0,0,0,0,0,0,0,0,acid_immunity_energy,"Immune to Acid, convert stacks to energy (1 stack = 5 energy)",Corruption becomes fuel
+contamination_wake,Contamination Wake,2,toxic_legacy,thruster_module,0,0,0,0,0,2,0,0,20,0,0,0,0,0,0,0,toxic_trail,Leave toxic trail (1 Acid/sec to enemies in path),Movement spreads decay
+biofuel_matrix,Biofuel Matrix,2,toxic_legacy,capacitor,0,0,0,0,0,2,0,0,0,0,25,0,0,0,0,0,double_regen_high_energy,Double energy regen when above 75% energy,Overflow accelerates
+hybrid_vitality,Hybrid Vitality,2,human_legacy,alien_legacy,0,0,0,50,3,0,0,0,0,0,0,0,0,0,0,0,regen_scale_hull,Hull regen scales with max hull (+0.5 regen per 100 hull),Evolution meets endurance
+augmented_chassis,Augmented Chassis,2,human_legacy,machine_legacy,0,0,50,50,0,0,0,0,0,0,0,0,0,0,0,0,shared_damage_reduction,Hull and shields share damage reduction bonuses,Flesh and steel unified
+hazmat_configuration,Hazmat Configuration,2,human_legacy,toxic_legacy,0,0,0,50,0,2,0,0,0,0,0,0,0,0,0,0,environmental_immunity,Immune to environmental damage and Acid,Hardened against corruption
+cybernetic_symbiosis,Cybernetic Symbiosis,2,alien_legacy,machine_legacy,0,0,50,0,3,0,0,0,0,0,0,0,0,0,0,0,shield_regen_combat,Shields regenerate during combat at 50% normal rate,Biology meets technology
+mutagenic_evolution,Mutagenic Evolution,2,alien_legacy,toxic_legacy,0,0,0,0,3,2,0,0,0,0,0,0,0,0,0,0,debuff_regen_scaling,Status effects increase both regens by 1/sec each,Corruption breeds adaptation
+reactor_core,Reactor Core,2,machine_legacy,toxic_legacy,0,0,50,0,0,2,0,0,0,0,0,0,0,0,0,0,explosion_on_shield_break,"Shield break releases energy explosion (50 damage, 3 grid AOE)",Overload becomes weapon
+flanking_tactics,Flanking Tactics,2,thruster_module,precision_lens,0,0,0,0,0,0,0,0,20,10,0,0,0,0,0,0,backstab,Attacks from behind deal +25% damage and always crit,Speed positions for the killing blow
+titans_presence,Titan's Presence,2,reinforced_hull,resonator,0,0,0,75,0,0,20,0,0,0,0,0,0,0,0,0,ability_scale_hull,Abilities scale with max Hull (+1% per 100 Hull),Mass becomes might
+hardened_focus,Hardened Focus,2,ablative_coating,resonator,0,0,0,0,0,0,20,0,0,0,0,8,0,0,0,0,armor_scale_ability,Armor increases ability damage (+1% per 5 Armor),Resilience sharpens the mind
+unflinching_aim,Unflinching Aim,2,dampener,precision_lens,0,0,0,0,0,0,0,15,0,10,0,0,0,0,0,0,status_immune_accuracy,Status effects don't reduce accuracy or crit chance,Nothing shakes your focus
+charged_barrier,Charged Barrier,2,aegis_plate,capacitor,0,0,50,0,0,0,0,0,0,0,25,0,0,0,0,0,energy_on_shield_damage,Gain 1 energy per 10 shield damage absorbed,Turn defense into offense
+endurance_matrix,Endurance Matrix,2,reinforced_hull,capacitor,0,0,0,75,0,0,0,0,0,0,25,0,0,0,0,0,energy_on_damage,Gain 1 energy per 20 hull damage taken,Pain fuels power
+overloaded_output,Overloaded Output,2,amplifier,resonator,0,10,0,0,0,0,20,0,0,0,0,0,0,0,0,0,hybrid_damage_amp,Attacks and Abilities both gain +15% damage,Everything hits harder
+chronometer_aegis,Chronometer + Aegis Plate,2,chronometer,aegis_plate,15,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,shields_on_attack,Gain 5 shields per attack landed (max 100 bonus),Momentum becomes protection
+chronometer_hull,Chronometer + Hull,2,chronometer,reinforced_hull,15,0,0,75,0,0,0,0,0,0,0,0,0,0,0,0,heal_on_kill,Regenerate 5 hull per kill,Speed breeds victory
+chronometer_resonator,Chronometer + Resonator,2,chronometer,resonator,15,0,0,0,0,0,20,0,0,0,0,0,0,0,0,0,ability_cooldown_attack,Attacking reduces ability cooldowns by 5%,Tempo synergy
+chronometer_dampener,Chronometer + Dampener,2,chronometer,dampener,15,0,0,0,0,0,0,15,0,0,0,0,0,0,0,0,purge_on_attack,Every 3rd attack purges one status effect,Swift cleansing
+chronometer_capacitor,Chronometer + Capacitor,2,chronometer,capacitor,15,0,0,0,0,0,0,0,0,0,25,0,0,0,0,0,energy_on_attack,Every 5th attack restores 5 energy,Sustained rhythm
+chronometer_coating,Chronometer + Coating,2,chronometer,ablative_coating,15,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,armor_on_attack_speed,Attack speed grants armor (1 armor per 10% attack speed),Speed hardens
+amplifier_aegis,Amplifier + Aegis,2,amplifier,aegis_plate,0,10,50,0,0,0,0,0,0,0,0,0,0,0,0,0,damage_per_shield,Gain +1% damage per 25 shields remaining,Power through defense
+amplifier_hull,Amplifier + Hull,2,amplifier,reinforced_hull,0,10,0,75,0,0,0,0,0,0,0,0,0,0,0,0,damage_per_hull,Gain +1% damage per 50 hull remaining,Mighty endurance
+amplifier_resonator,Amplifier + Resonator,2,amplifier,resonator,0,10,0,0,0,0,20,0,0,0,0,0,0,0,0,0,hybrid_damage_amp,Attacks and abilities both gain +15% damage,Everything hits harder
+amplifier_dampener,Amplifier + Dampener,2,amplifier,dampener,0,10,0,0,0,0,0,15,0,0,0,0,0,0,0,0,damage_per_resist,Gain +1% damage per 5% resilience,Stubborn offense
+amplifier_thruster,Amplifier + Thruster,2,amplifier,thruster_module,0,10,0,0,0,0,0,0,20,0,0,0,0,0,0,0,damage_while_moving,Gain +20% damage while moving,Mobile firepower
+amplifier_capacitor,Amplifier + Capacitor,2,amplifier,capacitor,0,10,0,0,0,0,0,0,0,0,25,0,0,0,0,0,damage_per_energy,Gain +1% damage per 25 energy,Charged strikes
 aegis_hull,Aegis + Hull,2,aegis_plate,reinforced_hull,0,0,50,75,0,0,0,0,0,0,0,0,0,0,0,0,armor_on_shield_break,"When shields break, gain +15 Armor for 5s","One layer falls, another hardens"
-aegis_resonator,Aegis + Resonator,2,aegis_plate,resonator,0,0,50,0,0,0,20,0,0,0,0,0,0,0,0,0,shield_per_ability,"Gain 10 shields per ability used","Power shields"
-aegis_thruster,Aegis + Thruster,2,aegis_plate,thruster_module,0,0,50,0,0,0,0,0,20,0,0,0,0,0,0,0,shield_regen_moving,"Shield regen increases while moving","Motion protects"
-aegis_coating,Aegis + Coating,2,aegis_plate,ablative_coating,0,0,50,0,0,0,0,0,0,0,0,8,0,0,0,0,layered_defense,"Armor applies to shields at 50% effectiveness","Dual layer"
-hull_resonator,Hull + Resonator,2,reinforced_hull,resonator,0,0,0,75,0,0,20,0,0,0,0,0,0,0,0,0,ability_scale_hull,"Abilities scale with max Hull (+1% per 100 Hull)","Mass becomes might"
-hull_dampener,Hull + Dampener,2,reinforced_hull,dampener,0,0,0,75,0,0,0,15,0,0,0,0,0,0,0,0,resist_per_hull,"Gain +1% Resilience per 50 hull","Stubborn bulk"
-hull_thruster,Hull + Thruster,2,reinforced_hull,thruster_module,0,0,0,75,0,0,0,0,20,0,0,0,0,0,0,0,no_speed_penalty,"Movement speed not reduced by hull","Agile juggernaut"
-hull_coating,Hull + Coating,2,reinforced_hull,ablative_coating,0,0,0,75,0,0,0,0,0,0,0,8,0,0,0,0,armor_per_100hull,"Gain +1 Armor per 100 Hull (max +10)","Mass is power"
-resonator_dampener,Resonator + Dampener,2,resonator,dampener,0,0,0,0,0,0,20,15,0,0,0,0,0,0,0,0,uninterruptible_abilities,"Abilities cannot be interrupted by status effects","Focus cannot be broken"
-resonator_thruster,Resonator + Thruster,2,resonator,thruster_module,0,0,0,0,0,0,20,0,20,0,0,0,0,0,0,0,ability_while_moving,"Can use abilities while moving","Mobile caster"
-resonator_coating,Resonator + Coating,2,resonator,ablative_coating,0,0,0,0,0,0,20,0,0,0,0,8,0,0,0,0,armor_scale_ability,"Armor increases ability damage (+1% per 5 Armor)","Hardened focus"
-dampener_thruster,Dampener + Thruster,2,dampener,thruster_module,0,0,0,0,0,0,0,15,20,0,0,0,0,0,0,10,movement_cleanse,"Movement purges one status effect per second","Outrun your problems"
-dampener_capacitor,Dampener + Capacitor,2,dampener,capacitor,0,0,0,0,0,0,0,15,0,0,25,0,0,0,0,0,resist_per_energy,"Gain +1% Resilience per 25 energy","Charged resistance"
-dampener_coating,Dampener + Coating,2,dampener,ablative_coating,0,0,0,0,0,0,0,15,0,0,0,8,0,0,0,0,resist_armor_synergy,"Resilience and Armor share effectiveness","Layered immunity"
-thruster_capacitor,Thruster + Capacitor,2,thruster_module,capacitor,0,0,0,0,0,0,0,0,20,0,25,0,0,0,0,0,energy_on_movement,"Movement generates 1 energy per second","Motion is energy"
-thruster_coating,Thruster + Coating,2,thruster_module,ablative_coating,0,0,0,0,0,0,0,0,20,0,0,8,0,0,0,0,armor_while_moving,"Gain +5 Armor while moving","Mobile fortress"
-capacitor_coating,Capacitor + Coating,2,capacitor,ablative_coating,0,0,0,0,0,0,0,0,0,0,25,8,0,0,0,0,armor_per_energy,"Gain +1 Armor per 25 energy","Charged plating"
+aegis_resonator,Aegis + Resonator,2,aegis_plate,resonator,0,0,50,0,0,0,20,0,0,0,0,0,0,0,0,0,shield_per_ability,Gain 10 shields per ability used,Power shields
+aegis_thruster,Aegis + Thruster,2,aegis_plate,thruster_module,0,0,50,0,0,0,0,0,20,0,0,0,0,0,0,0,shield_regen_moving,Shield regen increases while moving,Motion protects
+aegis_coating,Aegis + Coating,2,aegis_plate,ablative_coating,0,0,50,0,0,0,0,0,0,0,0,8,0,0,0,0,layered_defense,Armor applies to shields at 50% effectiveness,Dual layer
+hull_resonator,Hull + Resonator,2,reinforced_hull,resonator,0,0,0,75,0,0,20,0,0,0,0,0,0,0,0,0,ability_scale_hull,Abilities scale with max Hull (+1% per 100 Hull),Mass becomes might
+hull_dampener,Hull + Dampener,2,reinforced_hull,dampener,0,0,0,75,0,0,0,15,0,0,0,0,0,0,0,0,resist_per_hull,Gain +1% Resilience per 50 hull,Stubborn bulk
+hull_thruster,Hull + Thruster,2,reinforced_hull,thruster_module,0,0,0,75,0,0,0,0,20,0,0,0,0,0,0,0,no_speed_penalty,Movement speed not reduced by hull,Agile juggernaut
+hull_coating,Hull + Coating,2,reinforced_hull,ablative_coating,0,0,0,75,0,0,0,0,0,0,0,8,0,0,0,0,armor_per_100hull,Gain +1 Armor per 100 Hull (max +10),Mass is power
+resonator_dampener,Resonator + Dampener,2,resonator,dampener,0,0,0,0,0,0,20,15,0,0,0,0,0,0,0,0,uninterruptible_abilities,Abilities cannot be interrupted by status effects,Focus cannot be broken
+resonator_thruster,Resonator + Thruster,2,resonator,thruster_module,0,0,0,0,0,0,20,0,20,0,0,0,0,0,0,0,ability_while_moving,Can use abilities while moving,Mobile caster
+resonator_coating,Resonator + Coating,2,resonator,ablative_coating,0,0,0,0,0,0,20,0,0,0,0,8,0,0,0,0,armor_scale_ability,Armor increases ability damage (+1% per 5 Armor),Hardened focus
+dampener_thruster,Dampener + Thruster,2,dampener,thruster_module,0,0,0,0,0,0,0,15,20,0,0,0,0,0,0,10,movement_cleanse,Movement purges one status effect per second,Outrun your problems
+dampener_capacitor,Dampener + Capacitor,2,dampener,capacitor,0,0,0,0,0,0,0,15,0,0,25,0,0,0,0,0,resist_per_energy,Gain +1% Resilience per 25 energy,Charged resistance
+dampener_coating,Dampener + Coating,2,dampener,ablative_coating,0,0,0,0,0,0,0,15,0,0,0,8,0,0,0,0,resist_armor_synergy,Resilience and Armor share effectiveness,Layered immunity
+thruster_capacitor,Thruster + Capacitor,2,thruster_module,capacitor,0,0,0,0,0,0,0,0,20,0,25,0,0,0,0,0,energy_on_movement,Movement generates 1 energy per second,Motion is energy
+thruster_coating,Thruster + Coating,2,thruster_module,ablative_coating,0,0,0,0,0,0,0,0,20,0,0,8,0,0,0,0,armor_while_moving,Gain +5 Armor while moving,Mobile fortress
+capacitor_coating,Capacitor + Coating,2,capacitor,ablative_coating,0,0,0,0,0,0,0,0,0,0,25,8,0,0,0,0,armor_per_energy,Gain +1 Armor per 25 energy,Charged plating

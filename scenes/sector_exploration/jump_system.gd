@@ -4,27 +4,32 @@ extends Node
 ## Handles charge-based lateral teleport with fuel cost and cooldown
 
 # Jump state machine
-enum JumpState { IDLE, CHARGING, ANIMATING, COOLDOWN }
+enum JumpState { IDLE, WAITING_DIRECTION, ANIMATING, COOLDOWN }
 var jump_state: JumpState = JumpState.IDLE
 
 # Jump parameters
-var jump_charge_time: float = 0.0
 var jump_cooldown_timer: float = 0.0
 var jump_target_position: float = 0.0
 var jump_animation_timer: float = 0.0
+var jump_charge_timer: float = 0.0
 var speed_before_jump: float = 0.0
-var jump_direction_locked: bool = false  # true = right, false = left
+var jump_direction: int = 0  # -1 = left, 1 = right, 0 = undecided
+var initial_fuel_spent: bool = false
 
 # Constants
-const JUMP_START_FUEL_COST: int = 3
-const JUMP_FUEL_PER_SECOND: int = 1
-const JUMP_MIN_DISTANCE: float = 100.0
-const JUMP_DISTANCE_PER_SECOND: float = 200.0
+const JUMP_INITIAL_FUEL_COST: int = 3  # Cost when SPACE pressed
+const JUMP_EXECUTION_FUEL_COST: int = 5  # Additional cost when jump executes
+const JUMP_CHARGE_DURATION: float = 1.0  # Must hold for 1 second
+const JUMP_DISTANCE: float = 300.0
 const JUMP_ANIMATION_DURATION: float = 0.5
 const JUMP_COOLDOWN_DURATION: float = 10.0
-const JUMP_INDICATOR_SHOW_DELAY: float = 0.5
 const SCREEN_CENTER: float = 540.0
 const PLAYER_Y_POSITION: float = 1950.0
+
+# Arrow UI for direction selection
+var arrow_left: Node2D = null
+var arrow_right: Node2D = null
+var arrows_visible: bool = false
 
 # References (set by parent)
 var player_movement: Node = null
@@ -41,6 +46,7 @@ func initialize(player_mv: Node, scroll_sys: Node, ship: Node2D) -> void:
 	player_movement = player_mv
 	scrolling_system = scroll_sys
 	player_ship = ship
+	_create_arrow_ui()
 	print("[JumpSystem] Linked to player movement and scrolling systems")
 
 
@@ -48,9 +54,9 @@ func handle_input(event: InputEvent) -> void:
 	"""Handle jump input (SPACE key)"""
 	if event is InputEventKey and event.keycode == KEY_SPACE:
 		if event.pressed and not event.echo:
-			_start_jump_charge()
+			_start_jump()
 		elif not event.pressed:
-			_release_jump()
+			_cancel_jump_if_waiting()
 
 
 func process_jump(delta: float) -> void:
@@ -69,25 +75,32 @@ func process_jump(delta: float) -> void:
 					print("[JumpSystem] Cooldown complete - Jump ready")
 					IndicatorManager.hide_cooldown_indicator()
 
-		JumpState.CHARGING:
-			# Update charge time
-			jump_charge_time += delta
+		JumpState.WAITING_DIRECTION:
+			# Update charge timer
+			jump_charge_timer += delta
 
-			# Consume fuel per second
-			var fuel_cost_this_frame = JUMP_FUEL_PER_SECOND * delta
-			var current_fuel = ResourceManager.get_resource("fuel")
+			# Update arrow visual (pulse when ready)
+			if jump_charge_timer >= JUMP_CHARGE_DURATION:
+				_pulse_arrows()
 
-			if current_fuel <= 0:
-				print("[JumpSystem] Out of fuel - Jump cancelled")
-				_cancel_jump()
-				return
-
-			# Spend fuel
-			var fuel_to_spend = min(fuel_cost_this_frame, current_fuel)
-			ResourceManager.spend_resources({"fuel": fuel_to_spend}, "jump_charge")
-
-			# Update jump indicator
-			_update_jump_indicator()
+			# Check for direction input (only after 1 second charge)
+			if jump_charge_timer >= JUMP_CHARGE_DURATION:
+				if Input.is_key_pressed(KEY_A):
+					jump_direction = -1  # Left
+					if ResourceManager.spend_resources({"fuel": JUMP_EXECUTION_FUEL_COST}, "jump_execution"):
+						_begin_jump_animation()
+					else:
+						jump_state = JumpState.IDLE
+						_hide_arrows()
+						print("[JumpSystem] Not enough fuel to complete jump (need %d)" % JUMP_EXECUTION_FUEL_COST)
+				elif Input.is_key_pressed(KEY_D):
+					jump_direction = 1  # Right
+					if ResourceManager.spend_resources({"fuel": JUMP_EXECUTION_FUEL_COST}, "jump_execution"):
+						_begin_jump_animation()
+					else:
+						jump_state = JumpState.IDLE
+						_hide_arrows()
+						print("[JumpSystem] Not enough fuel to complete jump (need %d)" % JUMP_EXECUTION_FUEL_COST)
 
 		JumpState.ANIMATING:
 			# Update animation timer
@@ -106,96 +119,59 @@ func process_jump(delta: float) -> void:
 			pass
 
 
-func _start_jump_charge() -> void:
-	"""Start charging a jump"""
+func _start_jump() -> void:
+	"""Start a jump - spend 3 fuel and show arrows"""
 	# Can only start if idle and not on cooldown
 	if jump_state != JumpState.IDLE or jump_cooldown_timer > 0.0:
 		return
 
 	# Check fuel for initial cost
-	if ResourceManager.get_resource("fuel") < JUMP_START_FUEL_COST:
-		print("[JumpSystem] Not enough fuel to start jump (need %d)" % JUMP_START_FUEL_COST)
+	if ResourceManager.get_resource("fuel") < JUMP_INITIAL_FUEL_COST:
+		print("[JumpSystem] Not enough fuel to start jump (need %d)" % JUMP_INITIAL_FUEL_COST)
 		return
 
-	# Spend initial fuel
-	if not ResourceManager.spend_resources({"fuel": JUMP_START_FUEL_COST}, "jump_start"):
+	# Spend initial fuel immediately
+	if not ResourceManager.spend_resources({"fuel": JUMP_INITIAL_FUEL_COST}, "jump_initial"):
 		return
 
-	# Start charging
-	jump_state = JumpState.CHARGING
-	jump_charge_time = 0.0
+	# Start charging (must hold for 1 second)
+	jump_state = JumpState.WAITING_DIRECTION
+	jump_charge_timer = 0.0
+	initial_fuel_spent = true
 
-	# Lock jump direction based on current position
-	var player_x = player_movement.get_position()
-	if player_x < SCREEN_CENTER:
-		jump_direction_locked = true  # Jump right
-	elif player_x > SCREEN_CENTER:
-		jump_direction_locked = false  # Jump left
-	else:
-		jump_direction_locked = false  # Default to left at exact center
+	# Always show arrows
+	_show_arrows()
 
-	var direction_name = "RIGHT" if jump_direction_locked else "LEFT"
-	print("[JumpSystem] Jump charging started - Direction locked: %s - Initial fuel cost: %d" % [direction_name, JUMP_START_FUEL_COST])
+	print("[JumpSystem] Jump charging - Hold for %.1fs, press A/D for direction (-%d fuel)" % [JUMP_CHARGE_DURATION, JUMP_INITIAL_FUEL_COST])
 
 
-func _release_jump() -> void:
-	"""Release the jump and execute it"""
-	if jump_state != JumpState.CHARGING:
-		return
+func _cancel_jump_if_waiting() -> void:
+	"""Cancel jump if waiting for direction (SPACE released)"""
+	if jump_state == JumpState.WAITING_DIRECTION:
+		jump_state = JumpState.IDLE
+		_hide_arrows()
+		print("[JumpSystem] Jump cancelled - SPACE released before direction chosen")
 
-	# Calculate final jump target using locked direction
-	var jump_distance = _calculate_jump_distance()
-	jump_target_position = _calculate_jump_target(jump_distance, jump_direction_locked)
 
-	# Start jump animation
+func _begin_jump_animation() -> void:
+	"""Begin the jump animation"""
+	# Calculate target position (fixed 300px distance)
+	var current_pos = player_movement.get_position()
+	jump_target_position = current_pos + (jump_direction * JUMP_DISTANCE)
+	jump_target_position = clamp(jump_target_position, 30.0, 1050.0)
+
+	# Start animation
 	jump_state = JumpState.ANIMATING
 	jump_animation_timer = 0.0
 	speed_before_jump = scrolling_system.get_speed_multiplier()
 	scrolling_system.set_speed_multiplier(0.0)  # Stop scrolling
 	player_movement.set_control_locked(true)  # Lock controls during animation
 
-	# Hide indicator
-	IndicatorManager.hide_jump_indicator()
+	# Hide arrows if visible
+	_hide_arrows()
 
-	print("[JumpSystem] Jump released - Distance: %.1fpx, Target: %.1fpx" % [jump_distance, jump_target_position])
-
-
-func _calculate_jump_distance() -> float:
-	"""Calculate jump distance based on charge time"""
-	var distance = JUMP_MIN_DISTANCE + (jump_charge_time * JUMP_DISTANCE_PER_SECOND)
-	return distance
-
-
-func _calculate_jump_target(distance: float, jump_right: bool) -> float:
-	"""Calculate target position based on current position, distance, and locked direction"""
-	var current_pos = player_movement.get_position()
-
-	# Calculate target position using locked direction
-	var target_pos: float
-	if jump_right:
-		target_pos = current_pos + distance
-	else:
-		target_pos = current_pos - distance
-
-	# Clamp to screen bounds
-	target_pos = clamp(target_pos, 30.0, 1050.0)
-
-	return target_pos
-
-
-func _update_jump_indicator() -> void:
-	"""Update the visual jump indicator position"""
-	# Show indicator after delay
-	if jump_charge_time >= JUMP_INDICATOR_SHOW_DELAY:
-		# Calculate current jump target using locked direction
-		var jump_distance = _calculate_jump_distance()
-		var target_pos = _calculate_jump_target(jump_distance, jump_direction_locked)
-
-		# Update indicator position (using global IndicatorManager)
-		IndicatorManager.show_jump_indicator(Vector2(target_pos, PLAYER_Y_POSITION))
-	else:
-		# Hide indicator during initial charge delay
-		IndicatorManager.hide_jump_indicator()
+	var dir_name = "RIGHT" if jump_direction > 0 else "LEFT"
+	print("[JumpSystem] Jump animation started - Direction: %s, Target: %.1fpx" % [dir_name, jump_target_position])
 
 
 func _execute_jump() -> void:
@@ -228,12 +204,78 @@ func _execute_jump() -> void:
 	jump_state = JumpState.IDLE
 
 
-func _cancel_jump() -> void:
-	"""Cancel jump (out of fuel)"""
-	jump_state = JumpState.IDLE
-	jump_charge_time = 0.0
-	IndicatorManager.hide_jump_indicator()
-	player_movement.set_control_locked(false)
+func _create_arrow_ui() -> void:
+	"""Create arrow UI elements for direction selection"""
+	# Left arrow
+	arrow_left = Node2D.new()
+	arrow_left.name = "JumpArrowLeft"
+	var arrow_left_visual = _create_arrow_visual(-1)
+	arrow_left.add_child(arrow_left_visual)
+	arrow_left.position = Vector2(370, PLAYER_Y_POSITION - 150)
+	arrow_left.visible = false
+	add_child(arrow_left)
+
+	# Right arrow
+	arrow_right = Node2D.new()
+	arrow_right.name = "JumpArrowRight"
+	var arrow_right_visual = _create_arrow_visual(1)
+	arrow_right.add_child(arrow_right_visual)
+	arrow_right.position = Vector2(710, PLAYER_Y_POSITION - 150)
+	arrow_right.visible = false
+	add_child(arrow_right)
+
+
+func _create_arrow_visual(direction: int) -> Node2D:
+	"""Create a visual arrow pointing in the specified direction"""
+	var arrow = Node2D.new()
+
+	# Arrow body (triangle)
+	var poly = Polygon2D.new()
+	if direction < 0:  # Left arrow
+		poly.polygon = PackedVector2Array([
+			Vector2(0, 0),
+			Vector2(-40, -30),
+			Vector2(-40, 30)
+		])
+	else:  # Right arrow
+		poly.polygon = PackedVector2Array([
+			Vector2(0, 0),
+			Vector2(40, -30),
+			Vector2(40, 30)
+		])
+
+	poly.color = Color(1.0, 1.0, 0.0, 0.8)  # Yellow with some transparency
+	arrow.add_child(poly)
+
+	return arrow
+
+
+func _show_arrows() -> void:
+	"""Show direction selection arrows"""
+	if arrow_left and arrow_right:
+		arrow_left.visible = true
+		arrow_right.visible = true
+		arrows_visible = true
+
+
+func _hide_arrows() -> void:
+	"""Hide direction selection arrows"""
+	if arrow_left and arrow_right:
+		arrow_left.visible = false
+		arrow_right.visible = false
+		arrows_visible = false
+		# Reset scale when hiding
+		arrow_left.scale = Vector2(1.0, 1.0)
+		arrow_right.scale = Vector2(1.0, 1.0)
+
+
+func _pulse_arrows() -> void:
+	"""Pulse the arrows to indicate jump is ready"""
+	if arrow_left and arrow_right and arrows_visible:
+		# Use sine wave for smooth pulsing effect (2 pulses per second)
+		var pulse_scale = 1.0 + (sin(Time.get_ticks_msec() * 0.006) * 0.3)  # 0.7x to 1.3x scale
+		arrow_left.scale = Vector2(pulse_scale, pulse_scale)
+		arrow_right.scale = Vector2(pulse_scale, pulse_scale)
 
 
 func is_on_cooldown() -> bool:

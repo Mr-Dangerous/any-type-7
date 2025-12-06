@@ -335,6 +335,229 @@ func get_ship_blueprint_data(instance_id: String) -> Dictionary:
 	var blueprint_id: String = instance.get("blueprint_id", "")
 	return DataManager.get_ship(blueprint_id)
 
+func get_ship_calculated_stats(instance_id: String) -> Dictionary:
+	"""Get ship stats with all equipped item bonuses applied"""
+	# Get base stats from blueprint
+	var base_stats := get_ship_blueprint_data(instance_id)
+	if base_stats.is_empty():
+		return {}
+
+	# Create calculated stats dict (start with base stats)
+	var stats := base_stats.duplicate(true)
+
+	# Get equipped upgrades
+	var instance := get_ship_instance(instance_id)
+	var equipped_upgrades: Array = instance.get("equipped_upgrades", [])
+
+	# Accumulators for bonuses
+	var flat_bonuses := {
+		"hull_points": 0,
+		"shield_points": 0,
+		"armor": 0,
+		"attack_damage": 0,
+		"energy_points": 0,  # Maps from starting_energy
+	}
+
+	var percent_bonuses := {
+		"attack_speed": 0.0,
+		"amplitude": 0.0,
+		"resilience": 0.0,
+		"movement_speed": 0.0,
+		"precision": 0.0,
+	}
+
+	var regen_stats := {
+		"hull_regen_per_sec": 0.0,
+		"energy_regen_per_sec": 0.0,
+	}
+
+	# Sum up bonuses from all equipped items
+	for item_id in equipped_upgrades:
+		if item_id.is_empty():
+			continue
+
+		var item_data := DataManager.get_relic_t1(item_id)
+		if item_data.is_empty():
+			continue
+
+		# Flat bonuses
+		flat_bonuses["hull_points"] += int(item_data.get("hull_points", 0))
+		flat_bonuses["shield_points"] += int(item_data.get("shield_points", 0))
+		flat_bonuses["armor"] += int(item_data.get("armor", 0))
+		flat_bonuses["attack_damage"] += int(item_data.get("attack_damage", 0))
+		flat_bonuses["energy_points"] += int(item_data.get("starting_energy", 0))  # Map starting_energy
+
+		# Percentage bonuses (sum percentages)
+		percent_bonuses["attack_speed"] += float(item_data.get("attack_speed_percent", 0))
+		percent_bonuses["amplitude"] += float(item_data.get("amplitude_percent", 0))
+		percent_bonuses["resilience"] += float(item_data.get("resilience_percent", 0))
+		percent_bonuses["movement_speed"] += float(item_data.get("movement_speed_percent", 0))
+		percent_bonuses["precision"] += float(item_data.get("precision_percent", 0))
+
+		# Regen stats
+		regen_stats["hull_regen_per_sec"] += float(item_data.get("hull_regen_per_sec", 0))
+		regen_stats["energy_regen_per_sec"] += float(item_data.get("energy_regen_per_sec", 0))
+
+	# Apply flat bonuses
+	stats["hull_points"] = int(stats.get("hull_points", 0)) + flat_bonuses["hull_points"]
+	stats["shield_points"] = int(stats.get("shield_points", 0)) + flat_bonuses["shield_points"]
+	stats["armor"] = int(stats.get("armor", 0)) + flat_bonuses["armor"]
+	stats["attack_damage"] = int(stats.get("attack_damage", 0)) + flat_bonuses["attack_damage"]
+	stats["energy_points"] = int(stats.get("energy_points", 0)) + flat_bonuses["energy_points"]
+
+	# Apply percentage bonuses (multiply base by (1 + percent/100))
+	for stat_name in percent_bonuses.keys():
+		var base_value: float = float(stats.get(stat_name, 0))
+		var percent: float = percent_bonuses[stat_name]
+		if percent > 0:
+			stats[stat_name] = base_value * (1.0 + percent / 100.0)
+
+	# Add regen stats (new stats not in base)
+	stats["hull_regen_per_sec"] = regen_stats["hull_regen_per_sec"]
+	stats["energy_regen_per_sec"] = regen_stats["energy_regen_per_sec"]
+
+	# Store bonus totals for display
+	stats["_flat_bonuses"] = flat_bonuses
+	stats["_percent_bonuses"] = percent_bonuses
+	stats["_regen_stats"] = regen_stats
+
+	return stats
+
+func equip_upgrade_to_ship(ship_instance_id: String, slot_index: int, item_id: String) -> bool:
+	"""Equip a Tier 1 upgrade to a ship"""
+	# Get ship instance
+	var instance := get_ship_instance(ship_instance_id)
+	if instance.is_empty():
+		push_error("[GameState] Ship instance not found: %s" % ship_instance_id)
+		return false
+
+	# Check if player has the item
+	if tier_1_inventory.get(item_id, 0) <= 0:
+		push_error("[GameState] Player doesn't have item: %s" % item_id)
+		return false
+
+	# Get or create equipped_upgrades array
+	var equipped_upgrades: Array = instance.get("equipped_upgrades", [])
+
+	# Ensure array is large enough
+	while equipped_upgrades.size() <= slot_index:
+		equipped_upgrades.append("")
+
+	# Check if slot is already occupied
+	if not equipped_upgrades[slot_index].is_empty():
+		push_error("[GameState] Slot %d already occupied on ship %s" % [slot_index, ship_instance_id])
+		return false
+
+	# Equip the item
+	equipped_upgrades[slot_index] = item_id
+	instance["equipped_upgrades"] = equipped_upgrades
+
+	# Reduce inventory count
+	tier_1_inventory[item_id] -= 1
+	if tier_1_inventory[item_id] <= 0:
+		tier_1_inventory.erase(item_id)
+
+	print("[GameState] Equipped %s to ship %s slot %d" % [item_id, ship_instance_id, slot_index])
+	return true
+
+func unequip_upgrade_from_ship(ship_instance_id: String, slot_index: int) -> bool:
+	"""Unequip a Tier 1 upgrade from a ship"""
+	# Get ship instance
+	var instance := get_ship_instance(ship_instance_id)
+	if instance.is_empty():
+		push_error("[GameState] Ship instance not found: %s" % ship_instance_id)
+		return false
+
+	# Get equipped_upgrades array
+	var equipped_upgrades: Array = instance.get("equipped_upgrades", [])
+
+	# Check if slot exists and has an item
+	if slot_index >= equipped_upgrades.size() or equipped_upgrades[slot_index].is_empty():
+		push_error("[GameState] No item in slot %d on ship %s" % [slot_index, ship_instance_id])
+		return false
+
+	# Get the item ID
+	var item_id: String = equipped_upgrades[slot_index]
+
+	# Unequip the item
+	equipped_upgrades[slot_index] = ""
+	instance["equipped_upgrades"] = equipped_upgrades
+
+	# Return to inventory
+	tier_1_inventory[item_id] = tier_1_inventory.get(item_id, 0) + 1
+
+	print("[GameState] Unequipped %s from ship %s slot %d" % [item_id, ship_instance_id, slot_index])
+	return true
+
+func equip_weapon_to_ship(ship_instance_id: String, slot_index: int, weapon_id: String) -> bool:
+	"""Equip a weapon to a ship"""
+	# Get ship instance
+	var instance := get_ship_instance(ship_instance_id)
+	if instance.is_empty():
+		push_error("[GameState] Ship instance not found: %s" % ship_instance_id)
+		return false
+
+	# Check if player has the weapon
+	if weapon_inventory.get(weapon_id, 0) <= 0:
+		push_error("[GameState] Player doesn't have weapon: %s" % weapon_id)
+		return false
+
+	# Get or create equipped_weapons array
+	var equipped_weapons: Array = instance.get("equipped_weapons", [])
+
+	# Ensure array is large enough
+	while equipped_weapons.size() <= slot_index:
+		equipped_weapons.append("")
+
+	# Check if slot is already occupied
+	if not equipped_weapons[slot_index].is_empty():
+		push_error("[GameState] Weapon slot %d already occupied on ship %s" % [slot_index, ship_instance_id])
+		return false
+
+	# Equip the weapon
+	equipped_weapons[slot_index] = weapon_id
+	instance["equipped_weapons"] = equipped_weapons
+
+	# Reduce inventory count
+	weapon_inventory[weapon_id] -= 1
+	if weapon_inventory[weapon_id] <= 0:
+		weapon_inventory.erase(weapon_id)
+
+	print("[GameState] Equipped weapon %s to ship %s slot %d" % [weapon_id, ship_instance_id, slot_index])
+	return true
+
+func unequip_weapon_from_ship(ship_instance_id: String, slot_index: int) -> bool:
+	"""Unequip a weapon from a ship"""
+	# Get ship instance
+	var instance := get_ship_instance(ship_instance_id)
+	if instance.is_empty():
+		push_error("[GameState] Ship instance not found: %s" % ship_instance_id)
+		return false
+
+	# Get equipped weapons array
+	var equipped_weapons: Array = instance.get("equipped_weapons", [])
+
+	# Validate slot
+	if slot_index < 0 or slot_index >= equipped_weapons.size():
+		push_error("[GameState] Invalid weapon slot: %d" % slot_index)
+		return false
+
+	# Get weapon ID
+	var weapon_id: String = equipped_weapons[slot_index]
+	if weapon_id.is_empty():
+		push_warning("[GameState] Weapon slot %d already empty on ship %s" % [slot_index, ship_instance_id])
+		return false
+
+	# Unequip
+	equipped_weapons[slot_index] = ""
+	instance["equipped_weapons"] = equipped_weapons
+
+	# Return to inventory
+	weapon_inventory[weapon_id] = weapon_inventory.get(weapon_id, 0) + 1
+
+	print("[GameState] Unequipped weapon %s from ship %s slot %d" % [weapon_id, ship_instance_id, slot_index])
+	return true
+
 func _count_inventory(inventory: Dictionary) -> int:
 	"""Count total items in inventory"""
 	var total := 0

@@ -12,11 +12,22 @@ var player_lateral_position: float = 540.0
 var player_lateral_velocity: float = 0.0
 const PLAYER_Y_POSITION: float = 1950.0
 
-# Simple physics constants
+# Visual rotation (decoupled from actual velocity)
+var visual_rotation_angle: float = 0.0  # Current visual tilt angle
+
+# Simple physics constantsa
 const BASE_ACCELERATION: float = 800.0
 const VELOCITY_DAMPING: float = 0.92
 const MAX_LATERAL_VELOCITY: float = 400.0
 const MAX_TILT_ANGLE: float = 25.0
+
+# Direction change momentum (makes turns feel less snappy)
+const DIRECTION_CHANGE_DECEL: float = 0.78  # Extra deceleration when opposing current velocity (22% per frame)
+const DIRECTION_CHANGE_ACCEL_MULT: float = 0.05  # Reduced acceleration when fighting momentum (5% of normal)
+
+# Visual rotation (decoupled from actual movement)
+const VISUAL_ROTATION_SPEED: float = 45.0  # Degrees per second rotation speed (slow swing)
+const VISUAL_ROTATION_EXAGGERATION: float = 1.25  # 25% more rotation than actual velocity would suggest
 
 # Input tracking
 var swipe_start_pos: Vector2 = Vector2.ZERO
@@ -68,10 +79,26 @@ func process_movement(delta: float) -> void:
 	elif not is_swiping:
 		swipe_direction = 0.0
 
-	# Simple physics
-	var target_accel = BASE_ACCELERATION * swipe_direction
-	player_lateral_velocity += target_accel * delta
-	player_lateral_velocity *= VELOCITY_DAMPING
+	# Detect direction change (input opposing current velocity)
+	var is_changing_direction = false
+	if swipe_direction != 0.0:
+		# Check if input direction opposes velocity direction
+		var velocity_sign = sign(player_lateral_velocity)
+		var input_sign = sign(swipe_direction)
+		if velocity_sign != 0.0 and velocity_sign != input_sign:
+			is_changing_direction = true
+
+	# Apply physics with momentum consideration
+	if is_changing_direction:
+		# Fighting momentum - apply extra deceleration and reduced acceleration
+		player_lateral_velocity *= DIRECTION_CHANGE_DECEL
+		var reduced_accel = BASE_ACCELERATION * swipe_direction * DIRECTION_CHANGE_ACCEL_MULT
+		player_lateral_velocity += reduced_accel * delta
+	else:
+		# Normal acceleration and damping
+		var target_accel = BASE_ACCELERATION * swipe_direction
+		player_lateral_velocity += target_accel * delta
+		player_lateral_velocity *= VELOCITY_DAMPING
 
 	# Cap velocity
 	player_lateral_velocity = clamp(
@@ -94,9 +121,21 @@ func process_movement(delta: float) -> void:
 
 
 func _update_simple_tilt() -> void:
-	"""Apply simple tilt based on velocity"""
-	var tilt_angle = (player_lateral_velocity / MAX_LATERAL_VELOCITY) * MAX_TILT_ANGLE
-	player_ship.rotation_degrees = -90 + tilt_angle  # -90 is base upward rotation
+	"""Apply decoupled visual tilt based on input direction"""
+	# Calculate target rotation based on input direction with exaggeration
+	var target_angle = swipe_direction * MAX_TILT_ANGLE * VISUAL_ROTATION_EXAGGERATION
+
+	# Smoothly rotate toward target angle
+	var angle_diff = target_angle - visual_rotation_angle
+	var max_rotation_this_frame = VISUAL_ROTATION_SPEED * get_process_delta_time()
+
+	if abs(angle_diff) < max_rotation_this_frame:
+		visual_rotation_angle = target_angle
+	else:
+		visual_rotation_angle += sign(angle_diff) * max_rotation_this_frame
+
+	# Apply visual rotation (decoupled from actual velocity)
+	player_ship.rotation_degrees = -90 + visual_rotation_angle  # -90 is base upward rotation
 
 
 func get_position() -> float:

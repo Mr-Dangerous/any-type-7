@@ -1,0 +1,60 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8w8gw7314ipf"]
+
+[ext_resource type="Script" uid="uid://bd5lbkphuc6uc" path="res://scenes/ui/ship_detail_popup.gd" id="1_c7frs"]
+
+[node name="ShipDetailPopup" type="PanelContainer"]
+custom_minimum_size = Vector2(900, 1800)
+script = ExtResource("1_c7frs")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="MarginContainer/VBoxContainer/Header"]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContentVBox" type="VBoxContainer" parent="MarginContainer/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StatisticsHeader" type="Label" parent="MarginContainer/VBoxContainer/ScrollContainer/ContentVBox"]
+layout_mode = 2
+
+[node name="StatisticsGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/ScrollContainer/ContentVBox"]
+layout_mode = 2
+columns = 2
+
+[node name="PilotHeader" type="Label" parent="MarginContainer/VBoxContainer/ScrollContainer/ContentVBox"]
+layout_mode = 2
+
+[node name="PilotInfo" type="Label" parent="MarginContainer/VBoxContainer/ScrollContainer/ContentVBox"]
+layout_mode = 2
+
+[node name="WeaponsHeader" type="Label" parent="MarginContainer/VBoxContainer/ScrollContainer/ContentVBox"]
+layout_mode = 2
+
+[node name="WeaponsContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/ScrollContainer/ContentVBox"]
+layout_mode = 2
+
+[node name="UpgradesHeader" type="Label" parent="MarginContainer/VBoxContainer/ScrollContainer/ContentVBox"]
+layout_mode = 2
+
+[node name="UpgradesContainer" type="GridContainer" parent="MarginContainer/VBoxContainer/ScrollContainer/ContentVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 4

@@ -14,6 +14,11 @@ var is_returning: bool = false  # Returning to base zoom
 var zoom_duration: float = 0.0
 var zoom_elapsed: float = 0.0
 
+# Shake state
+var shake_time_remaining: float = 0.0
+var shake_intensity: float = 0.0
+var camera_original_position: Vector2 = Vector2.ZERO
+
 # Cooldown state
 var zoom_cooldown: float = 0.0
 const ZOOM_COOLDOWN_TIME: float = 2.0  # 2 second cooldown between zooms
@@ -67,6 +72,9 @@ func process_camera(delta: float) -> void:
 				camera.zoom = target_zoom
 				is_returning = false
 				print("[CameraSystem] Zoom complete - at %.2f" % camera.zoom.x)
+
+	# Process camera shake
+	_process_shake(delta)
 
 
 func zoom_in(amount: float, duration: float) -> void:
@@ -150,3 +158,47 @@ func get_current_zoom() -> float:
 	if camera:
 		return camera.zoom.x
 	return 1.0
+
+
+# ============================================================
+# CAMERA SHAKE SYSTEM
+# ============================================================
+
+func start_shake(duration: float, intensity: float) -> void:
+	"""Start camera shake effect
+
+	Args:
+		duration: How long to shake (seconds)
+		intensity: Shake intensity in pixels
+	"""
+	if not camera:
+		return
+
+	shake_time_remaining = duration
+	shake_intensity = intensity
+	camera_original_position = camera.position
+	print("[CameraSystem] Screen shake: %.2fs @ %.1fpx" % [duration, intensity])
+
+
+func _process_shake(delta: float) -> void:
+	"""Process camera shake effect"""
+	if not camera:
+		return
+
+	if shake_time_remaining > 0.0:
+		shake_time_remaining -= delta
+
+		# Apply random shake offset
+		var shake_offset = Vector2(
+			randf_range(-shake_intensity, shake_intensity),
+			randf_range(-shake_intensity, shake_intensity)
+		)
+		camera.offset = shake_offset
+
+		# When shake is done, reset camera
+		if shake_time_remaining <= 0.0:
+			camera.offset = Vector2.ZERO
+			shake_intensity = 0.0
+	else:
+		# Ensure camera offset is zero when not shaking
+		camera.offset = Vector2.ZERO

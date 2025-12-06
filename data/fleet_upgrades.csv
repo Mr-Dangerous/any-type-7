@@ -1,1 +1,21 @@
-
+upgrade_id,upgrade_name,category,rarity,base_effect,stack_effect,max_stacks,description,acquisition_methods,cost_metal,cost_crystals,sprite
+fuel_efficiency,Fuel Efficiency,exploration,common,jump_cost_-2,jump_cost_-1,5,Optimized jump calculations reduce fuel consumption,"trader,milestone",150,75,res://assets/Icons/fleet_upgrades/place_boi.png
+enhanced_gravity,Enhanced Gravity Assist,exploration,common,gravity_bonus_0.3,gravity_bonus_0.1,999,Mastery of orbital mechanics for superior slingshot maneuvers,"trader,vault",100,50,res://assets/Icons/fleet_upgrades/place_boi.png
+swift_navigation,Swift Navigation,exploration,common,movement_speed_1.2,movement_speed_0.2,999,Upgraded sublight engines for faster sector traversal,trader,125,60,res://assets/Icons/fleet_upgrades/place_boi.png
+fleet_cohesion,Fleet Cohesion,combat,common,all_attack_speed_0.05,all_attack_speed_0.05,999,Synchronized firing protocols increase combat efficiency,"trader,milestone",200,100,res://assets/Icons/fleet_upgrades/place_boi.png
+reinforced_fleet,Reinforced Fleet,combat,common,all_hull_25,all_hull_25,999,Fleet-wide armor plating reinforcement,"trader,graveyard",175,90,res://assets/Icons/fleet_upgrades/place_boi.png
+shield_harmonics,Shield Harmonics,combat,common,all_shields_20,all_shields_20,999,Unified shield frequency for enhanced protection,trader,180,95,res://assets/Icons/fleet_upgrades/place_boi.png
+mining_efficiency,Mining Efficiency,resource,common,mining_yield_1.2,mining_yield_0.2,999,Enhanced extraction algorithms maximize resource gains,trader,150,75,res://assets/Icons/fleet_upgrades/place_boi.png
+salvage_expertise,Salvage Expertise,resource,common,salvage_metal_1.15,salvage_metal_0.15,999,Expert scrappers extract maximum salvage from debris,"graveyard,milestone",140,70,res://assets/Icons/fleet_upgrades/place_boi.png
+precision_training,Precision Training,combat,uncommon,all_precision_0.05,all_precision_0.05,999,Advanced targeting drills improve critical hit accuracy,milestone,250,125,res://assets/Icons/fleet_upgrades/place_boi.png
+emergency_jump,Emergency Jump,exploration,uncommon,free_jumps_1,free_jumps_1,999,Capacitor reserves enable emergency fuel-free jumps,milestone,300,150,res://assets/Icons/fleet_upgrades/place_boi.png
+evasive_maneuvers,Evasive Maneuvers,combat,uncommon,all_evasion_0.05,all_evasion_0.05,999,Unpredictable flight patterns reduce incoming hits,trader,225,115,res://assets/Icons/fleet_upgrades/place_boi.png
+overcharged_weapons,Overcharged Weapons,combat,uncommon,all_damage_1.1,all_damage_0.1,999,Weapon power surplus amplifies strike force,"trader,milestone",275,140,res://assets/Icons/fleet_upgrades/place_boi.png
+crystalline_affinity,Crystalline Affinity,resource,uncommon,crystal_yield_1.25,crystal_yield_0.25,999,Resonance tuning extracts maximum crystalline energy,vault,200,100,res://assets/Icons/fleet_upgrades/place_boi.png
+fuel_synthesizer,Fuel Synthesizer,resource,uncommon,combat_fuel_2,combat_fuel_2,999,Debris-to-fuel converter recycles combat wreckage,trader,180,90,res://assets/Icons/fleet_upgrades/place_boi.png
+energy_reserves,Energy Reserves,combat,uncommon,all_starting_energy_25,all_starting_energy_25,999,Pre-charged capacitors ready abilities immediately,vault,240,120,res://assets/Icons/fleet_upgrades/place_boi.png
+orbital_strike,Orbital Strike,ability,rare,orbital_uses_1,orbital_uses_1,999,Colony Ship weapons online - devastating firepower from orbit,"milestone,boss",500,250,res://assets/Icons/fleet_upgrades/place_boi.png
+deep_scan,Deep Scan,exploration,rare,reveal_range_500,none,1,Predictive analytics suite reveals node contents in advance,vault,400,200,res://assets/Icons/fleet_upgrades/place_boi.png
+second_wind,Second Wind,combat,rare,wave_shield_regen_0.1,wave_shield_regen_0.1,999,Adaptive recovery systems restore shields between waves,milestone,450,225,res://assets/Icons/fleet_upgrades/place_boi.png
+emergency_repair,Emergency Repair,ability,rare,sector_repair_1,sector_repair_1,999,Rapid nanite repair swarm restores entire fleet,vault,600,300,res://assets/Icons/fleet_upgrades/place_boi.png
+resource_cache,Resource Cache,resource,rare,sector_start_metal_50|sector_start_crystals_25,sector_start_metal_50|sector_start_crystals_25,999,Emergency reserves provide sector starting resources,milestone,0,0,res://assets/Icons/fleet_upgrades/place_boi.png

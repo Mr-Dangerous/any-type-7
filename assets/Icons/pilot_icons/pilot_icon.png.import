@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dedb0cdr5luca"
-path="res://.godot/imported/pilot_icon.png-028750ba89210c26d57ac24e92cb3393.ctex"
+uid="uid://bjq3wgh5vlbqi"
+path="res://.godot/imported/pilot_icon.png-ac2a58f4be8639b9568092ca5ecb048e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Icons/pilot_icon.png"
-dest_files=["res://.godot/imported/pilot_icon.png-028750ba89210c26d57ac24e92cb3393.ctex"]
+source_file="res://assets/Icons/pilot_icons/pilot_icon.png"
+dest_files=["res://.godot/imported/pilot_icon.png-ac2a58f4be8639b9568092ca5ecb048e.ctex"]
 
 [params]
 

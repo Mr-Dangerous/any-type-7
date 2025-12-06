@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bmgbc6ny43kws"]
+
+[ext_resource type="Script" path="res://scenes/hangar/ship_card.gd" id="1_q023l"]
+
+[node name="ShipCard" type="Button"]
+script = ExtResource("1_q023l")

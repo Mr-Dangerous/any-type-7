@@ -1,2 +1,2 @@
 scenario_name,starting_ships,tier1_inventory,tier2_inventory,weapon_inventory,starting_metal,starting_crystals,starting_fuel
-test_fleet,basic_fighter|basic_interceptor|basic_interceptor|shield_frigate|basic_fighter|basic_interceptor|basic_interceptor|shield_frigate,chronometer:2|amplifier:1|aegis_plate:1,,,500,200,150
+test_fleet,basic_fighter|basic_interceptor|basic_interceptor|shield_frigate|basic_fighter|basic_interceptor|basic_interceptor|shield_frigate,chronometer:2|amplifier:1|aegis_plate:1,overclocked_targeting:1|devastator_core:1|regenerative_shielding:1,missile_launcher:1|gatling_gun:1|laser_cannon:2,500,200,150

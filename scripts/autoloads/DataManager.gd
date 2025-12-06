@@ -135,8 +135,13 @@ func _load_database(csv_path: String, target_dict: Dictionary, id_column: String
 		push_error(error)
 		return
 
+	# Check if CSV has 'enabled' column
+	var enabled_column_index := headers.find("enabled")
+	var has_enabled_filter := (enabled_column_index != -1)
+
 	# Read data rows
 	var record_count := 0
+	var filtered_count := 0
 	while not file.eof_reached():
 		var row := file.get_csv_line()
 
@@ -151,6 +156,16 @@ func _load_database(csv_path: String, target_dict: Dictionary, id_column: String
 			var value: String = row[i].strip_edges()
 			record[key] = _convert_type(value)
 
+		# Filter by 'enabled' column if present
+		if has_enabled_filter:
+			var enabled_value = record.get("enabled", "yes")
+			# Convert to string for consistent comparison
+			var enabled_str := str(enabled_value).to_lower()
+			# Skip if not enabled (accept "yes" or "true")
+			if enabled_str != "yes" and enabled_str != "true":
+				filtered_count += 1
+				continue
+
 		# Cache by ID (convert to string to handle both string and int IDs)
 		var record_id_raw = record.get(id_column, "")
 		var record_id: String = str(record_id_raw)
@@ -160,7 +175,12 @@ func _load_database(csv_path: String, target_dict: Dictionary, id_column: String
 
 	file.close()
 	EventBus.data_load_completed.emit(csv_path.get_file(), record_count)
-	print("[DataManager] Loaded %d records from %s" % [record_count, csv_path.get_file()])
+
+	# Print load summary
+	if has_enabled_filter and filtered_count > 0:
+		print("[DataManager] Loaded %d records from %s (filtered %d disabled)" % [record_count, csv_path.get_file(), filtered_count])
+	else:
+		print("[DataManager] Loaded %d records from %s" % [record_count, csv_path.get_file()])
 
 # ============================================================
 # TYPE CONVERSION

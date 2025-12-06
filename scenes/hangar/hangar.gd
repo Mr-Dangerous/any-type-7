@@ -8,20 +8,46 @@ extends Control
 # ============================================================
 
 # ============================================================
+# PRELOADS
+# ============================================================
+
+const SHIP_DETAIL_POPUP := preload("res://scenes/ui/ship_detail_popup.tscn")
+const SHIP_CARD := preload("res://scenes/hangar/ship_card.tscn")
+const ITEM_CARD := preload("res://scenes/hangar/item_card.tscn")
+const WEAPON_CARD := preload("res://scenes/hangar/weapon_card.tscn")
+const FLEET_UPGRADE_CARD := preload("res://scenes/hangar/fleet_upgrade_card.tscn")
+
+# ============================================================
 # NODE REFERENCES
 # ============================================================
 
 @onready var metal_label := $VBoxContainer/TopSection/MarginContainer/VBoxContainer/ResourceBar/MetalPanel/MetalLabel
 @onready var crystals_label := $VBoxContainer/TopSection/MarginContainer/VBoxContainer/ResourceBar/CrystalsPanel/CrystalsLabel
 @onready var fuel_label := $VBoxContainer/TopSection/MarginContainer/VBoxContainer/ResourceBar/FuelPanel/FuelLabel
-@onready var ship_grid := $VBoxContainer/MiddleSection/ScrollContainer/MarginContainer/ShipGrid
+@onready var ship_page_container := $VBoxContainer/MiddleSection/PagedContent/ShipPageContainer
+@onready var prev_button := $VBoxContainer/MiddleSection/PagedContent/PageNavigation/PrevButton
+@onready var next_button := $VBoxContainer/MiddleSection/PagedContent/PageNavigation/NextButton
+@onready var page_label := $VBoxContainer/MiddleSection/PagedContent/PageNavigation/PageLabel
 @onready var inventory_grid := $"VBoxContainer/BottomSection/MarginContainer/HBoxContainer/TabContainer/TIER 1 UPGRADES/MarginContainer/InventoryGrid"
+@onready var weapons_grid := $"VBoxContainer/BottomSection/MarginContainer/HBoxContainer/TabContainer/WEAPONS/MarginContainer/WeaponsGrid"
+@onready var fleet_upgrades_grid := $"VBoxContainer/BottomSection/MarginContainer/HBoxContainer/TabContainer/FLEET UPGRADES/MarginContainer/FleetUpgradesGrid"
 
 # ============================================================
 # CONSTANTS
 # ============================================================
 
-const SHIP_BUTTON_SIZE := Vector2(450, 450)  # Large buttons for ship display
+const SHIP_CARD_SIZE := Vector2(480, 360)  # Sized for 2x3 grid
+const SHIPS_PER_PAGE := 6  # Show 6 ships per page (2x3 grid)
+const LONG_PRESS_DURATION := 1.0  # Seconds to hold for unequip
+const GRID_COLUMNS := 2  # Number of columns in the grid
+
+# ============================================================
+# PAGING STATE
+# ============================================================
+
+var current_page := 0
+var total_pages := 1
+var ship_cards: Array[Node] = []  # Cache of all ship card instances
 
 # ============================================================
 # INITIALIZATION
@@ -33,6 +59,14 @@ func _ready() -> void:
 	# Connect to EventBus signals
 	EventBus.resource_changed.connect(_on_resource_changed)
 
+	# Connect page navigation buttons
+	prev_button.pressed.connect(_on_prev_page)
+	next_button.pressed.connect(_on_next_page)
+
+	# Set button text
+	prev_button.text = "< PREV"
+	next_button.text = "NEXT >"
+
 	# Update resource display
 	_update_resource_bar()
 
@@ -41,6 +75,12 @@ func _ready() -> void:
 
 	# Populate Tier 1 inventory
 	_populate_tier1_inventory()
+
+	# Populate weapon inventory
+	_populate_weapons_inventory()
+
+	# Populate fleet upgrades
+	_populate_fleet_upgrades()
 
 	print("[Hangar] Ready!")
 
@@ -61,130 +101,106 @@ func _on_resource_changed(_resource_type: String, _old_amount: int, _new_amount:
 # ============================================================
 
 func _populate_ship_roster() -> void:
-	# Clear existing ship cards
-	for child in ship_grid.get_children():
-		child.queue_free()
-
 	# Get all owned ships from GameState
 	var owned_ships: Array[String] = GameState.owned_ships
 
 	print("[Hangar] Populating roster with %d ships" % owned_ships.size())
 
-	# Create a button for each ship
-	for ship_instance_id in owned_ships:
-		var ship_button := _create_ship_button(ship_instance_id)
-		ship_grid.add_child(ship_button)
+	# Calculate total pages
+	total_pages = max(1, ceili(float(owned_ships.size()) / float(SHIPS_PER_PAGE)))
+	current_page = clampi(current_page, 0, total_pages - 1)
 
-func _create_ship_button(ship_instance_id: String) -> Button:
-	"""Create a large ship button with sprite and equipment slots"""
-	var button := Button.new()
-	button.custom_minimum_size = SHIP_BUTTON_SIZE
+	# Create all ship cards if not already created
+	if ship_cards.is_empty():
+		for ship_instance_id in owned_ships:
+			var ship_card := SHIP_CARD.instantiate()
+			ship_card.custom_minimum_size = SHIP_CARD_SIZE
 
-	# Get ship instance and blueprint data
-	var instance := GameState.get_ship_instance(ship_instance_id)
-	var blueprint := GameState.get_ship_blueprint_data(ship_instance_id)
+			# Set ship data (builds UI automatically)
+			ship_card.set_ship_data(ship_instance_id)
 
-	if instance.is_empty() or blueprint.is_empty():
-		button.text = "Error: Ship data not found"
-		return button
+			# Connect signals
+			ship_card.ship_clicked.connect(_on_ship_card_clicked)
+			ship_card.equipment_slot_gui_input.connect(_on_equipment_slot_gui_input)
+			ship_card.deployment_toggled.connect(_on_ship_deployment_toggled)
 
-	# Get slot counts from blueprint
-	var weapon_slots: int = int(blueprint.get("weapon_slots", 1))
-	var upgrade_slots: int = int(blueprint.get("upgrade_slots", 1))
-	var blueprint_id: String = instance.get("blueprint_id", "")
-	var visual_data := DataManager.get_ship_visual(blueprint_id)
+			ship_cards.append(ship_card)
 
-	# Create main container (fills button)
-	var main_container := Control.new()
-	main_container.set_anchors_preset(Control.PRESET_FULL_RECT)
-	main_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(main_container)
+	# Display current page
+	_display_current_page()
 
-	# Add ship name (top center)
-	var name_label := Label.new()
-	name_label.text = str(blueprint.get("ship_name", "Unknown"))
-	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.add_theme_font_size_override("font_size", 24)
-	name_label.position = Vector2(0, 10)
-	name_label.size = Vector2(SHIP_BUTTON_SIZE.x, 30)
-	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	main_container.add_child(name_label)
+func _display_current_page() -> void:
+	"""Display only the ship cards for the current page"""
+	# Clear current page display
+	for child in ship_page_container.get_children():
+		ship_page_container.remove_child(child)
 
-	# Add sub_class (below name)
-	var subclass_label := Label.new()
-	subclass_label.text = str(blueprint.get("ship_sub_class", ""))
-	subclass_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subclass_label.add_theme_font_size_override("font_size", 18)
-	subclass_label.position = Vector2(0, 38)
-	subclass_label.size = Vector2(SHIP_BUTTON_SIZE.x, 25)
-	subclass_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	main_container.add_child(subclass_label)
+	# Calculate start and end indices for current page
+	var start_idx := current_page * SHIPS_PER_PAGE
+	var end_idx := mini(start_idx + SHIPS_PER_PAGE, ship_cards.size())
 
-	# Add pilot slot (top left corner)
-	var pilot_slot := _create_equipment_slot("PILOT")
-	pilot_slot.position = Vector2(10, 70)
-	main_container.add_child(pilot_slot)
+	# Add ship cards for current page (2x3 grid layout)
+	for i in range(start_idx, end_idx):
+		var ship_card = ship_cards[i]
 
-	# Add ship sprite (centered)
-	var sprite_y_pos := 80.0
-	if not visual_data.is_empty() and visual_data.get("sprite_exists", false):
-		var sprite_path: String = visual_data.get("sprite_path", "")
+		# Refresh ship data to show latest equipment changes
+		ship_card.refresh_display()
 
-		if ResourceLoader.exists(sprite_path):
-			var texture_rect := TextureRect.new()
-			texture_rect.texture = load(sprite_path)
-			texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-			texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			texture_rect.custom_minimum_size = Vector2(200, 200)
-			texture_rect.position = Vector2((SHIP_BUTTON_SIZE.x - 200) / 2, sprite_y_pos)
-			texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			main_container.add_child(texture_rect)
+		ship_page_container.add_child(ship_card)
 
-	# Add weapon slots (horizontal, centered under ship)
-	var weapon_y_pos := 290.0
-	var slot_size := 70.0
-	var weapon_total_width := weapon_slots * slot_size + (weapon_slots - 1) * 10
-	var weapon_start_x := (SHIP_BUTTON_SIZE.x - weapon_total_width) / 2
+		# Position cards in 2x3 grid
+		var card_index := i - start_idx
+		var col := card_index % GRID_COLUMNS
+		var row := card_index / GRID_COLUMNS
 
-	for i in range(weapon_slots):
-		var weapon_slot := _create_equipment_slot("W%d" % (i + 1))
-		weapon_slot.position = Vector2(weapon_start_x + i * (slot_size + 10), weapon_y_pos)
-		main_container.add_child(weapon_slot)
+		var x_spacing := 30
+		var y_spacing := 25
+		var x_pos := 50 + col * (SHIP_CARD_SIZE.x + x_spacing)
+		var y_pos := 20 + row * (SHIP_CARD_SIZE.y + y_spacing)
+		ship_card.position = Vector2(x_pos, y_pos)
 
-	# Add upgrade slots (horizontal, centered under weapons)
-	var upgrade_y_pos := 370.0
-	var upgrade_total_width := upgrade_slots * slot_size + (upgrade_slots - 1) * 10
-	var upgrade_start_x := (SHIP_BUTTON_SIZE.x - upgrade_total_width) / 2
+	# Update page label
+	page_label.text = "Page %d / %d" % [current_page + 1, total_pages]
 
-	for i in range(upgrade_slots):
-		var upgrade_slot := _create_equipment_slot("U%d" % (i + 1))
-		upgrade_slot.position = Vector2(upgrade_start_x + i * (slot_size + 10), upgrade_y_pos)
-		main_container.add_child(upgrade_slot)
+	# Enable/disable navigation buttons
+	prev_button.disabled = (current_page == 0)
+	next_button.disabled = (current_page >= total_pages - 1)
 
-	# Connect button press (for future detail view)
-	button.pressed.connect(_on_ship_button_pressed.bind(ship_instance_id))
+func _on_prev_page() -> void:
+	"""Navigate to previous page"""
+	if current_page > 0:
+		current_page -= 1
+		_display_current_page()
 
-	return button
+func _on_next_page() -> void:
+	"""Navigate to next page"""
+	if current_page < total_pages - 1:
+		current_page += 1
+		_display_current_page()
 
-func _create_equipment_slot(label_text: String) -> PanelContainer:
-	"""Create a small equipment slot box"""
-	var slot := PanelContainer.new()
-	slot.custom_minimum_size = Vector2(70, 70)
-	slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+func _on_ship_deployment_toggled(ship_instance_id: String, deployed: bool) -> void:
+	"""Handle ship deployment checkbox toggle"""
+	if deployed:
+		# Add to active loadout if not already there
+		if not GameState.active_loadout.has(ship_instance_id):
+			GameState.active_loadout.append(ship_instance_id)
+			print("[Hangar] Ship deployed: %s" % ship_instance_id)
+	else:
+		# Remove from active loadout
+		var idx := GameState.active_loadout.find(ship_instance_id)
+		if idx >= 0:
+			GameState.active_loadout.remove_at(idx)
+			print("[Hangar] Ship undeployed: %s" % ship_instance_id)
 
-	var label := Label.new()
-	label.text = label_text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 16)
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	slot.add_child(label)
-
-	return slot
-
-func _on_ship_button_pressed(ship_instance_id: String) -> void:
+func _on_ship_card_clicked(ship_instance_id: String) -> void:
 	print("[Hangar] Ship button pressed: %s" % ship_instance_id)
-	# TODO: Open ship detail view
+
+	# Create and show ship detail popup
+	var popup := PopupManager.show_popup(SHIP_DETAIL_POPUP, "ship_detail_%s" % ship_instance_id)
+
+	if popup != null:
+		# Set the ship data on the popup
+		popup.set_ship_data(ship_instance_id)
 
 # ============================================================
 # TIER 1 INVENTORY
@@ -200,77 +216,294 @@ func _populate_tier1_inventory() -> void:
 
 	print("[Hangar] Populating Tier 1 inventory with %d items" % all_tier1_items.size())
 
-	# Create a card for each item
+	# Create an ItemCard for each item
 	for item_id in all_tier1_items.keys():
 		var item_data: Dictionary = all_tier1_items[item_id]
 		var quantity: int = GameState.tier_1_inventory.get(item_id, 0)
-		var item_card := _create_tier1_item_card(item_id, item_data, quantity)
+
+		# Instantiate ItemCard
+		var item_card := ITEM_CARD.instantiate()
 		inventory_grid.add_child(item_card)
 
-func _create_tier1_item_card(item_id: String, item_data: Dictionary, quantity: int) -> Control:
-	"""Create a compact Tier 1 item card with sprite on top and name below"""
-	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(130, 180)
+		# Set item data (builds UI automatically)
+		item_card.set_item_data(item_id, item_data, quantity)
 
-	var vbox := VBoxContainer.new()
-	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	card.add_child(vbox)
+		# Connect drag signal
+		item_card.drag_requested.connect(_on_item_card_drag_requested)
 
-	# Get sprite path
-	var sprite_path: String = item_data.get("sprite_resource", "")
-	var has_item := quantity > 0
+# ============================================================
+# WEAPONS INVENTORY
+# ============================================================
 
-	# Create sprite container
-	var sprite_container := Control.new()
-	sprite_container.custom_minimum_size = Vector2(130, 120)
-	sprite_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(sprite_container)
+func _populate_weapons_inventory() -> void:
+	# Clear existing weapons
+	for child in weapons_grid.get_children():
+		child.queue_free()
 
-	# Add sprite
-	if not sprite_path.is_empty() and ResourceLoader.exists(sprite_path):
-		var texture_rect := TextureRect.new()
-		texture_rect.texture = load(sprite_path)
-		texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-		texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		texture_rect.custom_minimum_size = Vector2(100, 100)
-		texture_rect.position = Vector2(15, 10)
-		texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Get all weapons from DataManager
+	var all_weapons := DataManager.weapons
 
-		# Grey out if player doesn't have this item
-		if not has_item:
-			texture_rect.modulate = Color(0.3, 0.3, 0.3, 0.5)
+	print("[Hangar] Populating weapon inventory with %d weapons" % all_weapons.size())
 
-		sprite_container.add_child(texture_rect)
+	# Create a WeaponCard for each weapon
+	for weapon_id in all_weapons.keys():
+		var weapon_data: Dictionary = all_weapons[weapon_id]
+		var quantity: int = GameState.weapon_inventory.get(weapon_id, 0)
 
-	# Add quantity label (top left corner of sprite container)
-	if has_item:
-		var quantity_bg := PanelContainer.new()
-		quantity_bg.position = Vector2(5, 5)
-		quantity_bg.custom_minimum_size = Vector2(45, 35)
-		quantity_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		sprite_container.add_child(quantity_bg)
+		# Instantiate WeaponCard
+		var weapon_card := WEAPON_CARD.instantiate()
+		weapons_grid.add_child(weapon_card)
 
-		var quantity_label := Label.new()
-		quantity_label.text = "x%d" % quantity
-		quantity_label.add_theme_font_size_override("font_size", 20)
-		quantity_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		quantity_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		quantity_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		quantity_bg.add_child(quantity_label)
+		# Set weapon data (builds UI automatically)
+		weapon_card.set_weapon_data(weapon_id, weapon_data, quantity)
 
-	# Add item name (below sprite)
-	var name_label := Label.new()
-	name_label.text = str(item_data.get("item_name", item_id))
-	name_label.custom_minimum_size = Vector2(130, 60)
-	name_label.add_theme_font_size_override("font_size", 16)
-	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# Connect drag signal
+		weapon_card.drag_requested.connect(_on_weapon_card_drag_requested)
 
-	if not has_item:
-		name_label.modulate = Color(0.5, 0.5, 0.5, 0.7)
+# ============================================================
+# FLEET UPGRADES (TIER 2)
+# ============================================================
 
-	vbox.add_child(name_label)
+func _populate_fleet_upgrades() -> void:
+	# Clear existing upgrades
+	for child in fleet_upgrades_grid.get_children():
+		child.queue_free()
 
-	return card
+	# Get all Tier 2 items from DataManager
+	var all_tier2_items := DataManager.relics_t2
+
+	print("[Hangar] Populating Fleet Upgrades with %d items" % all_tier2_items.size())
+
+	# Create a FleetUpgradeCard for each item (only show owned items)
+	for upgrade_id in all_tier2_items.keys():
+		var upgrade_data: Dictionary = all_tier2_items[upgrade_id]
+		var quantity: int = GameState.tier_2_inventory.get(upgrade_id, 0)
+
+		# Only show if player owns this upgrade
+		if quantity <= 0:
+			continue
+
+		# Instantiate FleetUpgradeCard
+		var upgrade_card := FLEET_UPGRADE_CARD.instantiate()
+		fleet_upgrades_grid.add_child(upgrade_card)
+
+		# Set upgrade data (builds UI automatically)
+		upgrade_card.set_upgrade_data(upgrade_id, upgrade_data, quantity)
+
+# ============================================================
+# DRAG AND DROP - TIER 1 ITEMS
+# ============================================================
+
+func _on_item_card_drag_requested(item_id: String, item_data: Dictionary, texture: Texture2D, card_size: Vector2) -> void:
+	"""Handle drag request from ItemCard"""
+	DragDropManager.start_drag(item_id, item_data, texture, card_size)
+
+func _on_weapon_card_drag_requested(weapon_id: String, weapon_data: Dictionary, texture: Texture2D, card_size: Vector2) -> void:
+	"""Handle drag request from WeaponCard"""
+	DragDropManager.start_drag(weapon_id, weapon_data, texture, card_size)
+
+func _input(event: InputEvent) -> void:
+	"""Global input handler for drag release"""
+	if event is InputEventMouseButton:
+		if not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			if DragDropManager.is_item_being_dragged():
+				# Check if we're over a valid drop target
+				var was_dropped := _try_drop_at_mouse_position()
+				# End drag
+				DragDropManager.end_drag(was_dropped)
+
+func _try_drop_at_mouse_position() -> bool:
+	"""Check if mouse is over a ship card or upgrade slot and try to equip
+
+	Returns:
+		true if drop was successful, false otherwise
+	"""
+	var mouse_pos := get_global_mouse_position()
+	var dragged_item_id := DragDropManager.get_dragged_item_id()
+
+	# First, check if we're over any ship card (only those on current page)
+	for ship_card in ship_page_container.get_children():
+		var card_rect := Rect2(ship_card.global_position, ship_card.size)
+		if card_rect.has_point(mouse_pos):
+			# Found the ship! Try to equip to first available slot
+			return _equip_to_first_available_slot(ship_card, dragged_item_id)
+
+	# If not over a ship card, check specific equipment slots
+	var all_slots := _get_all_equipment_slots()
+	for slot in all_slots:
+		if slot is PanelContainer:
+			var slot_rect := Rect2(slot.global_position, slot.size)
+			if slot_rect.has_point(mouse_pos):
+				return _try_equip_item(slot, dragged_item_id)
+
+	return false
+
+func _equip_to_first_available_slot(ship_card: Node, item_id: String) -> bool:
+	"""Find the first empty equipment slot on a ship and equip to it
+
+	Returns:
+		true if equipped successfully, false otherwise
+	"""
+	# Get dragged item data to determine slot type
+	var dragged_data := DragDropManager.get_dragged_item_data()
+	var is_weapon := dragged_data.has("sprite_path")  # Weapons use sprite_path, items use sprite_resource
+
+	# Get appropriate slots based on item type
+	var slots: Array = []
+	if is_weapon and ship_card.has_method("get_weapon_slots"):
+		slots = ship_card.get_weapon_slots()
+	elif not is_weapon and ship_card.has_method("get_upgrade_slots"):
+		slots = ship_card.get_upgrade_slots()
+	else:
+		return false
+
+	# Find first empty slot
+	for slot in slots:
+		if slot is PanelContainer:
+			var equipped_item_id: String = slot.get_meta("equipped_item_id", "")
+			if equipped_item_id.is_empty():
+				# Found an empty slot! Equip here
+				var success := _try_equip_item(slot, item_id)
+				if success:
+					print("[Hangar] Auto-equipped to first available slot")
+				return success
+
+	print("[Hangar] No empty slots available on this ship")
+	return false
+
+func _get_all_equipment_slots() -> Array:
+	"""Get all equipment slots (upgrades and weapons) from all ship cards"""
+	var all_slots: Array = []
+
+	for ship_card in ship_cards:
+		# Get upgrade slots
+		if ship_card.has_method("get_upgrade_slots"):
+			var upgrade_slots: Array = ship_card.get_upgrade_slots()
+			all_slots.append_array(upgrade_slots)
+
+		# Get weapon slots
+		if ship_card.has_method("get_weapon_slots"):
+			var weapon_slots: Array = ship_card.get_weapon_slots()
+			all_slots.append_array(weapon_slots)
+
+	return all_slots
+
+# ============================================================
+# EQUIPMENT SLOT - DROP DETECTION & LONG-PRESS UNEQUIP
+# ============================================================
+
+var long_press_slot: PanelContainer = null
+var long_press_timer: float = 0.0
+var long_press_progress: ColorRect = null
+
+func _on_equipment_slot_gui_input(event: InputEvent, slot: PanelContainer) -> void:
+	"""Handle drops on upgrade slots and long-press for unequip"""
+	if event is InputEventMouseButton:
+		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			# Check if we're dropping an item
+			if DragDropManager.is_item_being_dragged():
+				var dragged_item_id := DragDropManager.get_dragged_item_id()
+				var success := _try_equip_item(slot, dragged_item_id)
+				DragDropManager.end_drag(success)
+			# Check if slot has equipped item (start long-press to unequip)
+			elif not slot.get_meta("equipped_item_id", "").is_empty():
+				_start_long_press(slot)
+
+		elif not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			# Cancel long-press if released early
+			_cancel_long_press()
+
+func _process(delta: float) -> void:
+	"""Update long-press timer"""
+	# Update long-press timer
+	if long_press_slot != null:
+		long_press_timer += delta
+
+		# Update visual progress
+		if long_press_progress != null:
+			var progress: float = clamp(long_press_timer / LONG_PRESS_DURATION, 0.0, 1.0)
+			long_press_progress.size.x = long_press_slot.size.x * progress
+
+		# Complete unequip after duration
+		if long_press_timer >= LONG_PRESS_DURATION:
+			_complete_unequip()
+
+func _start_long_press(slot: PanelContainer) -> void:
+	"""Start long-press timer for unequipping"""
+	long_press_slot = slot
+	long_press_timer = 0.0
+
+	# Create visual progress bar
+	long_press_progress = ColorRect.new()
+	long_press_progress.color = Color(1.0, 0.8, 0.0, 0.7)  # Gold/orange
+	long_press_progress.size = Vector2(0, 5)
+	long_press_progress.position = Vector2(0, slot.size.y - 5)
+	long_press_progress.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	slot.add_child(long_press_progress)
+
+	print("[Hangar] Started long-press unequip on slot")
+
+func _cancel_long_press() -> void:
+	"""Cancel long-press if released early"""
+	if long_press_slot != null:
+		if long_press_progress != null:
+			long_press_progress.queue_free()
+			long_press_progress = null
+
+		long_press_slot = null
+		long_press_timer = 0.0
+
+func _complete_unequip() -> void:
+	"""Complete the unequip after long-press duration"""
+	if long_press_slot == null:
+		return
+
+	var ship_id: String = long_press_slot.get_meta("ship_id")
+	var slot_index: int = long_press_slot.get_meta("slot_index")
+	var slot_type: String = long_press_slot.get_meta("slot_type", "upgrade")
+
+	# Use appropriate EquipmentManager method based on slot type
+	var unequipped_item_id := ""
+	if slot_type == "weapon":
+		unequipped_item_id = EquipmentManager.unequip_weapon_from_ship(ship_id, slot_index)
+	else:  # upgrade
+		unequipped_item_id = EquipmentManager.unequip_upgrade_from_ship(ship_id, slot_index)
+
+	if not unequipped_item_id.is_empty():
+		# Clean up
+		_cancel_long_press()
+
+		# Refresh UI
+		_populate_ship_roster()
+		_populate_tier1_inventory()
+		_populate_weapons_inventory()
+
+# ============================================================
+# EQUIP/UNEQUIP LOGIC
+# ============================================================
+
+func _try_equip_item(slot: PanelContainer, item_id: String) -> bool:
+	"""Try to equip an item or weapon to a slot
+
+	Returns:
+		true if equipped successfully, false otherwise
+	"""
+	var ship_id: String = slot.get_meta("ship_id")
+	var slot_index: int = slot.get_meta("slot_index")
+	var slot_type: String = slot.get_meta("slot_type", "upgrade")
+
+	var success := false
+
+	# Use appropriate EquipmentManager method based on slot type
+	if slot_type == "weapon":
+		success = EquipmentManager.equip_weapon_to_ship(ship_id, slot_index, item_id)
+	else:  # upgrade
+		success = EquipmentManager.equip_upgrade_to_ship(ship_id, slot_index, item_id)
+
+	if success:
+		# Refresh UI
+		_populate_ship_roster()
+		_populate_tier1_inventory()
+		_populate_weapons_inventory()
+
+	return success

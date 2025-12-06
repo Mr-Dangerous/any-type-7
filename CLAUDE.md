@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Any-Type-7** is a vertical-format space-based autobattler game for Android mobile devices built with Godot 4.5. The player controls a **Colony Ship** fleeing from an alien threat (the **Mothership**), navigating sectors, gathering resources, and engaging in tactical grid-based autobattler combat.
 
-**Current Status**: **Content-rich, code-ready phase**. All CSV databases are populated, visual assets imported, and asset pipeline tools created. **No game code implemented yet** - the project has comprehensive data and assets but needs the Godot engine implementation (autoloads, scenes, systems).
+**Current Status**: **Sector Exploration Beta Complete**. The first major module is fully implemented with ~2,500 lines across 13 focused systems (<300 lines each). Resource collection, enemy attacks, and special mechanics (jump, boost, brake, tractor beam) are all functional. Combat and Hangar modules remain to be implemented.
 
 ## Key Technical Details
 
@@ -48,7 +48,11 @@ This project follows a **data-driven singleton autoload pattern** to avoid the m
 - ✅ `DataManager.gd` - CSV loading, caching, and query system
 - ✅ `ResourceManager.gd` - Metal, Crystals, Fuel tracking and spending
 - ✅ `SpeedVisionManager.gd` - Speed-based gameplay and mining restrictions
-- ✅ `IndicatorManager.gd` - **NEW**: Global visual feedback system (pulsing indicators, cooldowns, charge effects)
+- ✅ `IndicatorManager.gd` - Global visual feedback system (pulsing indicators, cooldowns, charge effects)
+- ✅ `UIManager.gd` - **BETA**: HUD/UI coordination across modules (191 lines)
+- ✅ `AnimationManager.gd` - **BETA**: Reusable animation library (flying icons, tweens, pulses) (256 lines)
+- ✅ `CollectionManager.gd` - **BETA**: Resource collection with multipliers and animations (213 lines)
+- ✅ `DebugManager.gd` - Runtime tuning parameters (tractor beam, spawn rates)
 - `SaveManager.gd` - Save/load system
 - `SettingsManager.gd` - Player preferences
 - `AudioManager.gd` - Music and sound effects
@@ -168,62 +172,103 @@ Comprehensive game design documentation exists in `/docs/`:
   - Infinite scaling through Tier 3+ upgrades
   - **Distinct from weapons** - relics are stat/passive upgrades, weapons are active equipment
 
-- **`sector-exploration-module.md`** (1,324 lines) - Complete sector exploration design reference
-  - **CURRENT DESIGN**: Infinite scrolling momentum-based navigation system
+- **`sector-exploration-module.md`** (1,324 lines) - Original design reference
+  - Infinite scrolling momentum-based navigation system
   - 16 node types (celestial bodies, spatial features, structures, special encounters)
-  - Procedural node generation and despawning
-  - Swipe lateral steering with speed-based maneuverability formula
-  - Jump mechanic (horizontal dash, fuel + cooldown)
-  - Gravity assist (speed up/down control)
-  - Proximity-based node interaction (time pauses on popup)
-  - Pursuing mothership system (spawns behind, accelerates)
-  - Alien sweep patterns (horizontal, diagonal, pincer, wave)
-  - **No fog of war** - all nodes within camera view are visible
-  - Complete EventBus signals, SectorManager singleton spec, testing checklist
+  - Complete design specifications, formulas, and testing checklists
+  - **Reference only** - see beta doc for implementation details
 
-- **`phase-2-sector-exploration.md`** (495 lines) - Phase 2 implementation guide
+- **`sector-exploration-module-beta.md`** ✅ **BETA IMPLEMENTATION DOC**
+  - **Complete implementation guide for the live system**
+  - Module architecture (13 systems, 3 new autoload managers)
+  - **All tunable parameters with file locations and line numbers**
+  - Jump mechanic (1-second charge, split fuel costs: 3 on press + 5 on execution)
+  - Boost/Brake systems (W/S keys)
+  - Tractor beam collection (visual beams, multi-lock)
+  - Enemy sweep patterns (13 types, triple-sweep system)
+  - Resource collection with AnimationManager integration
+  - Debug UI system (disabled by default, enable in sector_map.gd)
+  - **Use this doc for tweaking gameplay parameters**
+
+- **`phase-2-sector-exploration.md`** (495 lines) - Phase 2 implementation guide (COMPLETED)
   - Step-by-step implementation tasks for infinite scrolling system
-  - References sector-exploration-module.md for design specifications
-  - Task breakdowns: SectorManager rewrite, swipe controls, proximity popups, mothership pursuit, alien sweeps
-  - Testing checklists and completion criteria
-  - 6-day implementation roadmap
+  - Task breakdowns and testing checklists
+  - **Historical reference only** - implementation is complete
 
 **Always consult these docs when implementing systems** - they contain complete specifications with formulas and examples.
 
 ## Three Main Game Modules
 
-### 1. Sector Exploration Module ✅ **IMPLEMENTED - Infinite Scrolling**
-- ✅ **Infinite scrolling** with automatic forward movement (no manual scrolling)
-- ✅ **Swipe-based lateral steering** (left/right) with speed-dependent maneuverability
-- ✅ **Procedural node generation**: Nodes spawn ahead, despawn behind
-- ✅ **Orbiting nodes**: Planets can have moons, asteroids, stations orbiting them (dynamic selection from orbit=TRUE nodes)
-- ✅ 29+ node types across all spawn cases and environmental bands
-- ✅ **Proximity detection system**: Nodes detect player proximity (popups DISABLED but system functional)
-- ✅ **Jump mechanic** (SPACE key):
-  - **Charge system**: Hold to charge (min 100px, +100px per second)
-  - **Fuel cost**: 3 fuel to start + 1 fuel/second charging
-  - **Dynamic direction**: Always jumps toward opposite side of center (540px)
-  - **Visual indicator**: Pulsing yellow/gold dot shows landing position (via IndicatorManager)
-  - **Animation**: 360° spin over 0.5s, then teleport to target
-  - **Cooldown**: 10 seconds after jump completes
-  - **Speed control**: Map speed drops to 0 during animation, resumes after
-- ✅ **Gravity Assist**: Can increase OR decrease speed, multiplier varies by node (CSV-driven)
-- **Resource Collection System** (Design complete, awaiting implementation):
-  - **Auto-collection on proximity**: No manual tapping required (mobile-optimized)
-  - **Multi-layered multiplier system**:
-    - Speed multiplier: 1.0x at speed 1, up to 3.25x at speed 10
-    - Position multiplier: 1.0x at center (540px), 1.5x at edges (0px/1080px)
-    - Streak multiplier: +10% per streak level (max 5 stacks = +50%)
-    - Quality tier multiplier: 0.5x (poor) to 3.0x (jackpot)
-  - **Dynamic node quality**: Each node rolls a quality tier (poor, standard, rich, abundant, jackpot)
-  - **Visual feedback**: Glowing auras (gray/white/blue/purple/gold), floating text, trail animations, audio pings
-  - **Mining speed restrictions**: Speed 1-2 can mine all, 3-4 planets only, 5+ instant collection only
-  - **Strategic depth**: Risk/reward decisions (speed vs mining, center vs edge, streak maintenance)
-  - **Final formula**: `Resources = base × quality × speed × position × streak`
-  - See `/docs/sector-exploration-module.md` lines 463-952 for complete specification
-- **Pursuing mothership**: Spawns behind player, accelerates to catch up (distance-based, not timer-based) - NOT YET IMPLEMENTED
-- **Alien sweep patterns**: Periodic sweeps across map that must be avoided or trigger combat - NOT YET IMPLEMENTED
-- No fog of war system (removed)
+### 1. Sector Exploration Module ✅ **BETA COMPLETE** - See `docs/sector-exploration-module-beta.md`
+
+**Status:** Fully playable with 13 focused systems (~2,500 total lines, all <300 line guideline)
+
+**Core Features:**
+- ✅ **Infinite scrolling** (automatic forward movement, 3-tile grid system)
+- ✅ **Lateral steering** (momentum physics, direction change resistance, decoupled visual rotation)
+- ✅ **Procedural node generation** (29+ types: planets, asteroids, debris, traders, stations)
+- ✅ **Orbiting nodes** (moons/satellites dynamically orbit planets)
+- ✅ **Proximity detection** (auto-collection on approach)
+
+**Special Mechanics:**
+- ✅ **Jump System** (SPACE key, 1-second charge):
+  - Hold SPACE for 1 second → arrows pulse when ready
+  - Press A (left) or D (right) to choose direction
+  - **Split fuel cost**: 3 fuel on SPACE press + 5 fuel on execution (8 total)
+  - Fixed 300px distance, 360° spin animation, 10-second cooldown
+  - Cancel before direction chosen (lose only 3 fuel)
+
+- ✅ **Boost System** (W key):
+  - +2.0x speed multiplier while held
+  - 1 fuel/second consumption
+  - Smooth acceleration/deceleration
+
+- ✅ **Brake System** (S key):
+  - Emergency stop (drops to 0.1x speed)
+  - Camera zoom out effect
+  - No fuel cost
+
+- ✅ **Gravity Assists** (automatic near planets):
+  - Speed multiplier varies by node type (CSV-driven)
+  - Can increase OR decrease speed
+
+- ✅ **Tractor Beam Collection** (automatic):
+  - Passive attraction (debris drifts toward player)
+  - Active beam lock (cyan visual beams, pulls debris)
+  - Multiple simultaneous beams (default: 3)
+  - Tunable via DebugManager
+
+- ✅ **Enemy Sweep Patterns** (13 attack types):
+  - Triple-sweep system (3 patterns per attack, 1-second stagger)
+  - Vertical, diagonal, pincer, wave formations
+  - 4-second warning flash before spawn
+  - Screen shake on collision
+  - CSV-driven patterns (`data/alien_sweep_patterns.csv`)
+
+**Resource Collection:**
+- ✅ **Auto-collection on proximity** (no manual tapping)
+- ✅ **Rarity system** (poor, standard, rich, abundant, jackpot)
+- ✅ **Streak multiplier** (+10% per consecutive same-resource, max 5 stacks)
+- ✅ **Flying icon animations** (AnimationManager integration)
+- ✅ **Number counting** (smooth value transitions)
+- ✅ **Panel pulse effects** (visual feedback on collection)
+- ⏳ **Speed multiplier** (planned: 1.0x-3.25x based on scroll speed)
+- ⏳ **Position multiplier** (planned: edge vs center bonuses)
+
+**Architecture:**
+- `sector_map.gd` (272 lines) - Clean coordinator
+- 13 focused system modules (scrolling, spawning, movement, jump, boost, brake, gravity, tractor, sweeps, camera, debug)
+- 3 new autoload managers (UIManager, AnimationManager, CollectionManager)
+- Debug UI (disabled by default, toggle in sector_map.gd:136-138)
+
+**Tunable Parameters:**
+- See `docs/sector-exploration-module-beta.md` for complete parameter reference with file locations
+- All spawn rates, speeds, costs, cooldowns documented with line numbers
+
+**Not Yet Implemented:**
+- ⏳ Mothership pursuit system
+- ⏳ Speed-based mining restrictions
+- ⏳ Position-based collection multipliers
 
 ### 2. Combat Module
 - **15 lanes** (vertical) × **~25 files** (horizontal) grid
